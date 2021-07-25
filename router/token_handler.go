@@ -3,7 +3,7 @@ package router
 import (
 	"authserver/common"
 	requesterror "authserver/common/request_error"
-	"authserver/database"
+	"authserver/data"
 	"authserver/models"
 	"log"
 	"net/http"
@@ -27,7 +27,7 @@ type PostTokenPasswordGrantBody struct {
 }
 
 // PostToken handles POST requests to "/token"
-func (h RouterFactory) postToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx database.Transaction) (int, interface{}) {
+func (h Handlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	var body PostTokenBody
 
 	//parse the body
@@ -51,7 +51,7 @@ func (h RouterFactory) postToken(req *http.Request, _ httprouter.Params, _ *mode
 	}
 }
 
-func (h RouterFactory) handlePasswordGrant(body PostTokenPasswordGrantBody, tx database.Transaction) (int, interface{}) {
+func (h Handlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.Transaction) (int, interface{}) {
 	//validate parameters
 	if body.Username == "" {
 		return common.NewOAuthErrorResponse("invalid_request", "missing username parameter")
@@ -86,7 +86,7 @@ func (h RouterFactory) handlePasswordGrant(body PostTokenPasswordGrantBody, tx d
 }
 
 // DeleteToken handles DELETE requests to "/token"
-func (h RouterFactory) deleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx database.Transaction) (int, interface{}) {
+func (h Handlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the token
 	rerr := h.Controllers.DeleteToken(tx, token)
 	if rerr.Type == requesterror.ErrorTypeClient {

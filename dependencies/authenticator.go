@@ -12,9 +12,7 @@ var authenticator router.Authenticator
 // Only the first call to this function will create a new Authenticator, after which it will be retrieved from memory.
 func ResolveAuthenticator() router.Authenticator {
 	createAuthenticatorOnce.Do(func() {
-		authenticator = &router.OAuthAuthenticator{
-			CRUD: ResolveDatabase(),
-		}
+		authenticator = &router.OAuthAuthenticator{}
 	})
 	return authenticator
 }

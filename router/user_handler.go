@@ -6,7 +6,7 @@ import (
 
 	"authserver/common"
 	requesterror "authserver/common/request_error"
-	"authserver/database"
+	"authserver/data"
 	"authserver/models"
 
 	"github.com/julienschmidt/httprouter"
@@ -19,7 +19,7 @@ type PostUserBody struct {
 }
 
 // PostUser handles Post requests to "/user"
-func (h RouterFactory) postUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx database.Transaction) (int, interface{}) {
+func (h Handlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
@@ -41,7 +41,7 @@ func (h RouterFactory) postUser(req *http.Request, _ httprouter.Params, _ *model
 }
 
 // DeleteUser handles DELETE requests to "/user"
-func (h RouterFactory) deleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx database.Transaction) (int, interface{}) {
+func (h Handlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
 	rerr := h.Controllers.DeleteUser(tx, token.User)
 	if rerr.Type == requesterror.ErrorTypeClient {
@@ -61,7 +61,7 @@ type PatchUserPasswordBody struct {
 }
 
 // PatchUserPassword handles PATCH requests to "/user/password"
-func (h RouterFactory) patchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx database.Transaction) (int, interface{}) {
+func (h Handlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody
 	err := parseJSONBody(req.Body, &body)

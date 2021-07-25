@@ -5,9 +5,8 @@ import (
 	requesterror "authserver/common/request_error"
 	"authserver/config"
 	"authserver/controllers"
-	"authserver/database"
+	"authserver/data"
 	"authserver/dependencies"
-	"authserver/models"
 	"flag"
 	"fmt"
 	"log"
@@ -29,48 +28,24 @@ func main() {
 
 	viper.Set("db_key", *dbKey)
 
-	user, err := Run(dependencies.ResolveDatabase(), dependencies.ResolveControllers(), dependencies.ResolveTransactionFactory(), *username, *password)
+	err = Run(dependencies.ResolveScopeFactory(), dependencies.ResolveControllers(), *username, *password)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("Created user:", user.ID.String())
 }
 
 // Run connects to the database and runs the admin creator. Returns any errors.
-func Run(db database.DBConnection, c controllers.UserController, tf database.TransactionFactory, username string, password string) (*models.User, error) {
-	//open the db connection
-	err := db.OpenConnection()
-	if err != nil {
-		return nil, common.ChainError("could not open database connection", err)
-	}
+func Run(sf data.IScopeFactory, c controllers.UserController, username string, password string) error {
+	return sf.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+		return sf.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+			//save the user
+			user, rerr := c.CreateUser(tx, username, password)
+			if rerr.Type != requesterror.ErrorTypeNone {
+				return false, common.ChainError("error creating user", rerr)
+			}
 
-	defer db.CloseConnection()
-
-	//check db is connected
-	err = db.Ping()
-	if err != nil {
-		return nil, common.ChainError("could not reach database", err)
-	}
-
-	//create a new transaction
-	tx, err := tf.CreateTransaction()
-	if err != nil {
-		return nil, err
-	}
-
-	//save the user, rollback transaction on error
-	user, rerr := c.CreateUser(tx, username, password)
-	if rerr.Type != requesterror.ErrorTypeNone {
-		tx.RollbackTransaction()
-		return nil, rerr
-	}
-
-	//commit the transaction
-	err = tx.CommitTransaction()
-	if err != nil {
-		return nil, err
-	}
-
-	return user, nil
+			fmt.Println("Created user:", user.ID.String())
+			return true, nil
+		})
+	})
 }

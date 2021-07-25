@@ -3,7 +3,6 @@ package e2e_test
 import (
 	"authserver/common"
 	"authserver/config"
-	"authserver/database"
 	"authserver/dependencies"
 	"authserver/server"
 	"net/http"
@@ -15,8 +14,7 @@ import (
 
 type E2ETestSuite struct {
 	suite.Suite
-	DBConnection database.DBConnection
-	Server       *httptest.Server
+	Server *httptest.Server
 }
 
 func (suite *E2ETestSuite) SetupSuite() {
@@ -25,10 +23,9 @@ func (suite *E2ETestSuite) SetupSuite() {
 
 	//set db key and create database
 	viper.Set("db_key", "integration")
-	suite.DBConnection = dependencies.ResolveDatabase()
 
 	//create the test server
-	runner := server.CreateHTTPTestServerRunner(suite.DBConnection, dependencies.ResolveRouterFactory())
+	runner := server.CreateHTTPTestServerRunner(dependencies.ResolveRouterFactory())
 	suite.Server = runner.Server.(*server.HTTPTestServer).Server
 
 	// run the server

@@ -3,7 +3,7 @@ package router_test
 import (
 	"authserver/common"
 	requesterror "authserver/common/request_error"
-	databasemocks "authserver/database/mocks"
+	datamocks "authserver/data/mocks"
 	"authserver/router"
 	"errors"
 	"net/http"
@@ -16,15 +16,13 @@ import (
 
 type OAuthAuthenticatorTestSuite struct {
 	suite.Suite
-	CRUDMock           databasemocks.CRUDOperations
+	CRUDMock           datamocks.DataCRUD
 	OAuthAuthenticator router.OAuthAuthenticator
 }
 
 func (suite *OAuthAuthenticatorTestSuite) SetupTest() {
-	suite.CRUDMock = databasemocks.CRUDOperations{}
-	suite.OAuthAuthenticator = router.OAuthAuthenticator{
-		CRUD: &suite.CRUDMock,
-	}
+	suite.CRUDMock = datamocks.DataCRUD{}
+	suite.OAuthAuthenticator = router.OAuthAuthenticator{}
 }
 
 func (suite *OAuthAuthenticatorTestSuite) TestAuthenticate_WithNoBearerToken_ReturnsClientRequestError() {
@@ -32,7 +30,7 @@ func (suite *OAuthAuthenticatorTestSuite) TestAuthenticate_WithNoBearerToken_Ret
 
 	testCase := func() {
 		//act
-		token, rerr := suite.OAuthAuthenticator.Authenticate(req)
+		token, rerr := suite.OAuthAuthenticator.Authenticate(&suite.CRUDMock, req)
 
 		//assert
 		suite.Nil(token)
@@ -53,7 +51,7 @@ func (suite *OAuthAuthenticatorTestSuite) TestAuthenticate_WithBearerTokenInInva
 	req := common.CreateRequest(&suite.Suite, "", "", "invalid", nil)
 
 	//act
-	token, rerr := suite.OAuthAuthenticator.Authenticate(req)
+	token, rerr := suite.OAuthAuthenticator.Authenticate(&suite.CRUDMock, req)
 
 	//assert
 	suite.Nil(token)
@@ -68,7 +66,7 @@ func (suite *OAuthAuthenticatorTestSuite) TestAuthenticate_WithErrorFetchingAcce
 	suite.CRUDMock.On("GetAccessTokenByID", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.OAuthAuthenticator.Authenticate(req)
+	token, rerr := suite.OAuthAuthenticator.Authenticate(&suite.CRUDMock, req)
 
 	//assert
 	suite.Nil(token)
@@ -83,7 +81,7 @@ func (suite *OAuthAuthenticatorTestSuite) TestAuthenticate_WhereAccessTokenWithI
 	suite.CRUDMock.On("GetAccessTokenByID", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.OAuthAuthenticator.Authenticate(req)
+	token, rerr := suite.OAuthAuthenticator.Authenticate(&suite.CRUDMock, req)
 
 	//assert
 	suite.Nil(token)

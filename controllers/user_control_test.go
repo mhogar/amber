@@ -4,7 +4,7 @@ import (
 	"authserver/controllers"
 	passwordhelpers "authserver/controllers/password_helpers"
 	passwordhelpermocks "authserver/controllers/password_helpers/mocks"
-	databasemocks "authserver/database/mocks"
+	datamocks "authserver/data/mocks"
 	"authserver/models"
 	"errors"
 	"fmt"
@@ -16,14 +16,14 @@ import (
 
 type UserControlTestSuite struct {
 	suite.Suite
-	CRUDMock                      databasemocks.CRUDOperations
+	CRUDMock                      datamocks.DataCRUD
 	PasswordHasherMock            passwordhelpermocks.PasswordHasher
 	PasswordCriteriaValidatorMock passwordhelpermocks.PasswordCriteriaValidator
 	UserControl                   controllers.UserControl
 }
 
 func (suite *UserControlTestSuite) SetupTest() {
-	suite.CRUDMock = databasemocks.CRUDOperations{}
+	suite.CRUDMock = datamocks.DataCRUD{}
 	suite.PasswordHasherMock = passwordhelpermocks.PasswordHasher{}
 	suite.PasswordCriteriaValidatorMock = passwordhelpermocks.PasswordCriteriaValidator{}
 	suite.UserControl = controllers.UserControl{

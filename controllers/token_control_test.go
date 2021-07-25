@@ -2,6 +2,7 @@ package controllers_test
 
 import (
 	"authserver/controllers"
+	datamocks "authserver/data/mocks"
 	"authserver/models"
 	"errors"
 	"testing"
@@ -9,7 +10,6 @@ import (
 	"github.com/stretchr/testify/mock"
 
 	passwordhelpermocks "authserver/controllers/password_helpers/mocks"
-	databasemocks "authserver/database/mocks"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -17,13 +17,13 @@ import (
 
 type TokenControlTestSuite struct {
 	suite.Suite
-	CRUDMock           databasemocks.CRUDOperations
+	CRUDMock           datamocks.DataCRUD
 	PasswordHasherMock passwordhelpermocks.PasswordHasher
 	TokenControl       controllers.TokenControl
 }
 
 func (suite *TokenControlTestSuite) SetupTest() {
-	suite.CRUDMock = databasemocks.CRUDOperations{}
+	suite.CRUDMock = datamocks.DataCRUD{}
 	suite.PasswordHasherMock = passwordhelpermocks.PasswordHasher{}
 	suite.TokenControl = controllers.TokenControl{
 		PasswordHasher: &suite.PasswordHasherMock,

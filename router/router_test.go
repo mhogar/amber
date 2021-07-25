@@ -1,7 +1,6 @@
 package router_test
 
 import (
-	controllermocks "authserver/controllers/mocks"
 	databasemocks "authserver/database/mocks"
 	"authserver/router"
 	"authserver/router/mocks"
@@ -12,7 +11,6 @@ import (
 
 type RouterTestSuite struct {
 	suite.Suite
-	ControllersMock        controllermocks.Controllers
 	AuthenticatorMock      mocks.Authenticator
 	TransactionFactoryMock databasemocks.TransactionFactory
 	TransactionMock        databasemocks.Transaction
@@ -20,7 +18,6 @@ type RouterTestSuite struct {
 }
 
 func (suite *RouterTestSuite) SetupTest() {
-	suite.ControllersMock = controllermocks.Controllers{}
 	suite.AuthenticatorMock = mocks.Authenticator{}
 	suite.TransactionFactoryMock = databasemocks.TransactionFactory{}
 	suite.TransactionMock = databasemocks.Transaction{}
@@ -28,7 +25,6 @@ func (suite *RouterTestSuite) SetupTest() {
 	suite.TransactionMock.On("RollbackTransaction")
 
 	rf := router.RouterFactory{
-		Controllers:        &suite.ControllersMock,
 		Authenticator:      &suite.AuthenticatorMock,
 		TransactionFactory: &suite.TransactionFactoryMock,
 	}

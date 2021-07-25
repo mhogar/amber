@@ -1,9 +1,8 @@
 package router
 
 import (
-	"authserver/common"
 	requesterror "authserver/common/request_error"
-	"authserver/database"
+	"authserver/data"
 	"authserver/models"
 	"log"
 	"net/http"
@@ -11,48 +10,38 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type handlerFunc func(req *http.Request, params httprouter.Params, token *models.AccessToken, tx database.Transaction) (int, interface{})
+type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 
 func (h RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var token *models.AccessToken
 		var rerr requesterror.RequestError
 
-		//authenticate the user if required
-		if authenticateUser {
-			token, rerr = h.Authenticator.Authenticate(req)
-			if rerr.Type == requesterror.ErrorTypeClient {
-				sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
-				return
-			} else if rerr.Type == requesterror.ErrorTypeInternal {
-				sendInternalErrorResponse(w)
-				return
+		err := h.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+			//authenticate the user if required
+			if authenticateUser {
+				token, rerr = h.Authenticator.Authenticate(exec, req)
+				if rerr.Type == requesterror.ErrorTypeClient {
+					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
+					return nil
+				} else if rerr.Type == requesterror.ErrorTypeInternal {
+					sendInternalErrorResponse(w)
+					return nil
+				}
 			}
-		}
 
-		//start a new transaction
-		tx, err := h.TransactionFactory.CreateTransaction()
+			//handle route in transaction scope
+			return h.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+				status, body := handler(req, params, token, tx)
+				sendResponse(w, status, body)
+
+				return status == http.StatusOK, nil
+			})
+		})
+
 		if err != nil {
-			log.Println(common.ChainError("error creating transaction", err))
+			log.Println(err)
 			sendInternalErrorResponse(w)
-			return
 		}
-
-		//execute the handler, commit the transaction on success, rollback on error
-		status, body := handler(req, params, token, tx)
-		if status == http.StatusOK {
-			//commit the transaction
-			err = tx.CommitTransaction()
-			if err != nil {
-				log.Println(common.ChainError("error commiting transaction", err))
-				sendInternalErrorResponse(w)
-				return
-			}
-		} else {
-			tx.RollbackTransaction()
-		}
-
-		//send the response
-		sendResponse(w, status, body)
 	}
 }

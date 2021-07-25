@@ -12,12 +12,10 @@ import (
 )
 
 // OAuthAuthenticator is an OAuth implementation of the Authenticator interface.
-type OAuthAuthenticator struct {
-	CRUD models.AccessTokenCRUD
-}
+type OAuthAuthenticator struct{}
 
 // Authenticate attempts to create an access token from the given http request.
-func (a OAuthAuthenticator) Authenticate(req *http.Request) (*models.AccessToken, requesterror.RequestError) {
+func (a OAuthAuthenticator) Authenticate(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, requesterror.RequestError) {
 	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {
@@ -32,7 +30,7 @@ func (a OAuthAuthenticator) Authenticate(req *http.Request) (*models.AccessToken
 	}
 
 	//fetch the token
-	token, err := a.CRUD.GetAccessTokenByID(tokenID)
+	token, err := CRUD.GetAccessTokenByID(tokenID)
 	if err != nil {
 		log.Println(common.ChainError("error getting access token by id", err))
 		return nil, requesterror.InternalError()

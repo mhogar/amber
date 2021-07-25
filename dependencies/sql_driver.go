@@ -1,8 +1,8 @@
 package dependencies
 
 import (
-	sqladapter "authserver/database/sql_adapter"
-	"authserver/database/sql_adapter/postgres"
+	sqladapter "authserver/data/database/sql_adapter"
+	"authserver/data/database/sql_adapter/postgres"
 	"sync"
 )
 

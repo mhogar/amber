@@ -15,9 +15,8 @@ type UserE2ETestSuite struct {
 }
 
 func (suite *UserE2ETestSuite) TearDownSuite() {
-	//close server and db connection
+	//close server
 	suite.Server.Close()
-	suite.DBConnection.CloseConnection()
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUser() {

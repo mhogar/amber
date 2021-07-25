@@ -3,7 +3,7 @@ package main_test
 import (
 	requesterror "authserver/common/request_error"
 	controllermocks "authserver/controllers/mocks"
-	databasemocks "authserver/database/mocks"
+	datamocks "authserver/data/mocks"
 	"authserver/models"
 	admincreator "authserver/tools/admin_creator"
 	"errors"
@@ -15,55 +15,31 @@ import (
 
 type AdminCreatorTestSuite struct {
 	suite.Suite
-	DBConnectionMock       databasemocks.DBConnection
-	ControllersMock        controllermocks.Controllers
-	TransactionFactoryMock databasemocks.TransactionFactory
-	TransactionMock        databasemocks.Transaction
+	ControllersMock controllermocks.Controllers
+	DataAdpaterMock datamocks.DataAdapter
+	TransactionMock datamocks.Transaction
 }
 
 func (suite *AdminCreatorTestSuite) SetupTest() {
-	suite.DBConnectionMock = databasemocks.DBConnection{}
 	suite.ControllersMock = controllermocks.Controllers{}
-	suite.TransactionFactoryMock = databasemocks.TransactionFactory{}
-	suite.TransactionMock = databasemocks.Transaction{}
+	suite.DataAdpaterMock = datamocks.DataAdapter{}
+	suite.TransactionMock = datamocks.Transaction{}
 
-	suite.TransactionMock.On("RollbackTransaction")
+	suite.TransactionMock.On("Rollback")
 }
 
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorOpeningDatabaseConnection_ReturnsError() {
+func (suite *AdminCreatorTestSuite) TestRun_WithErrorSettingUpDataAdapter_ReturnsError() {
 	//arrange
 	username := "username"
 	password := "password"
 
-	message := "OpenConnection test error"
-	suite.DBConnectionMock.On("OpenConnection").Return(errors.New(message))
+	message := "Setup test error"
+	suite.DataAdpaterMock.On("Setup").Return(errors.New(message))
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	user, err := admincreator.Run(&suite.DataAdpaterMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorPingingDatabase_ReturnsError() {
-	//arrange
-	username := "username"
-	password := "password"
-
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-
-	message := "Ping test error"
-	suite.DBConnectionMock.On("Ping").Return(errors.New(message))
-
-	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
-
-	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-
 	suite.Nil(user)
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), message)
@@ -74,43 +50,41 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingTransaction_Returns
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
+	suite.DataAdpaterMock.On("Setup").Return(nil)
+	suite.DataAdpaterMock.On("CleanUp").Return(nil)
 
 	message := "create transaction error"
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(nil, errors.New(message))
+	suite.DataAdpaterMock.On("CreateTransaction").Return(nil, errors.New(message))
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	user, err := admincreator.Run(&suite.DataAdpaterMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "CleanUp")
 
 	suite.Nil(user)
 	suite.Require().Error(err)
 	suite.Contains(err.Error(), message)
 }
 
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError() {
+func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_RollbacksTransactionReturnsError() {
 	//arrange
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
+	suite.DataAdpaterMock.On("Setup").Return(nil)
+	suite.DataAdpaterMock.On("CleanUp").Return(nil)
+	suite.DataAdpaterMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
 
 	message := "create user error"
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, requesterror.ClientError(message))
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	user, err := admincreator.Run(&suite.DataAdpaterMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-	suite.TransactionMock.AssertCalled(suite.T(), "RollbackTransaction")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "CleanUp")
+	suite.TransactionMock.AssertCalled(suite.T(), "Rollback")
 
 	suite.Nil(user)
 	suite.Require().Error(err)
@@ -122,20 +96,19 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCommitingTransaction_Return
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
+	suite.DataAdpaterMock.On("Setup").Return(nil)
+	suite.DataAdpaterMock.On("CleanUp").Return(nil)
+	suite.ControllersMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, requesterror.NoError())
 
 	message := "commit transaction error"
-	suite.TransactionMock.On("CommitTransaction").Return(errors.New(message))
+	suite.TransactionMock.On("Commit").Return(errors.New(message))
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	user, err := admincreator.Run(&suite.DataAdpaterMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "CleanUp")
 
 	suite.Nil(user)
 	suite.Require().Error(err)
@@ -147,24 +120,22 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
+	suite.DataAdpaterMock.On("Setup").Return(nil)
+	suite.DataAdpaterMock.On("CleanUp").Return(nil)
+	suite.DataAdpaterMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, requesterror.NoError())
 	suite.TransactionMock.On("CommitTransaction").Return(nil)
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	user, err := admincreator.Run(&suite.DataAdpaterMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "OpenConnection")
-	suite.DBConnectionMock.AssertCalled(suite.T(), "Ping")
-	suite.TransactionFactoryMock.AssertCalled(suite.T(), "CreateTransaction")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "Setup")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "CreateTransaction")
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", mock.Anything, username, password)
-	suite.TransactionMock.AssertCalled(suite.T(), "CommitTransaction")
-	suite.TransactionMock.AssertNotCalled(suite.T(), "RollbackTransaction")
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
+	suite.TransactionMock.AssertCalled(suite.T(), "Commit")
+	suite.TransactionMock.AssertNotCalled(suite.T(), "Rollback")
+	suite.DataAdpaterMock.AssertCalled(suite.T(), "Setup")
 
 	suite.NoError(err)
 	suite.NotNil(user)
