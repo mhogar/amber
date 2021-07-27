@@ -1,9 +1,9 @@
 package main_test
 
 import (
-	datamocks "authserver/data/mocks"
+	testhelpers "authserver/testing"
 	migrationrunner "authserver/tools/migration_runner"
-	"authserver/tools/migration_runner/mocks"
+	"authserver/tools/migration_runner/interfaces/mocks"
 	"errors"
 	"testing"
 
@@ -13,77 +13,75 @@ import (
 
 type MigrationRunnerTestSuite struct {
 	suite.Suite
-	ScopeFactoryMock           datamocks.IScopeFactory
+	testhelpers.ScopeFactorySuite
 	MigrationRunnerFactoryMock mocks.IMigrationRunnerFactory
 	MigrationRunnerMock        mocks.MigrationRunner
 }
 
 func (suite *MigrationRunnerTestSuite) SetupTest() {
-	suite.ScopeFactoryMock = datamocks.IScopeFactory{}
+	suite.ScopeFactorySuite.SetupTest()
+
 	suite.MigrationRunnerFactoryMock = mocks.IMigrationRunnerFactory{}
 	suite.MigrationRunnerMock = mocks.MigrationRunner{}
 
 	suite.MigrationRunnerFactoryMock.On("CreateMigrationRunner", mock.Anything).Return(&suite.MigrationRunnerMock)
 }
 
-func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigration() {
+func (suite *MigrationRunnerTestSuite) TestRun_WithErrorFromDataExecutorScope_ReturnsError() {
 	//arrange
-	suite.MigrationRunnerMock.On("MigrateUp").Return(nil)
+	message := "data executor scope error"
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(message))
 
 	//act
 	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
 
 	//assert
-	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateUp")
-	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateDown")
-
-	suite.NoError(err)
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), message)
 }
 
-func (suite *MigrationRunnerTestSuite) TestRun_WithErrorRunningUpMigration_ReturnsError() {
+func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndReturnsResultToDataExecutorScope() {
 	//arrange
 	message := "MigrateUp test error"
 	suite.MigrationRunnerMock.On("MigrateUp").Return(errors.New(message))
 
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope_WithCallback(nil, func(err error) {
+		suite.Require().Error(err)
+		suite.Contains(err.Error(), message)
+	})
+
 	//act
 	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
 
 	//assert
+	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
+	suite.MigrationRunnerFactoryMock.AssertCalled(suite.T(), "CreateMigrationRunner", &suite.DataExecutorMock)
 	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateUp")
 	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateDown")
-
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigration() {
-	//arrange
-	suite.MigrationRunnerMock.On("MigrateDown").Return(nil)
-
-	//act
-	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, true)
-
-	//assert
-	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateDown")
-	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateUp")
 
 	suite.NoError(err)
 }
 
-func (suite *MigrationRunnerTestSuite) TestRun_WithErrorRunningDownMigration_ReturnsError() {
+func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAndReturnsResultToDataExecutorScope() {
 	//arrange
 	message := "MigrateDown test error"
 	suite.MigrationRunnerMock.On("MigrateDown").Return(errors.New(message))
+
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope_WithCallback(nil, func(err error) {
+		suite.Require().Error(err)
+		suite.Contains(err.Error(), message)
+	})
 
 	//act
 	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, true)
 
 	//assert
+	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
+	suite.MigrationRunnerFactoryMock.AssertCalled(suite.T(), "CreateMigrationRunner", &suite.DataExecutorMock)
 	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateDown")
 	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateUp")
 
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
+	suite.NoError(err)
 }
 
 func TestMigrationRunnerTestSuite(t *testing.T) {
