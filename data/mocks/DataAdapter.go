@@ -27,27 +27,20 @@ func (_m *DataAdapter) CleanUp() error {
 	return r0
 }
 
-// CreateTransaction provides a mock function with given fields:
-func (_m *DataAdapter) CreateTransaction() (data.Transaction, error) {
+// GetExecutor provides a mock function with given fields:
+func (_m *DataAdapter) GetExecutor() data.DataExecutor {
 	ret := _m.Called()
 
-	var r0 data.Transaction
-	if rf, ok := ret.Get(0).(func() data.Transaction); ok {
+	var r0 data.DataExecutor
+	if rf, ok := ret.Get(0).(func() data.DataExecutor); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(data.Transaction)
+			r0 = ret.Get(0).(data.DataExecutor)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Setup provides a mock function with given fields:

@@ -27,20 +27,7 @@ func (suite *MigrationRunnerTestSuite) SetupTest() {
 	suite.MigrationRunnerFactoryMock.On("CreateMigrationRunner", mock.Anything).Return(&suite.MigrationRunnerMock)
 }
 
-func (suite *MigrationRunnerTestSuite) TestRun_WithErrorFromDataExecutorScope_ReturnsError() {
-	//arrange
-	message := "data executor scope error"
-	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(message))
-
-	//act
-	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
-
-	//assert
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndReturnsResultToDataExecutorScope() {
+func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndReturnsResult() {
 	//arrange
 	message := "MigrateUp test error"
 	suite.MigrationRunnerMock.On("MigrateUp").Return(errors.New(message))
@@ -62,7 +49,7 @@ func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndR
 	suite.NoError(err)
 }
 
-func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAndReturnsResultToDataExecutorScope() {
+func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAndReturnsResult() {
 	//arrange
 	message := "MigrateDown test error"
 	suite.MigrationRunnerMock.On("MigrateDown").Return(errors.New(message))

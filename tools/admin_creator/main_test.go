@@ -6,7 +6,6 @@ import (
 	"authserver/models"
 	testhelpers "authserver/testing"
 	admincreator "authserver/tools/admin_creator"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -24,20 +23,7 @@ func (suite *AdminCreatorTestSuite) SetupTest() {
 	suite.ControllersMock = controllermocks.Controllers{}
 }
 
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorFromDataExecutorScope_ReturnsError() {
-	//arrange
-	message := "data executor scope error"
-	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(message))
-
-	//act
-	err := admincreator.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, "", "")
-
-	//assert
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsErrorToTransactionScope() {
+func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError() {
 	//arrange
 	username := "username"
 	password := "password"
