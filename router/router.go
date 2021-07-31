@@ -1,26 +1,15 @@
 package router
 
 import (
-	"authserver/controllers"
+	requesterror "authserver/common/request_error"
 	"authserver/data"
 	"authserver/models"
+	"authserver/router/handlers"
+	"log"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
 )
-
-type IHandlers interface {
-	PostUser(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
-	DeleteUser(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
-	PatchUserPassword(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
-
-	PostToken(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
-	DeleteToken(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
-}
-
-type Handlers struct {
-	Controllers controllers.Controllers
-}
 
 type IRouterFactory interface {
 	CreateRouter() *httprouter.Router
@@ -29,7 +18,7 @@ type IRouterFactory interface {
 type RouterFactory struct {
 	Authenticator Authenticator
 	ScopeFactory  data.IScopeFactory
-	Handlers      IHandlers
+	Handlers      handlers.IHandlers
 }
 
 // CreateRouter creates a new httprouter with the endpoints and panic handler configured.
@@ -47,4 +36,40 @@ func (rf RouterFactory) CreateRouter() *httprouter.Router {
 	r.DELETE("/token", rf.createHandler(rf.Handlers.DeleteToken, true))
 
 	return r
+}
+
+type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
+
+func (h RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
+	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
+		var token *models.AccessToken
+		var rerr requesterror.RequestError
+
+		err := h.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+			//authenticate the user if required
+			if authenticateUser {
+				token, rerr = h.Authenticator.Authenticate(exec, req)
+				if rerr.Type == requesterror.ErrorTypeClient {
+					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
+					return nil
+				} else if rerr.Type == requesterror.ErrorTypeInternal {
+					sendInternalErrorResponse(w)
+					return nil
+				}
+			}
+
+			//handle route in transaction scope
+			return h.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+				status, body := handler(req, params, token, tx)
+				sendResponse(w, status, body)
+
+				return status == http.StatusOK, nil
+			})
+		})
+
+		if err != nil {
+			log.Println(err)
+			sendInternalErrorResponse(w)
+		}
+	}
 }

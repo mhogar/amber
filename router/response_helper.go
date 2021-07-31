@@ -3,22 +3,9 @@ package router
 import (
 	"authserver/common"
 	"encoding/json"
-	"errors"
-	"io"
 	"log"
 	"net/http"
 )
-
-func parseJSONBody(r io.Reader, v interface{}) error {
-	decoder := json.NewDecoder(r)
-	err := decoder.Decode(v)
-	if err != nil {
-		log.Println(err)
-		return errors.New("invalid request body")
-	}
-
-	return nil
-}
 
 func sendResponse(w http.ResponseWriter, status int, res interface{}) {
 	//set the header

@@ -1,4 +1,4 @@
-package router_test
+package handlers_test
 
 import (
 	"authserver/common"

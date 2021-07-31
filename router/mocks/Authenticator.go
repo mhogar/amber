@@ -16,13 +16,13 @@ type Authenticator struct {
 	mock.Mock
 }
 
-// Authenticate provides a mock function with given fields: req
-func (_m *Authenticator) Authenticate(req *http.Request) (*models.AccessToken, requesterror.RequestError) {
-	ret := _m.Called(req)
+// Authenticate provides a mock function with given fields: CRUD, req
+func (_m *Authenticator) Authenticate(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, requesterror.RequestError) {
+	ret := _m.Called(CRUD, req)
 
 	var r0 *models.AccessToken
-	if rf, ok := ret.Get(0).(func(*http.Request) *models.AccessToken); ok {
-		r0 = rf(req)
+	if rf, ok := ret.Get(0).(func(models.AccessTokenCRUD, *http.Request) *models.AccessToken); ok {
+		r0 = rf(CRUD, req)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessToken)
@@ -30,8 +30,8 @@ func (_m *Authenticator) Authenticate(req *http.Request) (*models.AccessToken, r
 	}
 
 	var r1 requesterror.RequestError
-	if rf, ok := ret.Get(1).(func(*http.Request) requesterror.RequestError); ok {
-		r1 = rf(req)
+	if rf, ok := ret.Get(1).(func(models.AccessTokenCRUD, *http.Request) requesterror.RequestError); ok {
+		r1 = rf(CRUD, req)
 	} else {
 		r1 = ret.Get(1).(requesterror.RequestError)
 	}
