@@ -53,6 +53,6 @@ type TokenController interface {
 
 // Controls encapsulates all other control structs.
 type Controls struct {
-	UserControl
-	TokenControl
+	CoreUserController
+	CoreTokenController
 }

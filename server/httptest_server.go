@@ -11,7 +11,7 @@ type HTTPTestServer struct {
 }
 
 // CreateHTTPTestServerRunner creates a server runner using an httptest server.
-func CreateHTTPTestServerRunner(routerFactory router.IRouterFactory) Runner {
+func CreateHTTPTestServerRunner(routerFactory router.RouterFactory) Runner {
 	return Runner{
 		Server: &HTTPTestServer{
 			Server: httptest.NewUnstartedServer(routerFactory.CreateRouter()),

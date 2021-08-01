@@ -9,7 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type IHandlers interface {
+type Handlers interface {
 	PostUser(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 	DeleteUser(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 	PatchUserPassword(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
@@ -18,6 +18,6 @@ type IHandlers interface {
 	DeleteToken(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 }
 
-type Handlers struct {
+type CoreHandlers struct {
 	Controllers controllers.Controllers
 }

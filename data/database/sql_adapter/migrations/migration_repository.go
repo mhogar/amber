@@ -8,8 +8,8 @@ import (
 
 // MigrationRepository is an implementation of the MigrationRepository interface that fetches migrations for the sql db.
 type MigrationRepository struct {
-	Executor     data.DataExecutor
-	ScopeFactory data.IScopeFactory
+	Executor         data.DataExecutor
+	CoreScopeFactory data.ScopeFactory
 }
 
 // GetMigrations returns a slice of Migrations that need to be run on the sql database.
@@ -20,12 +20,12 @@ func (repo MigrationRepository) GetMigrations() []migrationrunner.Migration {
 }
 
 type SQLMigrationRepositoryFactory struct {
-	ScopeFactory data.IScopeFactory
+	CoreScopeFactory data.ScopeFactory
 }
 
 func (f SQLMigrationRepositoryFactory) CreateMigrationRepository(exec data.DataExecutor) migrationrunner.MigrationRepository {
 	return &MigrationRepository{
-		Executor:     exec,
-		ScopeFactory: f.ScopeFactory,
+		Executor:         exec,
+		CoreScopeFactory: f.CoreScopeFactory,
 	}
 }

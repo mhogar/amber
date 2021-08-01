@@ -19,7 +19,7 @@ import (
 
 type RouterTestSuite struct {
 	helpers.ScopeFactorySuite
-	HandlersMock handlermocks.IHandlers
+	HandlersMock handlermocks.Handlers
 	Router       *httprouter.Router
 
 	Method  string
@@ -30,13 +30,13 @@ type RouterTestSuite struct {
 
 func (suite *RouterTestSuite) SetupTest() {
 	suite.ScopeFactorySuite.SetupTest()
-	suite.HandlersMock = handlermocks.IHandlers{}
+	suite.HandlersMock = handlermocks.Handlers{}
 
 	suite.TokenId = ""
 
-	rf := router.RouterFactory{
-		ScopeFactory: &suite.ScopeFactoryMock,
-		Handlers:     &suite.HandlersMock,
+	rf := router.CoreRouterFactory{
+		CoreScopeFactory: &suite.ScopeFactoryMock,
+		CoreHandlers:     &suite.HandlersMock,
 	}
 	suite.Router = rf.CreateRouter()
 }

@@ -9,13 +9,13 @@ import (
 	"github.com/google/uuid"
 )
 
-// TokenControl handles requests to "/token" endpoints
-type TokenControl struct {
+// CoreTokenController handles requests to "/token" endpoints
+type CoreTokenController struct {
 	PasswordHasher passwordhelpers.PasswordHasher
 }
 
 // PostToken handles POST requests to "/token"
-func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
+func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
 	//get the client
 	client, rerr := parseClient(CRUD, clientID)
 	if rerr.Type != common.ErrorTypeNone {
@@ -61,7 +61,7 @@ func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username
 }
 
 // DeleteToken deletes the access token.
-func (c TokenControl) DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
+func (c CoreTokenController) DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAccessToken(token)
 	if err != nil {
@@ -74,7 +74,7 @@ func (c TokenControl) DeleteToken(CRUD TokenControllerCRUD, token *models.Access
 }
 
 // DeleteToken deletes all of the user's tokens accept for the provided one.
-func (c TokenControl) DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
+func (c CoreTokenController) DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAllOtherUserTokens(token)
 	if err != nil {

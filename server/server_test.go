@@ -10,11 +10,11 @@ import (
 
 type ServerTestSuite struct {
 	suite.Suite
-	RouterFactoryMock routermocks.IRouterFactory
+	RouterFactoryMock routermocks.RouterFactory
 }
 
 func (suite *ServerTestSuite) SetupTest() {
-	suite.RouterFactoryMock = routermocks.IRouterFactory{}
+	suite.RouterFactoryMock = routermocks.RouterFactory{}
 }
 
 func (suite *ServerTestSuite) TestCreateHTTPServerRunner_CreatesRunnerUsingHTTPServer() {

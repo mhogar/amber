@@ -14,14 +14,14 @@ import (
 type MigrationRunnerTestSuite struct {
 	suite.Suite
 	helpers.ScopeFactorySuite
-	MigrationRunnerFactoryMock mocks.IMigrationRunnerFactory
+	MigrationRunnerFactoryMock mocks.MigrationRunnerFactory
 	MigrationRunnerMock        mocks.MigrationRunner
 }
 
 func (suite *MigrationRunnerTestSuite) SetupTest() {
 	suite.ScopeFactorySuite.SetupTest()
 
-	suite.MigrationRunnerFactoryMock = mocks.IMigrationRunnerFactory{}
+	suite.MigrationRunnerFactoryMock = mocks.MigrationRunnerFactory{}
 	suite.MigrationRunnerMock = mocks.MigrationRunner{}
 
 	suite.MigrationRunnerFactoryMock.On("CreateMigrationRunner", mock.Anything).Return(&suite.MigrationRunnerMock)

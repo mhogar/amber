@@ -22,7 +22,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInvalidJSONBody_ReturnsInv
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -35,7 +35,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithMissingGrantType_ReturnsIn
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -50,7 +50,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithUnsupportedGrantType_Retur
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -70,7 +70,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParam
 		req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 		//act
-		status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+		status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 		//assert
 		suite.Equal(http.StatusBadRequest, status)
@@ -124,7 +124,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithErrorParsing
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -149,7 +149,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithClientErrorC
 	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.OAuthClientError(errorName, message))
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -172,7 +172,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErro
 	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.OAuthInternalError())
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusInternalServerError, status)
@@ -198,7 +198,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithValidRequest
 	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(token, common.OAuthNoError())
 
 	//act
-	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusOK, status)
@@ -215,7 +215,7 @@ func (suite *TokenHandlerTestSuite) TestDeleteToken_WithClientErrorDeletingToken
 	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
@@ -229,7 +229,7 @@ func (suite *TokenHandlerTestSuite) TestDeleteToken_WithInternalErrorDeletingTok
 	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusInternalServerError, status)
@@ -243,7 +243,7 @@ func (suite *TokenHandlerTestSuite) TestDeleteToken_WithValidRequest_ReturnsSucc
 	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
+	status, res := suite.CoreHandlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusOK, status)

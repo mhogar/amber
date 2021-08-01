@@ -18,7 +18,7 @@ type PostUserBody struct {
 }
 
 // PostUser handles Post requests to "/user"
-func (h Handlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
@@ -40,7 +40,7 @@ func (h Handlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Acc
 }
 
 // DeleteUser handles DELETE requests to "/user"
-func (h Handlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
 	rerr := h.Controllers.DeleteUser(tx, token.User)
 	if rerr.Type == common.ErrorTypeClient {
@@ -60,7 +60,7 @@ type PatchUserPasswordBody struct {
 }
 
 // PatchUserPassword handles PATCH requests to "/user/password"
-func (h Handlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody
 	err := parseJSONBody(req.Body, &body)

@@ -12,15 +12,15 @@ type MigrationRunner interface {
 	MigrateDown() error
 }
 
-type IMigrationRunnerFactory interface {
+type MigrationRunnerFactory interface {
 	CreateMigrationRunner(data.DataExecutor) MigrationRunner
 }
 
-type MigrationRunnerFactory struct {
+type CoreMigrationRunnerFactory struct {
 	MigrationRepositoryFactory data.MigrationRepositoryFactory
 }
 
-func (mrf MigrationRunnerFactory) CreateMigrationRunner(exec data.DataExecutor) MigrationRunner {
+func (mrf CoreMigrationRunnerFactory) CreateMigrationRunner(exec data.DataExecutor) MigrationRunner {
 	return migrationrunner.MigrationRunner{
 		MigrationRepository: mrf.MigrationRepositoryFactory.CreateMigrationRepository(exec),
 		MigrationCRUD:       exec,

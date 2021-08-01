@@ -4,16 +4,16 @@ import (
 	"authserver/common"
 )
 
-type IScopeFactory interface {
+type ScopeFactory interface {
 	CreateDataExecutorScope(func(DataExecutor) error) error
 	CreateTransactionScope(DataExecutor, func(Transaction) (bool, error)) error
 }
 
-type ScopeFactory struct {
+type CoreScopeFactory struct {
 	DataAdapter DataAdapter
 }
 
-func (sf ScopeFactory) CreateDataExecutorScope(body func(DataExecutor) error) error {
+func (sf CoreScopeFactory) CreateDataExecutorScope(body func(DataExecutor) error) error {
 	//init the data adapter
 	err := sf.DataAdapter.Setup()
 	if err != nil {
@@ -25,7 +25,7 @@ func (sf ScopeFactory) CreateDataExecutorScope(body func(DataExecutor) error) er
 	return body(sf.DataAdapter.GetExecutor())
 }
 
-func (sf ScopeFactory) CreateTransactionScope(exec DataExecutor, body func(Transaction) (bool, error)) error {
+func (sf CoreScopeFactory) CreateTransactionScope(exec DataExecutor, body func(Transaction) (bool, error)) error {
 	tx, err := exec.CreateTransaction()
 	if err != nil {
 		return common.ChainError("error creating transaction", err)

@@ -26,7 +26,7 @@ type PostTokenPasswordGrantBody struct {
 }
 
 // PostToken handles POST requests to "/token"
-func (h Handlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	var body PostTokenBody
 
 	//parse the body
@@ -50,7 +50,7 @@ func (h Handlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.Ac
 	}
 }
 
-func (h Handlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.Transaction) (int, interface{}) {
 	//validate parameters
 	if body.Username == "" {
 		return common.NewOAuthErrorResponse("invalid_request", "missing username parameter")
@@ -85,7 +85,7 @@ func (h Handlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.T
 }
 
 // DeleteToken handles DELETE requests to "/token"
-func (h Handlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the token
 	rerr := h.Controllers.DeleteToken(tx, token)
 	if rerr.Type == common.ErrorTypeClient {

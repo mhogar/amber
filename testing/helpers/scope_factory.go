@@ -10,13 +10,13 @@ import (
 
 type ScopeFactorySuite struct {
 	suite.Suite
-	ScopeFactoryMock mocks.IScopeFactory
+	ScopeFactoryMock mocks.ScopeFactory
 	DataExecutorMock mocks.DataExecutor
 	TransactionMock  mocks.Transaction
 }
 
 func (suite *ScopeFactorySuite) SetupTest() {
-	suite.ScopeFactoryMock = mocks.IScopeFactory{}
+	suite.ScopeFactoryMock = mocks.ScopeFactory{}
 	suite.DataExecutorMock = mocks.DataExecutor{}
 	suite.TransactionMock = mocks.Transaction{}
 

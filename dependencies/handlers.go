@@ -6,13 +6,13 @@ import (
 )
 
 var createHandlersOnce sync.Once
-var handlers handlerspkg.IHandlers
+var handlers handlerspkg.Handlers
 
-// ResolveHandlers resolves the IHandlers dependency.
-// Only the first call to this function will create a new IHandlers, after which it will be retrieved from memory.
-func ResolveHandlers() handlerspkg.IHandlers {
+// ResolveHandlers resolves the Handlers dependency.
+// Only the first call to this function will create a new Handlers, after which it will be retrieved from memory.
+func ResolveHandlers() handlerspkg.Handlers {
 	createHandlersOnce.Do(func() {
-		handlers = handlerspkg.Handlers{
+		handlers = handlerspkg.CoreHandlers{
 			Controllers: ResolveControllers(),
 		}
 	})

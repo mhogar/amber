@@ -25,7 +25,7 @@ func main() {
 
 	viper.Set("db_key", *dbKey)
 
-	mrf := interfaces.MigrationRunnerFactory{
+	mrf := interfaces.CoreMigrationRunnerFactory{
 		MigrationRepositoryFactory: dependencies.ResolveMigrationRepositoryFactory(),
 	}
 
@@ -36,7 +36,7 @@ func main() {
 }
 
 // Run runs the migration runner. Returns any errors.
-func Run(sf data.IScopeFactory, mrf interfaces.IMigrationRunnerFactory, down bool) error {
+func Run(sf data.ScopeFactory, mrf interfaces.MigrationRunnerFactory, down bool) error {
 	return sf.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 		mr := mrf.CreateMigrationRunner(exec)
 		var err error

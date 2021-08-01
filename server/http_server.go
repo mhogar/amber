@@ -12,7 +12,7 @@ type HTTPServer struct {
 }
 
 // CreateHTTPServerRunner creates a server runner using an http server.
-func CreateHTTPServerRunner(routerFactory router.IRouterFactory) Runner {
+func CreateHTTPServerRunner(routerFactory router.RouterFactory) Runner {
 	return Runner{
 		Server: &HTTPServer{
 			Server: http.Server{

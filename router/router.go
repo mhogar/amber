@@ -13,40 +13,40 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-type IRouterFactory interface {
+type RouterFactory interface {
 	CreateRouter() *httprouter.Router
 }
 
-type RouterFactory struct {
-	ScopeFactory data.IScopeFactory
-	Handlers     handlers.IHandlers
+type CoreRouterFactory struct {
+	CoreScopeFactory data.ScopeFactory
+	CoreHandlers     handlers.Handlers
 }
 
 // CreateRouter creates a new httprouter with the endpoints and panic handler configured.
-func (rf RouterFactory) CreateRouter() *httprouter.Router {
+func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r := httprouter.New()
 	r.PanicHandler = panicHandler
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, false))
-	r.DELETE("/user", rf.createHandler(rf.Handlers.DeleteUser, true))
-	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true))
+	r.POST("/user", rf.createHandler(rf.CoreHandlers.PostUser, false))
+	r.DELETE("/user", rf.createHandler(rf.CoreHandlers.DeleteUser, true))
+	r.PATCH("/user/password", rf.createHandler(rf.CoreHandlers.PatchUserPassword, true))
 
 	//token routes
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
-	r.DELETE("/token", rf.createHandler(rf.Handlers.DeleteToken, true))
+	r.POST("/token", rf.createHandler(rf.CoreHandlers.PostToken, false))
+	r.DELETE("/token", rf.createHandler(rf.CoreHandlers.DeleteToken, true))
 
 	return r
 }
 
 type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 
-func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
+func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var token *models.AccessToken
 		var rerr common.CustomError
 
-		err := rf.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+		err := rf.CoreScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
 				token, rerr = rf.getAccessToken(exec, req)
@@ -60,7 +60,7 @@ func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool
 			}
 
 			//handle route in transaction scope
-			return rf.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+			return rf.CoreScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
 				status, body := handler(req, params, token, tx)
 				sendResponse(w, status, body)
 
@@ -75,7 +75,7 @@ func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool
 	}
 }
 
-func (rf RouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, common.CustomError) {
+func (rf CoreRouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, common.CustomError) {
 	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {

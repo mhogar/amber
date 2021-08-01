@@ -9,14 +9,14 @@ import (
 	"authserver/models"
 )
 
-// UserControl handles requests to "/user" endpoints
-type UserControl struct {
+// CoreUserController handles requests to "/user" endpoints
+type CoreUserController struct {
 	PasswordHasher            passwordhelpers.PasswordHasher
 	PasswordCriteriaValidator passwordhelpers.PasswordCriteriaValidator
 }
 
 // CreateUser creates a new user with the given username and password
-func (c UserControl) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
+func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
 	//create the user model
 	user := models.CreateNewUser(username, nil)
 
@@ -63,7 +63,7 @@ func (c UserControl) CreateUser(CRUD UserControllerCRUD, username string, passwo
 }
 
 // DeleteUser deletes the user with the given id
-func (c UserControl) DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError {
+func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError {
 	//delete the user
 	err := CRUD.DeleteUser(user)
 	if err != nil {
@@ -76,7 +76,7 @@ func (c UserControl) DeleteUser(CRUD UserControllerCRUD, user *models.User) comm
 }
 
 // UpdateUserPassword updates the given user's password
-func (c UserControl) UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError {
+func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError {
 	//validate old password
 	err := c.PasswordHasher.ComparePasswords(user.PasswordHash, oldPassword)
 	if err != nil {

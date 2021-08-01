@@ -6,13 +6,13 @@ import (
 )
 
 var createScopeFactoryOnce sync.Once
-var scopeFactory data.IScopeFactory
+var scopeFactory data.ScopeFactory
 
-// ResolveScopeFactory resolves the IScopeFactory dependency.
-// Only the first call to this function will create a new IScopeFactory, after which it will be retrieved from memory.
-func ResolveScopeFactory() data.IScopeFactory {
+// ResolveScopeFactory resolves the ScopeFactory dependency.
+// Only the first call to this function will create a new ScopeFactory, after which it will be retrieved from memory.
+func ResolveScopeFactory() data.ScopeFactory {
 	createScopeFactoryOnce.Do(func() {
-		scopeFactory = &data.ScopeFactory{
+		scopeFactory = &data.CoreScopeFactory{
 			DataAdapter: ResolveDataAdapter(),
 		}
 	})

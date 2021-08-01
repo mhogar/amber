@@ -14,7 +14,7 @@ type ScopeFactoryTestSuite struct {
 	DataAdapterMock  mocks.DataAdapter
 	DataExecutorMock mocks.DataExecutor
 	TransactionMock  mocks.Transaction
-	ScopeFactory     data.ScopeFactory
+	CoreScopeFactory data.CoreScopeFactory
 }
 
 func (suite *ScopeFactoryTestSuite) SetupTest() {
@@ -22,7 +22,7 @@ func (suite *ScopeFactoryTestSuite) SetupTest() {
 	suite.DataExecutorMock = mocks.DataExecutor{}
 	suite.TransactionMock = mocks.Transaction{}
 
-	suite.ScopeFactory = data.ScopeFactory{
+	suite.CoreScopeFactory = data.CoreScopeFactory{
 		DataAdapter: &suite.DataAdapterMock,
 	}
 }
@@ -33,7 +33,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_WithErrorSetting
 	suite.DataAdapterMock.On("Setup").Return(errors.New(message))
 
 	//act
-	err := suite.ScopeFactory.CreateDataExecutorScope(func(_ data.DataExecutor) error {
+	err := suite.CoreScopeFactory.CreateDataExecutorScope(func(_ data.DataExecutor) error {
 		return nil
 	})
 
@@ -51,7 +51,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_ReturnsResultFro
 	suite.DataAdapterMock.On("GetExecutor").Return(&suite.DataExecutorMock)
 
 	//act
-	err := suite.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+	err := suite.CoreScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 		suite.Equal(&suite.DataExecutorMock, exec)
 		return errors.New(message)
 	})
@@ -71,7 +71,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorCreating
 	suite.DataExecutorMock.On("CreateTransaction").Return(nil, errors.New(message))
 
 	//act
-	err := suite.ScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(_ data.Transaction) (bool, error) {
+	err := suite.CoreScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(_ data.Transaction) (bool, error) {
 		return true, nil
 	})
 
@@ -88,7 +88,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorFromBody
 	suite.TransactionMock.On("Rollback").Return(nil)
 
 	//act
-	err := suite.ScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
+	err := suite.CoreScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
 		suite.Equal(&suite.TransactionMock, tx)
 		return false, errors.New(message)
 	})
@@ -106,7 +106,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithFailureFromBo
 	suite.TransactionMock.On("Rollback").Return(nil)
 
 	//act
-	err := suite.ScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
+	err := suite.CoreScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
 		suite.Equal(&suite.TransactionMock, tx)
 		return false, nil
 	})
@@ -127,7 +127,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorCommitin
 	suite.TransactionMock.On("Commit").Return(errors.New(message))
 
 	//act
-	err := suite.ScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
+	err := suite.CoreScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
 		suite.Equal(&suite.TransactionMock, tx)
 		return true, nil
 	})
@@ -144,7 +144,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithSuccessFromBo
 	suite.TransactionMock.On("Commit").Return(nil)
 
 	//act
-	err := suite.ScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
+	err := suite.CoreScopeFactory.CreateTransactionScope(&suite.DataExecutorMock, func(tx data.Transaction) (bool, error) {
 		suite.Equal(&suite.TransactionMock, tx)
 		return true, nil
 	})

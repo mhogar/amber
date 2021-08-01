@@ -9,8 +9,8 @@ import (
 )
 
 type m20200628151601 struct {
-	Executor     data.DataExecutor
-	ScopeFactory data.IScopeFactory
+	Executor         data.DataExecutor
+	CoreScopeFactory data.ScopeFactory
 }
 
 func (m m20200628151601) GetTimestamp() string {
@@ -18,7 +18,7 @@ func (m m20200628151601) GetTimestamp() string {
 }
 
 func (m m20200628151601) Up() error {
-	return m.ScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
+	return m.CoreScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
 		sqlTx := tx.(*sqladapter.SQLTransaction)
 
 		//create the user table
@@ -64,7 +64,7 @@ func (m m20200628151601) Up() error {
 }
 
 func (m m20200628151601) Down() error {
-	return m.ScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
+	return m.CoreScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
 		sqlTx := tx.(*sqladapter.SQLTransaction)
 
 		//drop the access token table

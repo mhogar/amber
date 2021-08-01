@@ -14,7 +14,7 @@ var migrationRepositoryFactory data.MigrationRepositoryFactory
 func ResolveMigrationRepositoryFactory() data.MigrationRepositoryFactory {
 	createMigrationRepositoryFactoryOnce.Do(func() {
 		migrationRepositoryFactory = &migrations.SQLMigrationRepositoryFactory{
-			ScopeFactory: ResolveScopeFactory(),
+			CoreScopeFactory: ResolveScopeFactory(),
 		}
 	})
 	return migrationRepositoryFactory
