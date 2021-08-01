@@ -34,17 +34,21 @@ type SQLAdapter struct {
 
 func (a *SQLAdapter) GetExecutor() data.DataExecutor {
 	return &SQLExecutor{
-		Adapter: a,
+		DB: a.DB,
 		SQLCRUD: SQLCRUD{
 			Executor:       a.DB,
+			SQLDriver:      a.SQLDriver,
 			ContextFactory: a.ContextFactory,
 		},
 	}
 }
 
 func CreateSQLAdpater(dbKey string, SQLDriver SQLDriver) *SQLAdapter {
-	return &SQLAdapter{
+	adapter := &SQLAdapter{
 		DbKey:     dbKey,
 		SQLDriver: SQLDriver,
 	}
+	adapter.Connection = adapter
+
+	return adapter
 }

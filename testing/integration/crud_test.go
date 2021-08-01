@@ -1,4 +1,4 @@
-package data_integration_test
+package integration_test
 
 import (
 	"authserver/config"
@@ -6,6 +6,7 @@ import (
 	"authserver/dependencies"
 	"authserver/models"
 
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -19,7 +20,9 @@ func (suite *CRUDTestSuite) SetupSuite() {
 	err := config.InitConfig("../..")
 	suite.Require().NoError(err)
 
-	//create and setup the adapter
+	viper.Set("db_key", "integration")
+
+	//-- create and setup the adapter --
 	suite.Adapter = dependencies.ResolveDataAdapter()
 
 	err = suite.Adapter.Setup()
@@ -40,7 +43,8 @@ func (suite *CRUDTestSuite) SetupTest() {
 
 func (suite *CRUDTestSuite) TearDownTest() {
 	//rollback the transaction after each test
-	suite.Tx.Rollback()
+	err := suite.Tx.Rollback()
+	suite.Require().NoError(err)
 }
 
 func (suite *CRUDTestSuite) SaveUser(tx data.Transaction, user *models.User) {

@@ -18,7 +18,7 @@ type E2ETestSuite struct {
 }
 
 func (suite *E2ETestSuite) SetupSuite() {
-	err := config.InitConfig("../")
+	err := config.InitConfig("../..")
 	suite.Require().NoError(err)
 
 	//set db key and create database

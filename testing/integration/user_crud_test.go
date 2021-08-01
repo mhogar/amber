@@ -1,4 +1,4 @@
-package data_integration_test
+package integration_test
 
 import (
 	"authserver/common"

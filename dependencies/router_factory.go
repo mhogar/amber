@@ -14,6 +14,7 @@ func ResolveRouterFactory() router.IRouterFactory {
 	createRouterFactoryOnce.Do(func() {
 		routerFactory = router.RouterFactory{
 			ScopeFactory: ResolveScopeFactory(),
+			Handlers:     ResolveHandlers(),
 		}
 	})
 	return routerFactory

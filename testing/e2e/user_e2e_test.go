@@ -3,7 +3,7 @@ package e2e_test
 import (
 	"authserver/common"
 	"authserver/config"
-	"authserver/router"
+	"authserver/router/handlers"
 	"net/http"
 	"testing"
 
@@ -24,7 +24,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	password := "Password123!"
 
 	//create user
-	postUserBody := router.PostUserBody{
+	postUserBody := handlers.PostUserBody{
 		Username: username,
 		Password: password,
 	}
@@ -32,9 +32,9 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
 
 	//login
-	postTokenBody := router.PostTokenBody{
+	postTokenBody := handlers.PostTokenBody{
 		GrantType: "password",
-		PostTokenPasswordGrantBody: router.PostTokenPasswordGrantBody{
+		PostTokenPasswordGrantBody: handlers.PostTokenPasswordGrantBody{
 			Username: username,
 			Password: password,
 			ClientID: config.GetAppId().String(),
@@ -47,7 +47,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	common.ParseAndAssertResponseOK(&suite.Suite, res, &tokenRes)
 
 	//update user password
-	patchBody := router.PatchUserPasswordBody{
+	patchBody := handlers.PatchUserPasswordBody{
 		OldPassword: password,
 		NewPassword: "NewPassword123!",
 	}

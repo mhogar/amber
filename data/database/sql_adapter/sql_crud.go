@@ -24,13 +24,13 @@ type SQLTransaction struct {
 }
 
 type SQLExecutor struct {
-	Adapter *SQLAdapter
+	DB *sql.DB
 	SQLCRUD
 }
 
 // CreateTransaction creates a new sql transaction. Returns any errors.
 func (exec *SQLExecutor) CreateTransaction() (data.Transaction, error) {
-	tx, err := exec.Adapter.DB.Begin()
+	tx, err := exec.DB.Begin()
 	if err != nil {
 		return nil, common.ChainError("error beginning transaction", err)
 	}
@@ -38,8 +38,9 @@ func (exec *SQLExecutor) CreateTransaction() (data.Transaction, error) {
 	return &SQLTransaction{
 		Tx: tx,
 		SQLCRUD: SQLCRUD{
-			Executor:       exec.Adapter.DB,
-			ContextFactory: exec.Adapter.ContextFactory,
+			Executor:       tx,
+			SQLDriver:      exec.SQLDriver,
+			ContextFactory: exec.ContextFactory,
 		},
 	}, nil
 }

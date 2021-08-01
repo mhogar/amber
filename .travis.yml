@@ -40,24 +40,18 @@ jobs:
       name: Postgres SQLAdapter
       services:
         - postgresql
-      install:
-        - go get github.com/mattn/goveralls
       before_script:
         - psql -c 'create database travis_ci_test;' -U postgres
         - go run tools/migration_runner/main.go -db=integration
       script:
-        - go test ./database/sql_adapter/ -v -covermode=count -coverprofile=coverage.out
-        - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+        - go test ./testing/integration/ -v
     - stage: End-to-End Tests
       name: Common Workflows
       services:
         - postgresql
-      install:
-        - go get github.com/mattn/goveralls
       before_script:
         - psql -c 'create database travis_ci_test;' -U postgres
         - go run tools/migration_runner/main.go -db=integration
         - go run tools/admin_creator/main.go -db=integration -username=admin -password=Admin123!
       script:
-        - go test ./e2e_tests/ -v -covermode=count -coverprofile=coverage.out
-        - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+        - go test ./testing/e2e/ -v

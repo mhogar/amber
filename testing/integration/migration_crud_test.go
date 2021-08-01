@@ -1,4 +1,4 @@
-package data_integration_test
+package integration_test
 
 import (
 	"authserver/common"
@@ -41,15 +41,6 @@ func (suite *MigrationCRUDTestSuite) TestGetMigrationByTimestamp_FindsMigration(
 	suite.NoError(err)
 	suite.Require().NotNil(migration)
 	suite.Equal(timestamp, migration.Timestamp)
-}
-
-func (suite *MigrationCRUDTestSuite) TestGetLatestTimestamp_WithNoLatestTimestamp_ReturnsHasLatestFalse() {
-	//act
-	_, hasLatest, err := suite.Tx.GetLatestTimestamp()
-
-	//assert
-	suite.False(hasLatest)
-	suite.NoError(err)
 }
 
 func (suite *MigrationCRUDTestSuite) TestGetLatestTimestamp_ReturnsLatestTimestamp() {
