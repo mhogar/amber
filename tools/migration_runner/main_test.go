@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	testhelpers "authserver/testing"
+	"authserver/testing/helpers"
 	migrationrunner "authserver/tools/migration_runner"
 	"authserver/tools/migration_runner/interfaces/mocks"
 	"errors"
@@ -13,7 +13,7 @@ import (
 
 type MigrationRunnerTestSuite struct {
 	suite.Suite
-	testhelpers.ScopeFactorySuite
+	helpers.ScopeFactorySuite
 	MigrationRunnerFactoryMock mocks.IMigrationRunnerFactory
 	MigrationRunnerMock        mocks.MigrationRunner
 }

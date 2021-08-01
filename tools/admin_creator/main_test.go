@@ -4,7 +4,7 @@ import (
 	requesterror "authserver/common/request_error"
 	controllermocks "authserver/controllers/mocks"
 	"authserver/models"
-	testhelpers "authserver/testing"
+	"authserver/testing/helpers"
 	admincreator "authserver/tools/admin_creator"
 	"testing"
 
@@ -14,7 +14,7 @@ import (
 
 type AdminCreatorTestSuite struct {
 	suite.Suite
-	testhelpers.ScopeFactorySuite
+	helpers.ScopeFactorySuite
 	ControllersMock controllermocks.Controllers
 }
 

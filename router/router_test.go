@@ -5,7 +5,7 @@ import (
 	"authserver/models"
 	"authserver/router"
 	handlermocks "authserver/router/handlers/mocks"
-	testhelpers "authserver/testing"
+	"authserver/testing/helpers"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -18,7 +18,7 @@ import (
 )
 
 type RouterTestSuite struct {
-	testhelpers.ScopeFactorySuite
+	helpers.ScopeFactorySuite
 	HandlersMock handlermocks.IHandlers
 	Router       *httprouter.Router
 
