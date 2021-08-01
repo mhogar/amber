@@ -36,6 +36,11 @@ jobs:
         - go build
         - go test -v -covermode=count -coverprofile=coverage.out
         - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci
+    - name: ConfigGenerator
+      before_install:
+        - cd tools/config_generator
+      script:
+        - go build
     - stage: Integration Tests
       name: Postgres SQLAdapter
       services:
