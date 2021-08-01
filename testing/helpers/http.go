@@ -1,6 +1,7 @@
-package common
+package helpers
 
 import (
+	"authserver/common"
 	"bytes"
 	"encoding/json"
 	"io"
@@ -44,13 +45,13 @@ func ParseResponse(suite *suite.Suite, res *http.Response, body interface{}) (st
 }
 
 func AssertSuccessResponse(suite *suite.Suite, res interface{}) {
-	basicRes := res.(BasicResponse)
+	basicRes := res.(common.BasicResponse)
 	suite.True(basicRes.Success)
 }
 
-// ParseAndAssertSuccessResponse asserts the response is a success response
+// helpers.ParseAndAssertSuccessResponse asserts the response is a success response
 func ParseAndAssertSuccessResponse(suite *suite.Suite, res *http.Response) {
-	var basicRes BasicResponse
+	var basicRes common.BasicResponse
 	status := ParseResponse(suite, res, &basicRes)
 
 	suite.Equal(http.StatusOK, status)
@@ -58,7 +59,7 @@ func ParseAndAssertSuccessResponse(suite *suite.Suite, res *http.Response) {
 }
 
 func AssertErrorResponse(suite *suite.Suite, res interface{}, expectedErrorSubStrings ...string) {
-	errRes := res.(ErrorResponse)
+	errRes := res.(common.ErrorResponse)
 
 	suite.False(errRes.Success)
 	AssertContainsSubstrings(suite, errRes.Error, expectedErrorSubStrings...)
@@ -66,7 +67,7 @@ func AssertErrorResponse(suite *suite.Suite, res interface{}, expectedErrorSubSt
 
 // ParseAndAssertErrorResponse asserts the response is an error reponse with the expected status and error sub strings
 func ParseAndAssertErrorResponse(suite *suite.Suite, res *http.Response, expectedStatus int, expectedErrorSubStrings ...string) {
-	var errRes ErrorResponse
+	var errRes common.ErrorResponse
 	status := ParseResponse(suite, res, &errRes)
 
 	suite.Equal(expectedStatus, status)
@@ -83,7 +84,7 @@ func ParseAndAssertInternalServerErrorResponse(suite *suite.Suite, res *http.Res
 }
 
 func AssertOAuthErrorResponse(suite *suite.Suite, res interface{}, expectedError string, expectedDescriptionSubStrings ...string) {
-	errRes := res.(OAuthErrorResponse)
+	errRes := res.(common.OAuthErrorResponse)
 
 	suite.Contains(errRes.Error, expectedError)
 	AssertContainsSubstrings(suite, errRes.ErrorDescription, expectedDescriptionSubStrings...)
@@ -91,7 +92,7 @@ func AssertOAuthErrorResponse(suite *suite.Suite, res interface{}, expectedError
 
 // ParseAndAssertOAuthErrorResponse asserts the response is an oauth error reponse with the expected status, error, and description sub strings
 func ParseAndAssertOAuthErrorResponse(suite *suite.Suite, res *http.Response, expectedStatus int, expectedError string, expectedDescriptionSubStrings ...string) {
-	var errRes OAuthErrorResponse
+	var errRes common.OAuthErrorResponse
 	status := ParseResponse(suite, res, &errRes)
 
 	suite.Equal(expectedStatus, status)
@@ -99,7 +100,7 @@ func ParseAndAssertOAuthErrorResponse(suite *suite.Suite, res *http.Response, ex
 }
 
 func AssertAccessTokenResponse(suite *suite.Suite, res interface{}, expectedTokenID string) {
-	tokenRes := res.(AccessTokenResponse)
+	tokenRes := res.(common.AccessTokenResponse)
 
 	suite.Equal(expectedTokenID, tokenRes.AccessToken)
 	suite.Equal("bearer", tokenRes.TokenType)
@@ -107,7 +108,7 @@ func AssertAccessTokenResponse(suite *suite.Suite, res interface{}, expectedToke
 
 // ParseAndAssertAccessTokenResponse asserts the response is an access token response with the expect token
 func ParseAndAssertAccessTokenResponse(suite *suite.Suite, res *http.Response, expectedTokenID string) {
-	var tokenRes AccessTokenResponse
+	var tokenRes common.AccessTokenResponse
 	status := ParseResponse(suite, res, &tokenRes)
 
 	suite.Equal(http.StatusOK, status)

@@ -2,9 +2,9 @@ package handlers_test
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/models"
 	"authserver/router/handlers"
+	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -19,27 +19,27 @@ type TokenHandlerTestSuite struct {
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithInvalidJSONBody_ReturnsInvalidRequest() {
 	//arrange
-	req := common.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", "invalid json body")
+	helpers.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", "invalid json body")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithMissingGrantType_ReturnsInvalidRequest() {
 	//arrange
 	body := handlers.PostTokenBody{}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", "missing grant_type parameter")
+	helpers.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", "missing grant_type parameter")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithUnsupportedGrantType_ReturnsUnsupportedGrantType() {
@@ -47,14 +47,14 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithUnsupportedGrantType_Retur
 	body := handlers.PostTokenBody{
 		GrantType: "unsupported",
 	}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertOAuthErrorResponse(&suite.Suite, res, "unsupported_grant_type", "")
+	helpers.AssertOAuthErrorResponse(&suite.Suite, res, "unsupported_grant_type", "")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParameters_ReturnsInvalidRequest() {
@@ -67,14 +67,14 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParam
 			GrantType:                  "password",
 			PostTokenPasswordGrantBody: grantBody,
 		}
-		req := common.CreateDummyRequest(&suite.Suite, body)
+		req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 		//act
 		status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 		//assert
 		suite.Equal(http.StatusBadRequest, status)
-		common.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", expectedErrorDescription)
+		helpers.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_request", expectedErrorDescription)
 	}
 
 	grantBody = handlers.PostTokenPasswordGrantBody{
@@ -121,14 +121,14 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithErrorParsing
 			Scope:    "scope",
 		},
 	}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_client", "client_id", "invalid format")
+	helpers.AssertOAuthErrorResponse(&suite.Suite, res, "invalid_client", "client_id", "invalid format")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithClientErrorCreatingTokenFromPassword_ReturnsInvalidClient() {
@@ -142,18 +142,18 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithClientErrorC
 			Scope:    "scope",
 		},
 	}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	errorName := "error_name"
 	message := "create token error"
-	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, requesterror.OAuthClientError(errorName, message))
+	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.OAuthClientError(errorName, message))
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertOAuthErrorResponse(&suite.Suite, res, errorName, message)
+	helpers.AssertOAuthErrorResponse(&suite.Suite, res, errorName, message)
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErrorCreatingTokenFromPassword_ReturnsInternalServerError() {
@@ -167,16 +167,16 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErro
 			Scope:    "scope",
 		},
 	}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, requesterror.OAuthInternalError())
+	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.OAuthInternalError())
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusInternalServerError, status)
-	common.AssertInternalServerErrorResponse(&suite.Suite, res)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithValidRequest_ReturnsAccessToken() {
@@ -193,16 +193,16 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithValidRequest
 			Scope:    "scope",
 		},
 	}
-	req := common.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(token, requesterror.OAuthNoError())
+	suite.ControllersMock.On("CreateTokenFromPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(token, common.OAuthNoError())
 
 	//act
 	status, res := suite.Handlers.PostToken(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusOK, status)
-	common.AssertAccessTokenResponse(&suite.Suite, res, token.ID.String())
+	helpers.AssertAccessTokenResponse(&suite.Suite, res, token.ID.String())
 
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateTokenFromPassword", &suite.TransactionMock, body.Username, body.Password, clientID, body.Scope)
 }
@@ -212,42 +212,42 @@ func (suite *TokenHandlerTestSuite) TestDeleteToken_WithClientErrorDeletingToken
 	token := &models.AccessToken{}
 
 	message := "delete token error"
-	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(requesterror.ClientError(message))
+	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
 	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusBadRequest, status)
-	common.AssertErrorResponse(&suite.Suite, res, message)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
 func (suite *TokenHandlerTestSuite) TestDeleteToken_WithInternalErrorDeletingToken_ReturnsInternalServerError() {
 	//arrange
 	token := &models.AccessToken{}
 
-	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(requesterror.InternalError())
+	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
 	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusInternalServerError, status)
-	common.AssertInternalServerErrorResponse(&suite.Suite, res)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *TokenHandlerTestSuite) TestDeleteToken_WithValidRequest_ReturnsSuccess() {
 	//arrange
 	token := &models.AccessToken{}
 
-	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(requesterror.NoError())
+	suite.ControllersMock.On("DeleteToken", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
 	status, res := suite.Handlers.DeleteToken(nil, nil, token, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusOK, status)
-	common.AssertSuccessResponse(&suite.Suite, res)
+	helpers.AssertSuccessResponse(&suite.Suite, res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteToken", &suite.TransactionMock, token)
 }

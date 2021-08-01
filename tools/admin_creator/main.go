@@ -2,7 +2,6 @@ package main
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/config"
 	"authserver/controllers"
 	"authserver/data"
@@ -40,7 +39,7 @@ func Run(sf data.IScopeFactory, c controllers.UserController, username string, p
 		return sf.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
 			//save the user
 			user, rerr := c.CreateUser(tx, username, password)
-			if rerr.Type != requesterror.ErrorTypeNone {
+			if rerr.Type != common.ErrorTypeNone {
 				return false, common.ChainError("error creating user", rerr)
 			}
 

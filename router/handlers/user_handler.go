@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/data"
 	"authserver/models"
 
@@ -30,10 +29,10 @@ func (h Handlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Acc
 
 	//create the user
 	_, rerr := h.Controllers.CreateUser(tx, body.Username, body.Password)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -44,10 +43,10 @@ func (h Handlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Acc
 func (h Handlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
 	rerr := h.Controllers.DeleteUser(tx, token.User)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -72,19 +71,19 @@ func (h Handlers) PatchUserPassword(req *http.Request, _ httprouter.Params, toke
 
 	//update the password
 	rerr := h.Controllers.UpdateUserPassword(tx, token.User, body.OldPassword, body.NewPassword)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
 	//delete all other user access tokens
 	rerr = h.Controllers.DeleteAllOtherUserTokens(tx, token)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 

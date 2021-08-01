@@ -1,8 +1,8 @@
 package integration_test
 
 import (
-	"authserver/common"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -23,7 +23,8 @@ func (suite *ClientCRUDTestSuite) TestSaveClient_WithInvalidClient_ReturnsError(
 	err := suite.Tx.SaveClient(client)
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "client model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
 }
 
 func (suite *ClientCRUDTestSuite) TestGetClientById_WhereClientNotFound_ReturnsNilClient() {

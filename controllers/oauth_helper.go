@@ -2,40 +2,39 @@ package controllers
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/models"
 	"log"
 
 	"github.com/google/uuid"
 )
 
-func parseClient(clientCRUD models.ClientCRUD, clientID uuid.UUID) (*models.Client, requesterror.OAuthRequestError) {
+func parseClient(clientCRUD models.ClientCRUD, clientID uuid.UUID) (*models.Client, common.OAuthCustomError) {
 	//get the client
 	client, err := clientCRUD.GetClientByID(clientID)
 	if err != nil {
 		log.Println(common.ChainError("error getting client by id", err))
-		return nil, requesterror.OAuthInternalError()
+		return nil, common.OAuthInternalError()
 	}
 
 	//check client was found
 	if client == nil {
-		return nil, requesterror.OAuthClientError("invalid_client", "client with id not found")
+		return nil, common.OAuthClientError("invalid_client", "client with id not found")
 	}
 
-	return client, requesterror.OAuthNoError()
+	return client, common.OAuthNoError()
 }
 
-func parseScope(scopeCRUD models.ScopeCRUD, name string) (*models.Scope, requesterror.OAuthRequestError) {
+func parseScope(scopeCRUD models.ScopeCRUD, name string) (*models.Scope, common.OAuthCustomError) {
 	//get the scope
 	scope, err := scopeCRUD.GetScopeByName(name)
 	if err != nil {
 		log.Println(common.ChainError("error getting scope by name", err))
-		return nil, requesterror.OAuthInternalError()
+		return nil, common.OAuthInternalError()
 	}
 
 	if scope == nil {
-		return nil, requesterror.OAuthClientError("invalid_scope", "scope with name not found")
+		return nil, common.OAuthClientError("invalid_scope", "scope with name not found")
 	}
 
-	return scope, requesterror.OAuthNoError()
+	return scope, common.OAuthNoError()
 }

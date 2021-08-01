@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	passwordhelpers "authserver/controllers/password_helpers"
 	"authserver/models"
 	"log"
@@ -16,16 +15,16 @@ type TokenControl struct {
 }
 
 // PostToken handles POST requests to "/token"
-func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, requesterror.OAuthRequestError) {
+func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
 	//get the client
 	client, rerr := parseClient(CRUD, clientID)
-	if rerr.Type != requesterror.ErrorTypeNone {
+	if rerr.Type != common.ErrorTypeNone {
 		return nil, rerr
 	}
 
 	//get the scope
 	scope, rerr := parseScope(CRUD, scopeName)
-	if rerr.Type != requesterror.ErrorTypeNone {
+	if rerr.Type != common.ErrorTypeNone {
 		return nil, rerr
 	}
 
@@ -33,19 +32,19 @@ func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username
 	user, err := CRUD.GetUserByUsername(username)
 	if err != nil {
 		log.Println(common.ChainError("error getting user by username", err))
-		return nil, requesterror.OAuthInternalError()
+		return nil, common.OAuthInternalError()
 	}
 
 	//check if user was found
 	if user == nil {
-		return nil, requesterror.OAuthClientError("invalid_grant", "invalid username and/or password")
+		return nil, common.OAuthClientError("invalid_grant", "invalid username and/or password")
 	}
 
 	//validate the password
 	err = c.PasswordHasher.ComparePasswords(user.PasswordHash, password)
 	if err != nil {
 		log.Println(common.ChainError("error comparing password hashes", err))
-		return nil, requesterror.OAuthClientError("invalid_grant", "invalid username and/or password")
+		return nil, common.OAuthClientError("invalid_grant", "invalid username and/or password")
 	}
 
 	//create a new access token
@@ -55,34 +54,34 @@ func (c TokenControl) CreateTokenFromPassword(CRUD TokenControllerCRUD, username
 	err = CRUD.SaveAccessToken(token)
 	if err != nil {
 		log.Println(common.ChainError("error saving access token", err))
-		return nil, requesterror.OAuthInternalError()
+		return nil, common.OAuthInternalError()
 	}
 
-	return token, requesterror.OAuthNoError()
+	return token, common.OAuthNoError()
 }
 
 // DeleteToken deletes the access token.
-func (c TokenControl) DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) requesterror.RequestError {
+func (c TokenControl) DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAccessToken(token)
 	if err != nil {
 		log.Println(common.ChainError("error deleting access token", err))
-		return requesterror.InternalError()
+		return common.InternalError()
 	}
 
 	//return success
-	return requesterror.NoError()
+	return common.NoError()
 }
 
 // DeleteToken deletes all of the user's tokens accept for the provided one.
-func (c TokenControl) DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) requesterror.RequestError {
+func (c TokenControl) DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAllOtherUserTokens(token)
 	if err != nil {
 		log.Println(common.ChainError("error deleting all other user tokens", err))
-		return requesterror.InternalError()
+		return common.InternalError()
 	}
 
 	//return success
-	return requesterror.NoError()
+	return common.NoError()
 }

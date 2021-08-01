@@ -46,7 +46,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsIn
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(""))
 
@@ -55,7 +55,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsIn
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErrorToDataExecutorScope() {
@@ -63,7 +63,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErr
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 	message := "TransactionScope error"
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope_WithCallback(nil, func(err error) {
@@ -84,7 +84,7 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetAccessTokenByID", mock.Anything).Return(&models.AccessToken{}, nil)
@@ -104,7 +104,7 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertErrorResponse(&suite.Suite, res, status, message)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, status, message)
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
@@ -113,7 +113,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetAccessTokenByID", mock.Anything).Return(&models.AccessToken{}, nil)
@@ -130,7 +130,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
@@ -139,7 +139,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetAccessTokenByID", mock.Anything).Return(&models.AccessToken{}, nil)
@@ -154,7 +154,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 type RouterAuthTestSuite struct {
@@ -182,10 +182,10 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 		suite.Require().NoError(err)
 
 		//assert
-		common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
+		helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
 	}
 
-	req = common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "", nil)
+	req = helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "", nil)
 	suite.Run("NoAuthorizationHeader", testCase)
 
 	req.Header.Set("Authorization", "invalid")
@@ -197,7 +197,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "invalid", nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "invalid", nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
@@ -207,7 +207,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid format")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid format")
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingAccessTokenByID_ReturnsInternalServerError() {
@@ -215,7 +215,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingAccessTokenByID_Retu
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetAccessTokenByID", mock.Anything).Return(nil, errors.New(""))
@@ -226,7 +226,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingAccessTokenByID_Retu
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WhereAccessTokenWithIDisNotFound_ReturnsUnauthorized() {
@@ -234,7 +234,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereAccessTokenWithIDisNotFound_Ret
 	server := httptest.NewServer(suite.Router)
 	defer server.Close()
 
-	req := common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetAccessTokenByID", mock.Anything).Return(nil, nil)
@@ -245,7 +245,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereAccessTokenWithIDisNotFound_Ret
 	suite.Require().NoError(err)
 
 	//assert
-	common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
 }
 
 func TestPostUserTestSuite(t *testing.T) {

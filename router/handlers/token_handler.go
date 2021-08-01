@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/data"
 	"authserver/models"
 	"log"
@@ -75,10 +74,10 @@ func (h Handlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.T
 
 	//create the token
 	token, rerr := h.Controllers.CreateTokenFromPassword(tx, body.Username, body.Password, clientID, body.Scope)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewOAuthErrorResponse(rerr.ErrorName, rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -89,10 +88,10 @@ func (h Handlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx data.T
 func (h Handlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the token
 	rerr := h.Controllers.DeleteToken(tx, token)
-	if rerr.Type == requesterror.ErrorTypeClient {
+	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
-	if rerr.Type == requesterror.ErrorTypeInternal {
+	if rerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 

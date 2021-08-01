@@ -1,7 +1,7 @@
 package main_test
 
 import (
-	requesterror "authserver/common/request_error"
+	"authserver/common"
 	controllermocks "authserver/controllers/mocks"
 	"authserver/models"
 	"authserver/testing/helpers"
@@ -29,7 +29,7 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError()
 	password := "password"
 
 	message := "create user error"
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, requesterror.ClientError(message))
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
@@ -50,7 +50,7 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	username := "username"
 	password := "password"
 
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, requesterror.NoError())
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, common.NoError())
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {

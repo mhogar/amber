@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	"authserver/common"
 	"authserver/server"
 	"authserver/server/mocks"
 	"errors"
@@ -34,7 +33,8 @@ func (suite *RunnerTestSuite) TestRun_WithErrorStartingServer_ReturnsError() {
 	err := suite.Runner.Run()
 
 	//assert
-	common.AssertError(&suite.Suite, err, message)
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), message)
 }
 
 func (suite *RunnerTestSuite) TestRun_StartsServer() {

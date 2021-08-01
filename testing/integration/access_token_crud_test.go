@@ -1,8 +1,8 @@
 package integration_test
 
 import (
-	"authserver/common"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -18,7 +18,8 @@ func (suite *AccessTokenCRUDTestSuite) TestSaveAccessToken_WithInvalidAccessToke
 	err := suite.Tx.SaveAccessToken(models.CreateNewAccessToken(nil, nil, nil))
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "access token model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "access token model")
 }
 
 func (suite *AccessTokenCRUDTestSuite) TestGetAccessTokenById_WhereAccessTokenNotFound_ReturnsNilAccessToken() {

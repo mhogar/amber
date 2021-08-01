@@ -2,7 +2,6 @@ package router
 
 import (
 	"authserver/common"
-	requesterror "authserver/common/request_error"
 	"authserver/data"
 	"authserver/models"
 	"authserver/router/handlers"
@@ -45,16 +44,16 @@ type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, dat
 func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var token *models.AccessToken
-		var rerr requesterror.RequestError
+		var rerr common.CustomError
 
 		err := rf.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
 				token, rerr = rf.getAccessToken(exec, req)
-				if rerr.Type == requesterror.ErrorTypeClient {
+				if rerr.Type == common.ErrorTypeClient {
 					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
 					return nil
-				} else if rerr.Type == requesterror.ErrorTypeInternal {
+				} else if rerr.Type == common.ErrorTypeInternal {
 					sendInternalErrorResponse(w)
 					return nil
 				}
@@ -76,32 +75,32 @@ func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool
 	}
 }
 
-func (rf RouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, requesterror.RequestError) {
+func (rf RouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, common.CustomError) {
 	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {
-		return nil, requesterror.ClientError("no bearer token provided")
+		return nil, common.ClientError("no bearer token provided")
 	}
 
 	//parse the token
 	tokenID, err := uuid.Parse(splitTokens[1])
 	if err != nil {
 		log.Println(common.ChainError("error parsing access token id", err))
-		return nil, requesterror.ClientError("bearer token was in an invalid format")
+		return nil, common.ClientError("bearer token was in an invalid format")
 	}
 
 	//fetch the token
 	token, err := CRUD.GetAccessTokenByID(tokenID)
 	if err != nil {
 		log.Println(common.ChainError("error getting access token by id", err))
-		return nil, requesterror.InternalError()
+		return nil, common.InternalError()
 	}
 
 	// no token found
 	if token == nil {
-		return nil, requesterror.ClientError("bearer token invalid or expired")
+		return nil, common.ClientError("bearer token invalid or expired")
 	}
 
 	// auth success
-	return token, requesterror.NoError()
+	return token, common.NoError()
 }

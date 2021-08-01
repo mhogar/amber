@@ -1,10 +1,10 @@
 package e2e_test
 
 import (
-	"authserver/common"
 	"authserver/config"
 	"authserver/dependencies"
 	"authserver/server"
+	"authserver/testing/helpers"
 	"net/http"
 	"net/http/httptest"
 
@@ -34,7 +34,7 @@ func (suite *E2ETestSuite) SetupSuite() {
 }
 
 func (suite *E2ETestSuite) SendRequest(method string, endpoint string, bearerToken string, body interface{}) *http.Response {
-	req := common.CreateRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body)
+	req := helpers.CreateRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body)
 
 	res, err := http.DefaultClient.Do(req)
 	suite.Require().NoError(err)

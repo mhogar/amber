@@ -1,7 +1,7 @@
 package integration_test
 
 import (
-	"authserver/common"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -16,7 +16,8 @@ func (suite *MigrationCRUDTestSuite) TestCreateMigration_WithInvalidTimestamp_Re
 	err := suite.Tx.CreateMigration("invalid")
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "migration model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "migration model")
 }
 
 func (suite *MigrationCRUDTestSuite) TestGetMigrationByTimestamp_WhereTimestampNotFound_ReturnsNilMigration() {

@@ -1,8 +1,8 @@
 package integration_test
 
 import (
-	"authserver/common"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -18,7 +18,8 @@ func (suite *UserCRUDTestSuite) TestSaveUser_WithInvalidUser_ReturnsError() {
 	err := suite.Tx.SaveUser(models.CreateNewUser("", nil))
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "user model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user model")
 }
 
 func (suite *UserCRUDTestSuite) TestGetUserById_WhereUserNotFound_ReturnsNilUser() {
@@ -70,7 +71,8 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 	err := suite.Tx.UpdateUser(models.CreateNewUser("", nil))
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "user model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user model")
 }
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WithNoUserToUpdate_ReturnsNilError() {

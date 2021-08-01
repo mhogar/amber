@@ -4,6 +4,7 @@ import (
 	"authserver/controllers"
 	datamocks "authserver/data/mocks"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -44,7 +45,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereClientWithIDisNotFound_ReturnsInvalidClient() {
@@ -61,7 +62,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereClientWithI
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_client", "")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_client", "")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGettingScopeByName_ReturnsInternalError() {
@@ -79,7 +80,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereNoScopeWithNameisNotFound_ReturnsInvalidScope() {
@@ -97,7 +98,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereNoScopeWith
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_scope", "")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_scope", "")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGettingUserByUsername_ReturnsInternalError() {
@@ -116,7 +117,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereUserWithUsernameIsNotFound_ReturnsClientError() {
@@ -135,7 +136,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereUserWithUse
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WherePasswordDoesNotMatch_ReturnsClientError() {
@@ -155,7 +156,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WherePasswordDoe
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorSavingAccessToken_ReturnsInternalError() {
@@ -176,7 +177,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorSavingA
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithValidRequest_ReturnsOK() {
@@ -211,7 +212,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithValidRequest
 	suite.Equal(scope, token.Scope)
 	suite.Equal(user, token.User)
 
-	AssertOAuthNoError(&suite.Suite, rerr)
+	helpers.AssertOAuthNoError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteToken_WithErrorDeletingAccessToken_ReturnsInternalError() {
@@ -224,7 +225,7 @@ func (suite *TokenControlTestSuite) TestDeleteToken_WithErrorDeletingAccessToken
 	rerr := suite.TokenControl.DeleteToken(&suite.CRUDMock, token)
 
 	//assert
-	AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteToken_WithValidRequest_ReturnsOK() {
@@ -239,7 +240,7 @@ func (suite *TokenControlTestSuite) TestDeleteToken_WithValidRequest_ReturnsOK()
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAccessToken", token)
 
-	AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithErrorDeletingTokens_ReturnsInternalError() {
@@ -252,7 +253,7 @@ func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithErrorDeleti
 	rerr := suite.TokenControl.DeleteAllOtherUserTokens(&suite.CRUDMock, token)
 
 	//assert
-	AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithValidRequest_ReturnsOK() {
@@ -267,7 +268,7 @@ func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithValidReques
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllOtherUserTokens", token)
 
-	AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, rerr)
 }
 
 func TestTokenControlTestSuite(t *testing.T) {

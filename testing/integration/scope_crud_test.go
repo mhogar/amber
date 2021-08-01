@@ -1,8 +1,8 @@
 package integration_test
 
 import (
-	"authserver/common"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -20,7 +20,8 @@ func (suite *ScopeCRUDTestSuite) TestSaveScope_WithInvalidScope_ReturnsError() {
 	err := suite.Tx.SaveScope(scope)
 
 	//assert
-	common.AssertError(&suite.Suite, err, "error", "scope model")
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "scope model")
 }
 
 func (suite *ScopeCRUDTestSuite) TestGetScopeByName_WhereScopeNotFound_ReturnsNilScope() {
