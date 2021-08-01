@@ -16,7 +16,7 @@ jobs:
         - go get github.com/mattn/goveralls
       script: 
         - go build
-        - go test ./controllers/ ./controllers/password_helpers/ ./models/ ./router/ ./server/ -v -covermode=count -coverprofile=coverage.out
+        - go test ./controllers/ ./controllers/password_helpers/ ./data/ ./models/ ./router/ ./router/handlers/ ./server/ -v -covermode=count -coverprofile=coverage.out
         - $GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci
     - name: MigrationRunner
       before_install:

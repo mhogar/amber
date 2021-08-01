@@ -55,7 +55,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsIn
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertInternalServerErrorResponse(&suite.Suite, res)
+	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErrorToDataExecutorScope() {
@@ -104,7 +104,7 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertErrorResponse(&suite.Suite, res, status, message)
+	common.ParseAndAssertErrorResponse(&suite.Suite, res, status, message)
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
@@ -130,7 +130,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertSuccessResponse(&suite.Suite, res)
+	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
@@ -154,7 +154,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertInternalServerErrorResponse(&suite.Suite, res)
+	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 type RouterAuthTestSuite struct {
@@ -182,7 +182,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 		suite.Require().NoError(err)
 
 		//assert
-		common.AssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
+		common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
 	}
 
 	req = common.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "", nil)
@@ -207,7 +207,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid format")
+	common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid format")
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingAccessTokenByID_ReturnsInternalServerError() {
@@ -226,7 +226,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingAccessTokenByID_Retu
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertInternalServerErrorResponse(&suite.Suite, res)
+	common.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WhereAccessTokenWithIDisNotFound_ReturnsUnauthorized() {
@@ -245,7 +245,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereAccessTokenWithIDisNotFound_Ret
 	suite.Require().NoError(err)
 
 	//assert
-	common.AssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
+	common.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
 }
 
 func TestPostUserTestSuite(t *testing.T) {

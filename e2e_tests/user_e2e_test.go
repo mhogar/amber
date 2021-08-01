@@ -29,7 +29,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 		Password: password,
 	}
 	res := suite.SendRequest(http.MethodPost, "/user", "", postUserBody)
-	common.AssertSuccessResponse(&suite.Suite, res)
+	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
 
 	//login
 	postTokenBody := router.PostTokenBody{
@@ -44,7 +44,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	res = suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
 
 	tokenRes := common.AccessTokenResponse{}
-	common.AssertResponseOK(&suite.Suite, res, &tokenRes)
+	common.ParseAndAssertResponseOK(&suite.Suite, res, &tokenRes)
 
 	//update user password
 	patchBody := router.PatchUserPasswordBody{
@@ -52,11 +52,11 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 		NewPassword: "NewPassword123!",
 	}
 	res = suite.SendRequest(http.MethodPatch, "/user/password", tokenRes.AccessToken, patchBody)
-	common.AssertSuccessResponse(&suite.Suite, res)
+	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
 
 	//delete user
 	res = suite.SendRequest(http.MethodDelete, "/user", tokenRes.AccessToken, nil)
-	common.AssertSuccessResponse(&suite.Suite, res)
+	common.ParseAndAssertSuccessResponse(&suite.Suite, res)
 }
 
 func TestUserE2ETestSuite(t *testing.T) {
