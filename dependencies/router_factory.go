@@ -13,8 +13,7 @@ var routerFactory router.RouterFactory
 func ResolveRouterFactory() router.IRouterFactory {
 	createRouterFactoryOnce.Do(func() {
 		routerFactory = router.RouterFactory{
-			Authenticator: ResolveAuthenticator(),
-			ScopeFactory:  ResolveScopeFactory(),
+			ScopeFactory: ResolveScopeFactory(),
 		}
 	})
 	return routerFactory

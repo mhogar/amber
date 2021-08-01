@@ -3,7 +3,6 @@ package router
 import (
 	"authserver/common"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -14,10 +13,7 @@ func sendResponse(w http.ResponseWriter, status int, res interface{}) {
 
 	//write the response
 	encoder := json.NewEncoder(w)
-	err := encoder.Encode(res)
-	if err != nil {
-		log.Panic(err) //panic if can't write response
-	}
+	encoder.Encode(res)
 }
 
 func sendErrorResponse(w http.ResponseWriter, status int, messsage string) {

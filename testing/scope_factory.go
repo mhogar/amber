@@ -17,6 +17,8 @@ type ScopeFactorySuite struct {
 
 func (suite *ScopeFactorySuite) SetupTest() {
 	suite.ScopeFactoryMock = mocks.IScopeFactory{}
+	suite.DataExecutorMock = mocks.DataExecutor{}
+	suite.TransactionMock = mocks.Transaction{}
 
 	suite.ScopeFactoryMock.On("CreateTransactionScope").Return(nil).Run(func(args mock.Arguments) {
 		body := args.Get(1).(func(data.Transaction) (bool, error))

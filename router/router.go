@@ -1,13 +1,16 @@
 package router
 
 import (
+	"authserver/common"
 	requesterror "authserver/common/request_error"
 	"authserver/data"
 	"authserver/models"
 	"authserver/router/handlers"
 	"log"
 	"net/http"
+	"strings"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
@@ -16,9 +19,8 @@ type IRouterFactory interface {
 }
 
 type RouterFactory struct {
-	Authenticator Authenticator
-	ScopeFactory  data.IScopeFactory
-	Handlers      handlers.IHandlers
+	ScopeFactory data.IScopeFactory
+	Handlers     handlers.IHandlers
 }
 
 // CreateRouter creates a new httprouter with the endpoints and panic handler configured.
@@ -40,15 +42,15 @@ func (rf RouterFactory) CreateRouter() *httprouter.Router {
 
 type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 
-func (h RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
+func (rf RouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var token *models.AccessToken
 		var rerr requesterror.RequestError
 
-		err := h.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+		err := rf.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
-				token, rerr = h.Authenticator.Authenticate(exec, req)
+				token, rerr = rf.getAccessToken(exec, req)
 				if rerr.Type == requesterror.ErrorTypeClient {
 					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
 					return nil
@@ -59,7 +61,7 @@ func (h RouterFactory) createHandler(handler handlerFunc, authenticateUser bool)
 			}
 
 			//handle route in transaction scope
-			return h.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+			return rf.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
 				status, body := handler(req, params, token, tx)
 				sendResponse(w, status, body)
 
@@ -72,4 +74,34 @@ func (h RouterFactory) createHandler(handler handlerFunc, authenticateUser bool)
 			sendInternalErrorResponse(w)
 		}
 	}
+}
+
+func (rf RouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, requesterror.RequestError) {
+	//extract the token string from the authorization header
+	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
+	if len(splitTokens) != 2 {
+		return nil, requesterror.ClientError("no bearer token provided")
+	}
+
+	//parse the token
+	tokenID, err := uuid.Parse(splitTokens[1])
+	if err != nil {
+		log.Println(common.ChainError("error parsing access token id", err))
+		return nil, requesterror.ClientError("bearer token was in an invalid format")
+	}
+
+	//fetch the token
+	token, err := CRUD.GetAccessTokenByID(tokenID)
+	if err != nil {
+		log.Println(common.ChainError("error getting access token by id", err))
+		return nil, requesterror.InternalError()
+	}
+
+	// no token found
+	if token == nil {
+		return nil, requesterror.ClientError("bearer token invalid or expired")
+	}
+
+	// auth success
+	return token, requesterror.NoError()
 }

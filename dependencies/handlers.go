@@ -1,18 +1,18 @@
 package dependencies
 
 import (
-	"authserver/router"
+	handlerspkg "authserver/router/handlers"
 	"sync"
 )
 
 var createHandlersOnce sync.Once
-var handlers router.IHandlers
+var handlers handlerspkg.IHandlers
 
 // ResolveHandlers resolves the IHandlers dependency.
 // Only the first call to this function will create a new IHandlers, after which it will be retrieved from memory.
-func ResolveHandlers() router.IHandlers {
+func ResolveHandlers() handlerspkg.IHandlers {
 	createHandlersOnce.Do(func() {
-		handlers = router.Handlers{
+		handlers = handlerspkg.Handlers{
 			Controllers: ResolveControllers(),
 		}
 	})
