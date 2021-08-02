@@ -33,7 +33,7 @@ func main() {
 	}
 }
 
-// Run connects to the database and runs the admin creator. Returns any errors.
+// Run runs the admin creator. Returns any errors
 func Run(sf data.ScopeFactory, c controllers.UserController, username string, password string) error {
 	return sf.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 		return sf.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {

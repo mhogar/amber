@@ -7,7 +7,7 @@ import (
 	"fmt"
 )
 
-// Setup creates the migration table if it does not already exist.
+// Setup creates the migration table if it does not already exist
 func (crud *SQLCRUD) Setup() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateMigrationTableScript())
@@ -20,8 +20,8 @@ func (crud *SQLCRUD) Setup() error {
 	return nil
 }
 
-// CreateMigration validates the given timestamp and inserts it into the migration table.
-// Returns any errors.
+// CreateMigration validates the given timestamp and inserts it into the migration table
+// Returns any errors
 func (crud *SQLCRUD) CreateMigration(timestamp string) error {
 	//create and validate migration model
 	migration := models.CreateNewMigration(timestamp)
@@ -41,8 +41,8 @@ func (crud *SQLCRUD) CreateMigration(timestamp string) error {
 	return nil
 }
 
-// GetMigrationByTimestamp gets the row in the migration table with the matching timestamp, and creates a new migration model using its data.
-// Returns the model and any errors.
+// GetMigrationByTimestamp gets the row in the migration table with the matching timestamp, and creates a new migration model using its data
+// Returns the model and any errors
 func (crud *SQLCRUD) GetMigrationByTimestamp(timestamp string) (*models.Migration, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetMigrationByTimestampScript(), timestamp)
@@ -74,8 +74,8 @@ func (crud *SQLCRUD) GetMigrationByTimestamp(timestamp string) (*models.Migratio
 	return migration, nil
 }
 
-// GetLatestTimestamp returns the latest timestamp of all rows in the migration table.
-// If the table is empty, hasLatest will be false, else it will be true.
+// GetLatestTimestamp returns the latest timestamp of all rows in the migration table
+// If the table is empty, hasLatest will be false, else it will be true
 // Returns any errors.
 func (crud *SQLCRUD) GetLatestTimestamp() (timestamp string, hasLatest bool, err error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
@@ -107,8 +107,8 @@ func (crud *SQLCRUD) GetLatestTimestamp() (timestamp string, hasLatest bool, err
 	return timestamp, true, nil
 }
 
-// DeleteMigrationByTimestamp deletes up to one row from the migartion table with a matching timestamp.
-// Returns any errors.
+// DeleteMigrationByTimestamp deletes up to one row from the migartion table with a matching timestamp
+// Returns any errors
 func (crud *SQLCRUD) DeleteMigrationByTimestamp(timestamp string) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteMigrationByTimestampScript(), timestamp)

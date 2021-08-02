@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateClientTable creates the client table in the database
+// Returns any errors
 func (crud *SQLCRUD) CreateClientTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateClientTableScript())
@@ -22,6 +24,8 @@ func (crud *SQLCRUD) CreateClientTable() error {
 	return err
 }
 
+// DropClientTable drops the client table from the database
+// Returns any errors
 func (crud *SQLCRUD) DropClientTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DropClientTableScript())
@@ -34,8 +38,8 @@ func (crud *SQLCRUD) DropClientTable() error {
 	return err
 }
 
-// SaveClient validates the client model is valid and inserts a new row into the client table.
-// Returns any errors.
+// SaveClient validates the client model is valid and inserts a new row into the client table
+// Returns any errors
 func (crud *SQLCRUD) SaveClient(client *models.Client) error {
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
@@ -53,8 +57,8 @@ func (crud *SQLCRUD) SaveClient(client *models.Client) error {
 	return nil
 }
 
-// GetClientByID gets the row in the client table with the matching id, and creates a new client model using its data.
-// Returns the model and any errors.
+// GetClientByID gets the row in the client table with the matching id, and creates a new client model using its data
+// Returns the model and any errors
 func (crud *SQLCRUD) GetClientByID(ID uuid.UUID) (*models.Client, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetClientByIdScript(), ID)

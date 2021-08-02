@@ -25,7 +25,6 @@ type PostTokenPasswordGrantBody struct {
 	Scope    string `json:"scope"`
 }
 
-// PostToken handles POST requests to "/token"
 func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	var body PostTokenBody
 
@@ -84,7 +83,6 @@ func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx da
 	return common.NewAccessTokenResponse(token.ID.String())
 }
 
-// DeleteToken handles DELETE requests to "/token"
 func (h CoreHandlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the token
 	rerr := h.Controllers.DeleteToken(tx, token)

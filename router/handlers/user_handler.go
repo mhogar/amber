@@ -17,7 +17,6 @@ type PostUserBody struct {
 	Password string `json:"password"`
 }
 
-// PostUser handles Post requests to "/user"
 func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
@@ -39,7 +38,6 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 	return common.NewSuccessResponse()
 }
 
-// DeleteUser handles DELETE requests to "/user"
 func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
 	rerr := h.Controllers.DeleteUser(tx, token.User)
@@ -59,7 +57,6 @@ type PatchUserPasswordBody struct {
 	NewPassword string `json:"newPassword"`
 }
 
-// PatchUserPassword handles PATCH requests to "/user/password"
 func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody

@@ -12,7 +12,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is a struct with fields needed for configuring the application.
+// Config is a struct with fields needed for configuring the application
 type Config struct {
 	RootDir                string                 `yaml:"root_dir"`
 	AppID                  string                 `yaml:"app_id"`
@@ -20,16 +20,14 @@ type Config struct {
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
 }
 
-// DatabaseConfig is a struct with fields needed for configuring database operations.
 type DatabaseConfig struct {
-	// ConnectionStrings is a string map that maps db keys to the connection string of the database.
+	// ConnectionStrings is a string map that maps db keys to the connection string of the database
 	ConnectionStrings map[string]string `yaml:"connection_strings"`
 
-	// Timeout is the default timeout all database requests should use.
+	// Timeout is the default timeout all database requests should use
 	Timeout int `yaml:"timeout"`
 }
 
-// PasswordCriteriaConfig is a struct for encapsulating criteria requirements for a password
 type PasswordCriteriaConfig struct {
 	// MinLength is the minimum length the password must be
 	MinLength int `yaml:"min_length"`
@@ -47,7 +45,7 @@ type PasswordCriteriaConfig struct {
 	RequireSymbol bool `yaml:"require_symbol"`
 }
 
-//InitConfig sets the default config values and binds environment variables. Should be called at the start of the application.
+// InitConfig sets the default config values and binds environment variables. Should be called at the start of the application
 func InitConfig(dir string) error {
 	//set defaults
 	viper.SetDefault("db_key", "core")
@@ -79,6 +77,7 @@ func InitConfig(dir string) error {
 	return nil
 }
 
+// GetAppId gets the app id for the application
 func GetAppId() uuid.UUID {
 	return uuid.MustParse(viper.Get("app_id").(string))
 }

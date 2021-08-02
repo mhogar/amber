@@ -8,10 +8,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// ConfigPasswordCriteriaValidator is an implementation of PasswordCriteriaValidator that uses criteria loaded from config.
+// ConfigPasswordCriteriaValidator is an implementation of PasswordCriteriaValidator that uses criteria loaded from config
 type ConfigPasswordCriteriaValidator struct{}
 
-// ValidatePasswordCriteria validates the password meets the standard minimum complexity criteria.
 func (ConfigPasswordCriteriaValidator) ValidatePasswordCriteria(password string) ValidatePasswordCriteriaError {
 	criteria := viper.Get("password_criteria").(config.PasswordCriteriaConfig)
 

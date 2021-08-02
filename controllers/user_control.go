@@ -9,13 +9,11 @@ import (
 	"authserver/models"
 )
 
-// CoreUserController handles requests to "/user" endpoints
 type CoreUserController struct {
 	PasswordHasher            passwordhelpers.PasswordHasher
 	PasswordCriteriaValidator passwordhelpers.PasswordCriteriaValidator
 }
 
-// CreateUser creates a new user with the given username and password
 func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
 	//create the user model
 	user := models.CreateNewUser(username, nil)
@@ -62,7 +60,6 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-// DeleteUser deletes the user with the given id
 func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError {
 	//delete the user
 	err := CRUD.DeleteUser(user)
@@ -75,7 +72,6 @@ func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, user *models.Use
 	return common.NoError()
 }
 
-// UpdateUserPassword updates the given user's password
 func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError {
 	//validate old password
 	err := c.PasswordHasher.ComparePasswords(user.PasswordHash, oldPassword)

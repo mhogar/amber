@@ -13,8 +13,8 @@ import (
 var createDataApdaterOnce sync.Once
 var dataAdapter data.DataAdapter
 
-// ResolveDatabase resolves the DataAdapter dependency.
-// Only the first call to this function will create a new DataAdapter, after which it will be retrieved from memory.
+// ResolveDatabase resolves the DataAdapter dependency
+// Only the first call to this function will create a new DataAdapter, after which it will be retrieved from memory
 func ResolveDataAdapter() data.DataAdapter {
 	createDataApdaterOnce.Do(func() {
 		dataAdapter = sqladapter.CreateSQLAdpater(viper.GetString("db_key"), ResolveSQLDriver())

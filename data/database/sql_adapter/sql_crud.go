@@ -28,7 +28,7 @@ type SQLExecutor struct {
 	SQLCRUD
 }
 
-// CreateTransaction creates a new sql transaction. Returns any errors.
+// CreateTransaction creates a new sql transaction. Returns any errors
 func (exec *SQLExecutor) CreateTransaction() (data.Transaction, error) {
 	tx, err := exec.DB.Begin()
 	if err != nil {

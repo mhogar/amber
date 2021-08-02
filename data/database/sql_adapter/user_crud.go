@@ -10,6 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
+// CreateUserTable creates the user table in the database
+// Returns any errors
 func (crud *SQLCRUD) CreateUserTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserTableScript())
@@ -22,6 +24,8 @@ func (crud *SQLCRUD) CreateUserTable() error {
 	return err
 }
 
+// DropUserTable drops the user table from the database
+// Returns any errors
 func (crud *SQLCRUD) DropUserTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DropUserTableScript())
@@ -34,8 +38,8 @@ func (crud *SQLCRUD) DropUserTable() error {
 	return err
 }
 
-// SaveUser validates the user model is valid and inserts a new row into the user table.
-// Returns any errors.
+// SaveUser validates the user model is valid and inserts a new row into the user table
+// Returns any errors
 func (crud *SQLCRUD) SaveUser(user *models.User) error {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
@@ -54,8 +58,8 @@ func (crud *SQLCRUD) SaveUser(user *models.User) error {
 	return nil
 }
 
-// GetUserByID gets the row in the user table with the matching id, and creates a new user model using its data.
-// Returns the model and any errors.
+// GetUserByID gets the row in the user table with the matching id, and creates a new user model using its data
+// Returns the model and any errors
 func (crud *SQLCRUD) GetUserByID(ID uuid.UUID) (*models.User, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserByIdScript(), ID)
@@ -69,8 +73,8 @@ func (crud *SQLCRUD) GetUserByID(ID uuid.UUID) (*models.User, error) {
 	return readUserData(rows)
 }
 
-// GetUserByUsername gets the row in the user table with the matching username, and creates a new user model using its data.
-// Returns the model and any errors.
+// GetUserByUsername gets the row in the user table with the matching username, and creates a new user model using its data
+// Returns the model and any errors
 func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserByUsernameScript(), username)
@@ -84,8 +88,8 @@ func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 	return readUserData(rows)
 }
 
-// UpdateUser validates the user model is valid and updates the row in the user table with the matching id.
-// Returns any errors.
+// UpdateUser validates the user model is valid and updates the row in the user table with the matching id
+// Returns any errors
 func (crud *SQLCRUD) UpdateUser(user *models.User) error {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
@@ -104,8 +108,8 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) error {
 	return nil
 }
 
-// DeleteUser deletes the row in the user table with the matching id.
-// Returns any errors.
+// DeleteUser deletes the row in the user table with the matching id
+// Returns any errors
 func (crud *SQLCRUD) DeleteUser(user *models.User) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), user.ID)

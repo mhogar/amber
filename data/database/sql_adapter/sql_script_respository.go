@@ -1,6 +1,6 @@
 package sqladapter
 
-// SQLScriptRepository is an interface for encapsulating other sql script repository.
+// SQLScriptRepository is an interface for encapsulating other sql script repository
 type SQLScriptRepository interface {
 	AccessTokenScriptRepository
 	ClientScriptRepository
@@ -9,7 +9,7 @@ type SQLScriptRepository interface {
 	UserScriptRepository
 }
 
-// AccessTokenScriptRepository is an interface for fetching access token sql scripts.
+// AccessTokenScriptRepository is an interface for fetching access token sql scripts
 type AccessTokenScriptRepository interface {
 	CreateAccessTokenTableScript() string
 	DropAccessTokenTableScript() string
@@ -19,7 +19,7 @@ type AccessTokenScriptRepository interface {
 	DeleteAllOtherUserTokensScript() string
 }
 
-// ClientScriptRepository is an interface for fetching client sql scripts.
+// ClientScriptRepository is an interface for fetching client sql scripts
 type ClientScriptRepository interface {
 	CreateClientTableScript() string
 	DropClientTableScript() string
@@ -27,7 +27,7 @@ type ClientScriptRepository interface {
 	GetClientByIdScript() string
 }
 
-// MigrationScriptRepository is an interface for fetching migration sql scripts.
+// MigrationScriptRepository is an interface for fetching migration sql scripts
 type MigrationScriptRepository interface {
 	CreateMigrationTableScript() string
 	SaveMigrationScript() string
@@ -36,7 +36,7 @@ type MigrationScriptRepository interface {
 	DeleteMigrationByTimestampScript() string
 }
 
-// ScopeScriptRepository is an interface for fetching scope sql scripts.
+// ScopeScriptRepository is an interface for fetching scope sql scripts
 type ScopeScriptRepository interface {
 	CreateScopeTableScript() string
 	DropScopeTableScript() string
@@ -44,7 +44,7 @@ type ScopeScriptRepository interface {
 	GetScopeByNameScript() string
 }
 
-// UserScriptRepository is an interface for fetching user sql scripts.
+// UserScriptRepository is an interface for fetching user sql scripts
 type UserScriptRepository interface {
 	CreateUserTableScript() string
 	DropUserTableScript() string

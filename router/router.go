@@ -14,6 +14,7 @@ import (
 )
 
 type RouterFactory interface {
+	// CreateRouter creates a new httprouter with the endpoints and panic handler configured
 	CreateRouter() *httprouter.Router
 }
 
@@ -22,7 +23,6 @@ type CoreRouterFactory struct {
 	CoreHandlers     handlers.Handlers
 }
 
-// CreateRouter creates a new httprouter with the endpoints and panic handler configured.
 func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r := httprouter.New()
 	r.PanicHandler = panicHandler

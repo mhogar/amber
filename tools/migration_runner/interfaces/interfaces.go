@@ -6,13 +6,14 @@ import (
 	"github.com/mhogar/migrationrunner"
 )
 
-// MigrationRunner is an interface to match the signature of migrationrunner's MigrationRunner.
+// MigrationRunner is an interface to match the signature of migrationrunner's MigrationRunner
 type MigrationRunner interface {
 	MigrateUp() error
 	MigrateDown() error
 }
 
 type MigrationRunnerFactory interface {
+	// CreateMigrationRunner creates a MigrationRunner using the provided data executor
 	CreateMigrationRunner(data.DataExecutor) MigrationRunner
 }
 

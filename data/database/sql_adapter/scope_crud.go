@@ -8,6 +8,8 @@ import (
 	"fmt"
 )
 
+// CreateScopeTable creates the scope table in the database
+// Returns any errors
 func (crud *SQLCRUD) CreateScopeTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateScopeTableScript())
@@ -20,6 +22,8 @@ func (crud *SQLCRUD) CreateScopeTable() error {
 	return err
 }
 
+// DropScopeTable drops the scope table from the database
+// Returns any errors
 func (crud *SQLCRUD) DropScopeTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DropScopeTableScript())
@@ -32,8 +36,8 @@ func (crud *SQLCRUD) DropScopeTable() error {
 	return err
 }
 
-// SaveScope validates the scope model is valid and inserts a new row into the scope table.
-// Returns any errors.
+// SaveScope validates the scope model is valid and inserts a new row into the scope table
+// Returns any errors
 func (crud *SQLCRUD) SaveScope(scope *models.Scope) error {
 	verr := scope.Validate()
 	if verr != models.ValidateScopeValid {
@@ -51,8 +55,8 @@ func (crud *SQLCRUD) SaveScope(scope *models.Scope) error {
 	return nil
 }
 
-// GetScopeByName gets the row in the scope table with the matching name, and creates a new scope model using its data.
-// Returns the scope and any errors.
+// GetScopeByName gets the row in the scope table with the matching name, and creates a new scope model using its data
+// Returns the scope and any errors
 func (crud *SQLCRUD) GetScopeByName(name string) (*models.Scope, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetScopeByNameScript(), name)

@@ -9,12 +9,10 @@ import (
 	"github.com/google/uuid"
 )
 
-// CoreTokenController handles requests to "/token" endpoints
 type CoreTokenController struct {
 	PasswordHasher passwordhelpers.PasswordHasher
 }
 
-// PostToken handles POST requests to "/token"
 func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
 	//get the client
 	client, rerr := parseClient(CRUD, clientID)
@@ -60,7 +58,6 @@ func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, u
 	return token, common.OAuthNoError()
 }
 
-// DeleteToken deletes the access token.
 func (c CoreTokenController) DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAccessToken(token)
@@ -73,7 +70,6 @@ func (c CoreTokenController) DeleteToken(CRUD TokenControllerCRUD, token *models
 	return common.NoError()
 }
 
-// DeleteToken deletes all of the user's tokens accept for the provided one.
 func (c CoreTokenController) DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	//delete the token
 	err := CRUD.DeleteAllOtherUserTokens(token)
