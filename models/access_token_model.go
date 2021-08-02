@@ -2,7 +2,6 @@ package models
 
 import "github.com/google/uuid"
 
-// AccessToken ValidateError statuses.
 const (
 	ValidateAccessTokenValid         = 0x0
 	ValidateAccessTokenNilID         = 0x1
@@ -14,7 +13,7 @@ const (
 	ValidateAccessTokenInvalidScope  = 0x40
 )
 
-// AccessToken represents the access token model.
+// AccessToken represents the access token model
 type AccessToken struct {
 	ID     uuid.UUID
 	User   *User
@@ -22,23 +21,21 @@ type AccessToken struct {
 	Scope  *Scope
 }
 
-// AccessTokenCRUD is an interface for performing CRUD operations on an access token.
 type AccessTokenCRUD interface {
-	// SaveAccessToken saves the access token and returns any errors.
+	// SaveAccessToken saves the access token and returns any errors
 	SaveAccessToken(token *AccessToken) error
 
-	// GetAccessTokenByID fetches the access token associated with the id.
-	// If no tokens are found, returns nil token. Also returns any errors.
+	// GetAccessTokenByID fetches the access token associated with the id
+	// If no tokens are found, returns nil token. Also returns any errors
 	GetAccessTokenByID(ID uuid.UUID) (*AccessToken, error)
 
-	// DeleteAccessToken deletes the token and returns any errors.
+	// DeleteAccessToken deletes the token and returns any errors
 	DeleteAccessToken(token *AccessToken) error
 
-	// DeleteAllOtherUserTokens deletes all of the user's tokens expect for the provided one and returns any errors.
+	// DeleteAllOtherUserTokens deletes all of the user's tokens expect for the provided one and returns any errors
 	DeleteAllOtherUserTokens(token *AccessToken) error
 }
 
-// CreateNewAccessToken creates a access token model with a new id and the provided fields.
 func CreateNewAccessToken(user *User, client *Client, scope *Scope) *AccessToken {
 	return &AccessToken{
 		ID:     uuid.New(),
@@ -48,8 +45,8 @@ func CreateNewAccessToken(user *User, client *Client, scope *Scope) *AccessToken
 	}
 }
 
-// Validate validates the access token model has valid fields.
-// Returns an int indicating which fields are invalid.
+// Validate validates the access token model has valid fields
+// Returns an int indicating which fields are invalid
 func (tk *AccessToken) Validate() int {
 	code := ValidateAccessTokenValid
 

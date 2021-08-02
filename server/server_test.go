@@ -1,7 +1,6 @@
 package server_test
 
 import (
-	databasemocks "authserver/database/mocks"
 	routermocks "authserver/router/mocks"
 	"authserver/server"
 	"testing"
@@ -11,13 +10,11 @@ import (
 
 type ServerTestSuite struct {
 	suite.Suite
-	DBConnectionMock  databasemocks.DBConnection
-	RouterFactoryMock routermocks.IRouterFactory
+	RouterFactoryMock routermocks.RouterFactory
 }
 
 func (suite *ServerTestSuite) SetupTest() {
-	suite.DBConnectionMock = databasemocks.DBConnection{}
-	suite.RouterFactoryMock = routermocks.IRouterFactory{}
+	suite.RouterFactoryMock = routermocks.RouterFactory{}
 }
 
 func (suite *ServerTestSuite) TestCreateHTTPServerRunner_CreatesRunnerUsingHTTPServer() {
@@ -25,7 +22,7 @@ func (suite *ServerTestSuite) TestCreateHTTPServerRunner_CreatesRunnerUsingHTTPS
 	suite.RouterFactoryMock.On("CreateRouter").Return(nil)
 
 	//act
-	runner := server.CreateHTTPServerRunner(&suite.DBConnectionMock, &suite.RouterFactoryMock)
+	runner := server.CreateHTTPServerRunner(&suite.RouterFactoryMock)
 	_, ok := runner.Server.(*server.HTTPServer)
 
 	//assert
@@ -38,7 +35,7 @@ func (suite *ServerTestSuite) TestCreateHTTPTestServerRunner_CreatesRunnerUsingH
 	suite.RouterFactoryMock.On("CreateRouter").Return(nil)
 
 	//act
-	runner := server.CreateHTTPTestServerRunner(&suite.DBConnectionMock, &suite.RouterFactoryMock)
+	runner := server.CreateHTTPTestServerRunner(&suite.RouterFactoryMock)
 	_, ok := runner.Server.(*server.HTTPTestServer)
 
 	//assert

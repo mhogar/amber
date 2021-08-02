@@ -3,12 +3,12 @@ package main
 import (
 	"authserver/common"
 	"authserver/config"
-	"authserver/database"
+	"authserver/data"
 	"authserver/dependencies"
+	"authserver/tools/migration_runner/interfaces"
 	"flag"
 	"log"
 
-	"github.com/mhogar/migrationrunner"
 	"github.com/spf13/viper"
 )
 
@@ -25,49 +25,32 @@ func main() {
 
 	viper.Set("db_key", *dbKey)
 
-	migrationRunner := migrationrunner.MigrationRunner{
-		MigrationRepository: dependencies.ResolveMigrationRepository(),
-		MigrationCRUD:       dependencies.ResolveDatabase(),
+	mrf := interfaces.CoreMigrationRunnerFactory{
+		MigrationRepositoryFactory: dependencies.ResolveMigrationRepositoryFactory(),
 	}
 
-	err = Run(dependencies.ResolveDatabase(), migrationRunner, *down)
+	err = Run(dependencies.ResolveScopeFactory(), &mrf, *down)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-// MigrationRunner is an interface to match the signature of migrationrunner's MigrationRunner.
-type MigrationRunner interface {
-	MigrateUp() error
-	MigrateDown() error
-}
+// Run runs the migration runner. Returns any errors.
+func Run(sf data.ScopeFactory, mrf interfaces.MigrationRunnerFactory, down bool) error {
+	return sf.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+		mr := mrf.CreateMigrationRunner(exec)
+		var err error
 
-// Run connects to the database and runs the migration runner. Returns any errors.
-func Run(db database.DBConnection, migrationRunner MigrationRunner, down bool) error {
-	//open the db connection
-	err := db.OpenConnection()
-	if err != nil {
-		return common.ChainError("could not open database connection", err)
-	}
+		//run the migrations
+		if down {
+			err = mr.MigrateDown()
+		} else {
+			err = mr.MigrateUp()
+		}
 
-	defer db.CloseConnection()
-
-	//check db is connected
-	err = db.Ping()
-	if err != nil {
-		return common.ChainError("could not reach database", err)
-	}
-
-	//run the migrations
-	if down {
-		err = migrationRunner.MigrateDown()
-	} else {
-		err = migrationRunner.MigrateUp()
-	}
-
-	if err != nil {
-		return common.ChainError("error running migrations", err)
-	}
-
-	return nil
+		if err != nil {
+			return common.ChainError("error running migrations", err)
+		}
+		return nil
+	})
 }

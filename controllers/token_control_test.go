@@ -2,14 +2,15 @@ package controllers_test
 
 import (
 	"authserver/controllers"
+	datamocks "authserver/data/mocks"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
 
 	passwordhelpermocks "authserver/controllers/password_helpers/mocks"
-	databasemocks "authserver/database/mocks"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -17,15 +18,15 @@ import (
 
 type TokenControlTestSuite struct {
 	suite.Suite
-	CRUDMock           databasemocks.CRUDOperations
-	PasswordHasherMock passwordhelpermocks.PasswordHasher
-	TokenControl       controllers.TokenControl
+	CRUDMock            datamocks.DataCRUD
+	PasswordHasherMock  passwordhelpermocks.PasswordHasher
+	CoreTokenController controllers.CoreTokenController
 }
 
 func (suite *TokenControlTestSuite) SetupTest() {
-	suite.CRUDMock = databasemocks.CRUDOperations{}
+	suite.CRUDMock = datamocks.DataCRUD{}
 	suite.PasswordHasherMock = passwordhelpermocks.PasswordHasher{}
-	suite.TokenControl = controllers.TokenControl{
+	suite.CoreTokenController = controllers.CoreTokenController{
 		PasswordHasher: &suite.PasswordHasherMock,
 	}
 }
@@ -40,11 +41,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereClientWithIDisNotFound_ReturnsInvalidClient() {
@@ -57,11 +58,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereClientWithI
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_client", "")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_client", "")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGettingScopeByName_ReturnsInternalError() {
@@ -75,11 +76,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereNoScopeWithNameisNotFound_ReturnsInvalidScope() {
@@ -93,11 +94,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereNoScopeWith
 	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_scope", "")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_scope", "")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGettingUserByUsername_ReturnsInternalError() {
@@ -112,11 +113,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorGetting
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereUserWithUsernameIsNotFound_ReturnsClientError() {
@@ -131,11 +132,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WhereUserWithUse
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WherePasswordDoesNotMatch_ReturnsClientError() {
@@ -151,11 +152,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WherePasswordDoe
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
+	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_grant", "username", "password")
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorSavingAccessToken_ReturnsInternalError() {
@@ -172,11 +173,11 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithErrorSavingA
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(errors.New(""))
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
 
 	//assert
 	suite.Nil(token)
-	AssertOAuthInternalError(&suite.Suite, rerr)
+	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithValidRequest_ReturnsOK() {
@@ -197,7 +198,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithValidRequest
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(nil)
 
 	//act
-	token, rerr := suite.TokenControl.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scopeName)
+	token, rerr := suite.CoreTokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scopeName)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByID", clientID)
@@ -211,7 +212,7 @@ func (suite *TokenControlTestSuite) TestCreateTokenFromPassword_WithValidRequest
 	suite.Equal(scope, token.Scope)
 	suite.Equal(user, token.User)
 
-	AssertOAuthNoError(&suite.Suite, rerr)
+	helpers.AssertOAuthNoError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteToken_WithErrorDeletingAccessToken_ReturnsInternalError() {
@@ -221,10 +222,10 @@ func (suite *TokenControlTestSuite) TestDeleteToken_WithErrorDeletingAccessToken
 	suite.CRUDMock.On("DeleteAccessToken", mock.Anything).Return(errors.New(""))
 
 	//act
-	rerr := suite.TokenControl.DeleteToken(&suite.CRUDMock, token)
+	rerr := suite.CoreTokenController.DeleteToken(&suite.CRUDMock, token)
 
 	//assert
-	AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteToken_WithValidRequest_ReturnsOK() {
@@ -234,12 +235,12 @@ func (suite *TokenControlTestSuite) TestDeleteToken_WithValidRequest_ReturnsOK()
 	suite.CRUDMock.On("DeleteAccessToken", mock.Anything).Return(nil)
 
 	//act
-	rerr := suite.TokenControl.DeleteToken(&suite.CRUDMock, token)
+	rerr := suite.CoreTokenController.DeleteToken(&suite.CRUDMock, token)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAccessToken", token)
 
-	AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithErrorDeletingTokens_ReturnsInternalError() {
@@ -249,10 +250,10 @@ func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithErrorDeleti
 	suite.CRUDMock.On("DeleteAllOtherUserTokens", mock.Anything).Return(errors.New(""))
 
 	//act
-	rerr := suite.TokenControl.DeleteAllOtherUserTokens(&suite.CRUDMock, token)
+	rerr := suite.CoreTokenController.DeleteAllOtherUserTokens(&suite.CRUDMock, token)
 
 	//assert
-	AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, rerr)
 }
 
 func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithValidRequest_ReturnsOK() {
@@ -262,12 +263,12 @@ func (suite *TokenControlTestSuite) TestDeleteAllOtherUserTokens_WithValidReques
 	suite.CRUDMock.On("DeleteAllOtherUserTokens", mock.Anything).Return(nil)
 
 	//act
-	rerr := suite.TokenControl.DeleteAllOtherUserTokens(&suite.CRUDMock, token)
+	rerr := suite.CoreTokenController.DeleteAllOtherUserTokens(&suite.CRUDMock, token)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllOtherUserTokens", token)
 
-	AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, rerr)
 }
 
 func TestTokenControlTestSuite(t *testing.T) {

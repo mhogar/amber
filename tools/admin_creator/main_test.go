@@ -1,12 +1,11 @@
 package main_test
 
 import (
-	requesterror "authserver/common/request_error"
+	"authserver/common"
 	controllermocks "authserver/controllers/mocks"
-	databasemocks "authserver/database/mocks"
 	"authserver/models"
+	"authserver/testing/helpers"
 	admincreator "authserver/tools/admin_creator"
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -15,81 +14,13 @@ import (
 
 type AdminCreatorTestSuite struct {
 	suite.Suite
-	DBConnectionMock       databasemocks.DBConnection
-	ControllersMock        controllermocks.Controllers
-	TransactionFactoryMock databasemocks.TransactionFactory
-	TransactionMock        databasemocks.Transaction
+	helpers.ScopeFactorySuite
+	ControllersMock controllermocks.Controllers
 }
 
 func (suite *AdminCreatorTestSuite) SetupTest() {
-	suite.DBConnectionMock = databasemocks.DBConnection{}
+	suite.ScopeFactorySuite.SetupTest()
 	suite.ControllersMock = controllermocks.Controllers{}
-	suite.TransactionFactoryMock = databasemocks.TransactionFactory{}
-	suite.TransactionMock = databasemocks.Transaction{}
-
-	suite.TransactionMock.On("RollbackTransaction")
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorOpeningDatabaseConnection_ReturnsError() {
-	//arrange
-	username := "username"
-	password := "password"
-
-	message := "OpenConnection test error"
-	suite.DBConnectionMock.On("OpenConnection").Return(errors.New(message))
-
-	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
-
-	//assert
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorPingingDatabase_ReturnsError() {
-	//arrange
-	username := "username"
-	password := "password"
-
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-
-	message := "Ping test error"
-	suite.DBConnectionMock.On("Ping").Return(errors.New(message))
-
-	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
-
-	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingTransaction_ReturnsError() {
-	//arrange
-	username := "username"
-	password := "password"
-
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-
-	message := "create transaction error"
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(nil, errors.New(message))
-
-	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
-
-	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
 }
 
 func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError() {
@@ -97,49 +28,21 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError()
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
-
 	message := "create user error"
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, requesterror.ClientError(message))
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
+	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
+		suite.False(result)
+		suite.Require().Error(err)
+		suite.Contains(err.Error(), message)
+	})
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	err := admincreator.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-	suite.TransactionMock.AssertCalled(suite.T(), "RollbackTransaction")
-
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
-}
-
-func (suite *AdminCreatorTestSuite) TestRun_WithErrorCommitingTransaction_ReturnsError() {
-	//arrange
-	username := "username"
-	password := "password"
-
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, requesterror.NoError())
-
-	message := "commit transaction error"
-	suite.TransactionMock.On("CommitTransaction").Return(errors.New(message))
-
-	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
-
-	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
-
-	suite.Nil(user)
-	suite.Require().Error(err)
-	suite.Contains(err.Error(), message)
+	suite.NoError(err)
 }
 
 func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
@@ -147,27 +50,23 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	username := "username"
 	password := "password"
 
-	suite.DBConnectionMock.On("OpenConnection").Return(nil)
-	suite.DBConnectionMock.On("CloseConnection").Return(nil)
-	suite.DBConnectionMock.On("Ping").Return(nil)
-	suite.TransactionFactoryMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, requesterror.NoError())
-	suite.TransactionMock.On("CommitTransaction").Return(nil)
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, common.NoError())
+
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
+	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
+		suite.True(result)
+		suite.NoError(err)
+	})
 
 	//act
-	user, err := admincreator.Run(&suite.DBConnectionMock, &suite.ControllersMock, &suite.TransactionFactoryMock, username, password)
+	err := admincreator.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
 
 	//assert
-	suite.DBConnectionMock.AssertCalled(suite.T(), "OpenConnection")
-	suite.DBConnectionMock.AssertCalled(suite.T(), "Ping")
-	suite.TransactionFactoryMock.AssertCalled(suite.T(), "CreateTransaction")
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", mock.Anything, username, password)
-	suite.TransactionMock.AssertCalled(suite.T(), "CommitTransaction")
-	suite.TransactionMock.AssertNotCalled(suite.T(), "RollbackTransaction")
-	suite.DBConnectionMock.AssertCalled(suite.T(), "CloseConnection")
+	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
+	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateTransactionScope", &suite.DataExecutorMock, mock.Anything)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.TransactionMock, username, password)
 
 	suite.NoError(err)
-	suite.NotNil(user)
 }
 
 func TestAdminCreatorTestSuite(t *testing.T) {

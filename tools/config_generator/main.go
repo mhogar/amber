@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 
@@ -65,5 +66,5 @@ func Run(name string) error {
 	}
 
 	//write to file (permissions read & write)
-	return os.WriteFile(filename, data, 0666)
+	return ioutil.WriteFile(filename, data, 0666)
 }
