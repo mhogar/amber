@@ -1,7 +1,7 @@
 name: CI
-
 on: [push, pull_request]
-
+env:
+  CFG_ENV: test
 jobs:
   build:
     name: Build and Unit Tests
