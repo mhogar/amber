@@ -1,4 +1,4 @@
-package interfaces
+package runner
 
 import (
 	"authserver/data"

@@ -1,9 +1,9 @@
-package main_test
+package runner_test
 
 import (
 	"authserver/testing/helpers"
-	migrationrunner "authserver/tools/migration_runner"
-	"authserver/tools/migration_runner/interfaces/mocks"
+	"authserver/tools/migration_runner/runner"
+	"authserver/tools/migration_runner/runner/mocks"
 	"errors"
 	"testing"
 
@@ -38,7 +38,7 @@ func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndR
 	})
 
 	//act
-	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
 
 	//assert
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
@@ -60,7 +60,7 @@ func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAnd
 	})
 
 	//act
-	err := migrationrunner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, true)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, true)
 
 	//assert
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
