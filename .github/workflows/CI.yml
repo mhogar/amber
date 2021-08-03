@@ -42,11 +42,13 @@ jobs:
 
   integration:
     name: Integration and E2E Tests
-    runs-on: ubuntu-latest
     needs: build
+    runs-on: ubuntu-latest
+    container: golang:latest
+
     services:
       postgres:
-        image: postgres
+        image: postgres:latest
         env:
           POSTGRES_PASSWORD: password
         # Set health checks to wait until postgres has started
@@ -57,12 +59,13 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+
     steps:
     - name: Create Database
       run: |
         apt-get update
         apt-get install --yes postgresql-client
-        PGPASSWORD=password psql -c 'CREATE DATABASE ci_test;' -U postgres
+        PGPASSWORD=password psql -h postgres -U postgres -c 'CREATE DATABASE ci_test;'
 
     - uses: actions/checkout@v2
 
