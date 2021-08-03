@@ -44,6 +44,7 @@ jobs:
     name: Integration and E2E Tests
     needs: build
     runs-on: ubuntu-latest
+    # need to run in container so we can install the psql client
     container: golang:latest
 
     services:
@@ -75,10 +76,10 @@ jobs:
         go-version: 1.16
 
     - name: Run Migrations
-      run: go run tools/migration_runner/main.go -db=ci_test
+      run: go run tools/migration_runner/main.go -db=integration
 
     - name: Create Admin User
-      run: go run tools/admin_creator/main.go -db=ci_test -username=admin -password=Admin123!
+      run: go run tools/admin_creator/main.go -db=integration -username=admin -password=Admin123!
 
     - name: Run Integration Tests
       run: go test ./testing/integration/ -v
