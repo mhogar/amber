@@ -3,7 +3,7 @@ app_id: 5369602a-777c-48db-914d-2b1823a1b9af
 database:
     connection_strings:
         core: ""
-        integration: postgres://postgres:password@postgres:5432/ci_test?sslmode=disable
+        integration: postgres://postgres:password@localhost:5432/ci_test?sslmode=disable
     timeout: 3000
 password_criteria:
     min_length: 8

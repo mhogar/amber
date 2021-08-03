@@ -82,10 +82,8 @@ jobs:
 
   integration:
     name: Integration and E2E Tests
-    needs: build
     runs-on: ubuntu-latest
-    # need to run in container so we can install the psql client
-    container: golang:latest
+    needs: build
 
     services:
       postgres:
@@ -130,10 +128,7 @@ jobs:
         go-version: 1.16
 
     - name: Create Database
-      run: |
-        apt-get update
-        apt-get install --yes postgresql-client
-        PGPASSWORD=password psql -h postgres -U postgres -c 'CREATE DATABASE ci_test;'
+      run: go run data/database/sql_adapter/postgres/create_db/main.go -name=ci_test
 
     - name: Run Migrations
       run: go run tools/migration_runner/main.go -db=integration
