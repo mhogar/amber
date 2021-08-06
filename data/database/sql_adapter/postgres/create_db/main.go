@@ -10,8 +10,8 @@ import (
 
 func main() {
 	//parse flags
-	name := flag.String("name", "", "The database name tp create")
-	user := flag.String("U", "postgres", "The server's user")
+	name := flag.String("name", "", "The name of the database to create")
+	user := flag.String("U", "postgres", "The database user")
 	password := flag.String("P", "password", "The user's password")
 	host := flag.String("H", "localhost", "The server's host")
 	port := flag.String("p", "5432", "The server's port on the host")
