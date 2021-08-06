@@ -1,11 +1,11 @@
-package main_test
+package runner_test
 
 import (
 	"authserver/common"
 	controllermocks "authserver/controllers/mocks"
 	"authserver/models"
 	"authserver/testing/helpers"
-	admincreator "authserver/tools/admin_creator"
+	"authserver/tools/admin_creator/runner"
 	"testing"
 
 	"github.com/stretchr/testify/mock"
@@ -39,7 +39,7 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError()
 	})
 
 	//act
-	err := admincreator.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
 
 	//assert
 	suite.NoError(err)
@@ -59,7 +59,7 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	})
 
 	//act
-	err := admincreator.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
 
 	//assert
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)

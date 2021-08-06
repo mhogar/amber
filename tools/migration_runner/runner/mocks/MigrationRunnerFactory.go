@@ -4,7 +4,7 @@ package mocks
 
 import (
 	data "authserver/data"
-	interfaces "authserver/tools/migration_runner/interfaces"
+	runner "authserver/tools/migration_runner/runner"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -15,15 +15,15 @@ type MigrationRunnerFactory struct {
 }
 
 // CreateMigrationRunner provides a mock function with given fields: _a0
-func (_m *MigrationRunnerFactory) CreateMigrationRunner(_a0 data.DataExecutor) interfaces.MigrationRunner {
+func (_m *MigrationRunnerFactory) CreateMigrationRunner(_a0 data.DataExecutor) runner.MigrationRunner {
 	ret := _m.Called(_a0)
 
-	var r0 interfaces.MigrationRunner
-	if rf, ok := ret.Get(0).(func(data.DataExecutor) interfaces.MigrationRunner); ok {
+	var r0 runner.MigrationRunner
+	if rf, ok := ret.Get(0).(func(data.DataExecutor) runner.MigrationRunner); ok {
 		r0 = rf(_a0)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interfaces.MigrationRunner)
+			r0 = ret.Get(0).(runner.MigrationRunner)
 		}
 	}
 
