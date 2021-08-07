@@ -82,7 +82,7 @@ func (suite *UserTestSuite) TestValidate_UsernameMaxLengthTestCases() {
 	expectedValidateError = models.ValidateUserValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 
-	username = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //31 chars
+	username += "a"
 	expectedValidateError = models.ValidateUserUsernameTooLong
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }

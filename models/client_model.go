@@ -5,13 +5,19 @@ import (
 )
 
 const (
-	ValidateClientValid = 0x0
-	ValidateClientNilID = 0x1
+	ValidateClientValid       = 0x0
+	ValidateClientNilID       = 0x1
+	ValidateClientEmptyName   = 0x2
+	ValidateClientNameTooLong = 0x4
 )
+
+// ClientNameMaxLength is the max length a client's name can be
+const ClientNameMaxLength = 30
 
 // Client represents the client model
 type Client struct {
-	ID uuid.UUID
+	ID   uuid.UUID
+	Name string
 }
 
 type ClientCRUD interface {
@@ -23,9 +29,10 @@ type ClientCRUD interface {
 	GetClientByID(ID uuid.UUID) (*Client, error)
 }
 
-func CreateNewClient() *Client {
+func CreateNewClient(name string) *Client {
 	return &Client{
-		ID: uuid.New(),
+		ID:   uuid.New(),
+		Name: name,
 	}
 }
 
@@ -36,6 +43,12 @@ func (c *Client) Validate() int {
 
 	if c.ID == uuid.Nil {
 		code |= ValidateClientNilID
+	}
+
+	if c.Name == "" {
+		code |= ValidateClientEmptyName
+	} else if len(c.Name) > ClientNameMaxLength {
+		code |= ValidateClientNameTooLong
 	}
 
 	return code
