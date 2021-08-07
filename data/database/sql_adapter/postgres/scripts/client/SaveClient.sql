@@ -1,2 +1,2 @@
-INSERT INTO "client" ("id")
-	VALUES ($1)
+INSERT INTO "client" ("id", "name")
+	VALUES ($1, $2)

@@ -35,7 +35,8 @@ func (m m20200628151601) Up() error {
 
 		//add this app as a client
 		err = sqlTx.SaveClient(&models.Client{
-			ID: config.GetAppId(),
+			ID:   config.GetAppId(),
+			Name: "AuthServer",
 		})
 		if err != nil {
 			return false, common.ChainError("error saving app client", err)

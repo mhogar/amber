@@ -34,7 +34,7 @@ func (suite *UserCRUDTestSuite) TestGetUserById_WhereUserNotFound_ReturnsNilUser
 func (suite *UserCRUDTestSuite) TestGetUserById_GetsTheUserWithId() {
 	//arrange
 	user := models.CreateNewUser("username", []byte("password"))
-	suite.SaveUser(suite.Tx, user)
+	suite.SaveUser(user)
 
 	//act
 	resultUser, err := suite.Tx.GetUserByID(user.ID)
@@ -56,7 +56,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
 	//arrange
 	user := models.CreateNewUser("username", []byte("password"))
-	suite.SaveUser(suite.Tx, user)
+	suite.SaveUser(user)
 
 	//act
 	resultUser, err := suite.Tx.GetUserByUsername(user.Username)
@@ -86,7 +86,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithNoUserToUpdate_ReturnsNilErro
 func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 	//arrange
 	user := models.CreateNewUser("username", []byte("password"))
-	suite.SaveUser(suite.Tx, user)
+	suite.SaveUser(user)
 
 	//act
 	user.Username = "username2"
@@ -111,7 +111,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_WithNoUserToDelete_ReturnsNilErro
 func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	//arrange
 	user := models.CreateNewUser("username", []byte("password"))
-	suite.SaveUser(suite.Tx, user)
+	suite.SaveUser(user)
 
 	//act
 	err := suite.Tx.DeleteUser(user)
@@ -129,10 +129,10 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserTokens() {
 	user := models.CreateNewUser("username", []byte("password"))
 	token := models.CreateNewAccessToken(
 		user,
-		models.CreateNewClient(),
+		models.CreateNewClient("name"),
 		models.CreateNewScope("name"),
 	)
-	suite.SaveAccessTokenAndFields(suite.Tx, token)
+	suite.SaveAccessTokenAndFields(token)
 
 	//act
 	err := suite.Tx.DeleteUser(user)

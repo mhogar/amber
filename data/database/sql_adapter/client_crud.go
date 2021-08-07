@@ -43,11 +43,30 @@ func (crud *SQLCRUD) DropClientTable() error {
 func (crud *SQLCRUD) SaveClient(client *models.Client) error {
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
-		return errors.New(fmt.Sprint("error validating client model:", verr))
+		return errors.New(fmt.Sprint("error validating client model: ", verr))
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveClientScript(), client.ID)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveClientScript(), client.ID, client.Name)
+	cancel()
+
+	if err != nil {
+		return common.ChainError("error executing save client statement", err)
+	}
+
+	return nil
+}
+
+// UpdateClient validates the client model is valid and updates the row in the client table
+// Returns any errors
+func (crud *SQLCRUD) UpdateClient(client *models.Client) error {
+	verr := client.Validate()
+	if verr != models.ValidateClientValid {
+		return errors.New(fmt.Sprint("error validating client model: ", verr))
+	}
+
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(), client.ID, client.Name)
 	cancel()
 
 	if err != nil {
@@ -86,7 +105,7 @@ func readClientData(rows *sql.Rows) (*models.Client, error) {
 
 	//get the result
 	client := &models.Client{}
-	err := rows.Scan(&client.ID)
+	err := rows.Scan(&client.ID, &client.Name)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

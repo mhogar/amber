@@ -349,6 +349,20 @@ func (_m *Transaction) Setup() error {
 	return r0
 }
 
+// UpdateClient provides a mock function with given fields: client
+func (_m *Transaction) UpdateClient(client *models.Client) error {
+	ret := _m.Called(client)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.Client) error); ok {
+		r0 = rf(client)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // UpdateUser provides a mock function with given fields: user
 func (_m *Transaction) UpdateUser(user *models.User) error {
 	ret := _m.Called(user)
