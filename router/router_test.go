@@ -36,7 +36,7 @@ func (suite *RouterTestSuite) SetupTest() {
 
 	rf := router.CoreRouterFactory{
 		CoreScopeFactory: &suite.ScopeFactoryMock,
-		CoreHandlers:     &suite.HandlersMock,
+		Handlers:         &suite.HandlersMock,
 	}
 	suite.Router = rf.CreateRouter()
 }
@@ -272,6 +272,36 @@ func TestPatchUserPasswordTestSuite(t *testing.T) {
 			Method:  "PATCH",
 			Route:   "/user/password",
 			Handler: "PatchUserPassword",
+		},
+	})
+}
+
+func TestPostClientTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "POST",
+			Route:   "/client",
+			Handler: "PostClient",
+		},
+	})
+}
+
+func TestPutClientTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "PUT",
+			Route:   "/client",
+			Handler: "PutClient",
+		},
+	})
+}
+
+func TestDeleteClientTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "DELETE",
+			Route:   "/client",
+			Handler: "DeleteClient",
 		},
 	})
 }

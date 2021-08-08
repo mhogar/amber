@@ -24,6 +24,15 @@ type Handlers interface {
 
 	// DeleteToken handles DELETE requests to /token
 	DeleteToken(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
+
+	// PostClient handles POST requests to /client
+	PostClient(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
+
+	// PutClient handles PUT requests to /client
+	PutClient(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
+
+	// DeleteClient handles DELETE requests to /client
+	DeleteClient(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
 }
 
 type CoreHandlers struct {

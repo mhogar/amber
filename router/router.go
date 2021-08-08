@@ -20,7 +20,7 @@ type RouterFactory interface {
 
 type CoreRouterFactory struct {
 	CoreScopeFactory data.ScopeFactory
-	CoreHandlers     handlers.Handlers
+	Handlers         handlers.Handlers
 }
 
 func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
@@ -28,13 +28,18 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.PanicHandler = panicHandler
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.CoreHandlers.PostUser, false))
-	r.DELETE("/user", rf.createHandler(rf.CoreHandlers.DeleteUser, true))
-	r.PATCH("/user/password", rf.createHandler(rf.CoreHandlers.PatchUserPassword, true))
+	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, false))
+	r.DELETE("/user", rf.createHandler(rf.Handlers.DeleteUser, true))
+	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true))
+
+	//client routes
+	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true))
+	r.PUT("/client", rf.createHandler(rf.Handlers.PutClient, true))
+	r.DELETE("/client", rf.createHandler(rf.Handlers.DeleteClient, true))
 
 	//token routes
-	r.POST("/token", rf.createHandler(rf.CoreHandlers.PostToken, false))
-	r.DELETE("/token", rf.createHandler(rf.CoreHandlers.DeleteToken, true))
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
+	r.DELETE("/token", rf.createHandler(rf.Handlers.DeleteToken, true))
 
 	return r
 }
