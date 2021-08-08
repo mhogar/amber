@@ -42,18 +42,6 @@ func (m m20200628151601) Up() error {
 			return false, common.ChainError("error saving app client", err)
 		}
 
-		//create the scope table
-		err = sqlTx.CreateScopeTable()
-		if err != nil {
-			return false, common.ChainError("error creating scope table", err)
-		}
-
-		//add the "all" scope
-		err = sqlTx.SaveScope(models.CreateNewScope("all"))
-		if err != nil {
-			return false, common.ChainError("error saving \"all\" scope", err)
-		}
-
 		//create the access_token table
 		err = sqlTx.CreateAccessTokenTable()
 		if err != nil {
@@ -72,12 +60,6 @@ func (m m20200628151601) Down() error {
 		err := sqlTx.DropAccessTokenTable()
 		if err != nil {
 			return false, common.ChainError("error dropping access token table", err)
-		}
-
-		//drop the scope table
-		err = sqlTx.DropScopeTable()
-		if err != nil {
-			return false, common.ChainError("error dropping scope table", err)
 		}
 
 		//drop the client table

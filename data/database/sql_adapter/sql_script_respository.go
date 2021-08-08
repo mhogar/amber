@@ -5,7 +5,6 @@ type SQLScriptRepository interface {
 	AccessTokenScriptRepository
 	ClientScriptRepository
 	MigrationScriptRepository
-	ScopeScriptRepository
 	UserScriptRepository
 }
 
@@ -36,14 +35,6 @@ type MigrationScriptRepository interface {
 	GetMigrationByTimestampScript() string
 	GetLatestTimestampScript() string
 	DeleteMigrationByTimestampScript() string
-}
-
-// ScopeScriptRepository is an interface for fetching scope sql scripts
-type ScopeScriptRepository interface {
-	CreateScopeTableScript() string
-	DropScopeTableScript() string
-	SaveScopeScript() string
-	GetScopeByNameScript() string
 }
 
 // UserScriptRepository is an interface for fetching user sql scripts

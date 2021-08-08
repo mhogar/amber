@@ -130,7 +130,6 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserTokens() {
 	token := models.CreateNewAccessToken(
 		user,
 		models.CreateNewClient("name"),
-		models.CreateNewScope("name"),
 	)
 	suite.SaveAccessTokenAndFields(token)
 

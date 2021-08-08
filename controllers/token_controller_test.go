@@ -35,12 +35,11 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGett
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
@@ -52,52 +51,15 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WhereClientWi
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
 	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_client", "")
-}
-
-func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGettingScopeByName_ReturnsInternalError() {
-	//arrange
-	username := "username"
-	password := "password"
-	clientID := uuid.New()
-	scope := "scope"
-
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(nil, errors.New(""))
-
-	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
-
-	//assert
-	suite.Nil(token)
-	helpers.AssertOAuthInternalError(&suite.Suite, rerr)
-}
-
-func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WhereNoScopeWithNameisNotFound_ReturnsInvalidScope() {
-	//arrange
-	username := "username"
-	password := "password"
-	clientID := uuid.New()
-	scope := "scope"
-
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(nil, nil)
-
-	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
-
-	//assert
-	suite.Nil(token)
-	helpers.AssertOAuthClientError(&suite.Suite, rerr, "invalid_scope", "")
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGettingUserByUsername_ReturnsInternalError() {
@@ -105,14 +67,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGett
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(&models.Scope{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
@@ -124,14 +84,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WhereUserWith
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(&models.Scope{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
@@ -143,15 +101,13 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WherePassword
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(&models.Scope{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
@@ -163,16 +119,14 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorSavi
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scope := "scope"
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(&models.Scope{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(errors.New(""))
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scope)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.Nil(token)
@@ -184,31 +138,26 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithNoErrors_
 	username := "username"
 	password := "password"
 	clientID := uuid.New()
-	scopeName := "scope"
 
 	client := &models.Client{ID: clientID}
-	scope := &models.Scope{ID: uuid.New()}
 	user := &models.User{ID: uuid.New()}
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(client, nil)
-	suite.CRUDMock.On("GetScopeByName", mock.Anything).Return(scope, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(nil)
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID, scopeName)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByID", clientID)
-	suite.CRUDMock.AssertCalled(suite.T(), "GetScopeByName", scopeName)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", mock.Anything, password)
 	suite.CRUDMock.AssertCalled(suite.T(), "SaveAccessToken", token)
 
 	suite.Require().NotNil(token)
 	suite.Equal(client, token.Client)
-	suite.Equal(scope, token.Scope)
 	suite.Equal(user, token.User)
 
 	helpers.AssertOAuthNoError(&suite.Suite, rerr)

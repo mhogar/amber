@@ -15,7 +15,7 @@ type AccessTokenCRUDTestSuite struct {
 
 func (suite *AccessTokenCRUDTestSuite) TestSaveAccessToken_WithInvalidAccessToken_ReturnsError() {
 	//act
-	err := suite.Tx.SaveAccessToken(models.CreateNewAccessToken(nil, nil, nil))
+	err := suite.Tx.SaveAccessToken(models.CreateNewAccessToken(nil, nil))
 
 	//assert
 	suite.Require().Error(err)
@@ -36,7 +36,6 @@ func (suite *AccessTokenCRUDTestSuite) TestGetAccessTokenById_GetsTheAccessToken
 	token := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
 		models.CreateNewClient("name"),
-		models.CreateNewScope("name"),
 	)
 	suite.SaveAccessTokenAndFields(token)
 
@@ -50,7 +49,7 @@ func (suite *AccessTokenCRUDTestSuite) TestGetAccessTokenById_GetsTheAccessToken
 
 func (suite *AccessTokenCRUDTestSuite) TestDeleteAccessToken_WithNoAccessTokenToDelete_ReturnsNilError() {
 	//act
-	err := suite.Tx.DeleteAccessToken(models.CreateNewAccessToken(nil, nil, nil))
+	err := suite.Tx.DeleteAccessToken(models.CreateNewAccessToken(nil, nil))
 
 	//assert
 	suite.NoError(err)
@@ -61,7 +60,6 @@ func (suite *AccessTokenCRUDTestSuite) TestDeleteAccessToken_DeletesAccessTokenW
 	token := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
 		models.CreateNewClient("name"),
-		models.CreateNewScope("name"),
 	)
 	suite.SaveAccessTokenAndFields(token)
 
@@ -78,7 +76,7 @@ func (suite *AccessTokenCRUDTestSuite) TestDeleteAccessToken_DeletesAccessTokenW
 
 func (suite *AccessTokenCRUDTestSuite) TestDeleteAllOtherUserTokens_WithNoAccessTokensToDelete_ReturnsNilError() {
 	//act
-	err := suite.Tx.DeleteAllOtherUserTokens(models.CreateNewAccessToken(models.CreateNewUser("", nil), nil, nil))
+	err := suite.Tx.DeleteAllOtherUserTokens(models.CreateNewAccessToken(models.CreateNewUser("", nil), nil))
 
 	//assert
 	suite.NoError(err)
@@ -89,14 +87,12 @@ func (suite *AccessTokenCRUDTestSuite) TestDeleteAllOtherUserTokens_DeletesAllOt
 	token1 := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
 		models.CreateNewClient("name"),
-		models.CreateNewScope("name1"),
 	)
 	suite.SaveAccessTokenAndFields(token1)
 
 	token2 := models.CreateNewAccessToken(
 		token1.User,
 		token1.Client,
-		token1.Scope,
 	)
 	suite.Tx.SaveAccessToken(token2)
 

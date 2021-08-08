@@ -58,13 +58,12 @@ type ClientController interface {
 type TokenControllerCRUD interface {
 	models.UserCRUD
 	models.ClientCRUD
-	models.ScopeCRUD
 	models.AccessTokenCRUD
 }
 
 type TokenController interface {
 	// CreateTokenFromPassword creates a new access token, authenticating using a password
-	CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError)
+	CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError)
 
 	// DeleteToken deletes the access token
 	DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError

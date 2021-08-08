@@ -9,8 +9,6 @@ const (
 	ValidateAccessTokenInvalidUser   = 0x4
 	ValidateAccessTokenNilClient     = 0x8
 	ValidateAccessTokenInvalidClient = 0x10
-	ValidateAccessTokenNilScope      = 0x20
-	ValidateAccessTokenInvalidScope  = 0x40
 )
 
 // AccessToken represents the access token model
@@ -18,7 +16,6 @@ type AccessToken struct {
 	ID     uuid.UUID
 	User   *User
 	Client *Client
-	Scope  *Scope
 }
 
 type AccessTokenCRUD interface {
@@ -36,17 +33,16 @@ type AccessTokenCRUD interface {
 	DeleteAllOtherUserTokens(token *AccessToken) error
 }
 
-func CreateAccessToken(id uuid.UUID, user *User, client *Client, scope *Scope) *AccessToken {
+func CreateAccessToken(id uuid.UUID, user *User, client *Client) *AccessToken {
 	return &AccessToken{
 		ID:     id,
 		User:   user,
 		Client: client,
-		Scope:  scope,
 	}
 }
 
-func CreateNewAccessToken(user *User, client *Client, scope *Scope) *AccessToken {
-	return CreateAccessToken(uuid.New(), user, client, scope)
+func CreateNewAccessToken(user *User, client *Client) *AccessToken {
+	return CreateAccessToken(uuid.New(), user, client)
 }
 
 // Validate validates the access token model has valid fields
@@ -73,15 +69,6 @@ func (tk *AccessToken) Validate() int {
 		verr := tk.Client.Validate()
 		if verr != ValidateClientValid {
 			code |= ValidateAccessTokenInvalidClient
-		}
-	}
-
-	if tk.Scope == nil {
-		code |= ValidateAccessTokenNilScope
-	} else {
-		verr := tk.Scope.Validate()
-		if verr != ValidateScopeValid {
-			code |= ValidateAccessTokenInvalidScope
 		}
 	}
 

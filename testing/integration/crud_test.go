@@ -52,11 +52,6 @@ func (suite *CRUDTestSuite) SaveUser(user *models.User) {
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveScope(scope *models.Scope) {
-	err := suite.Tx.SaveScope(scope)
-	suite.Require().NoError(err)
-}
-
 func (suite *CRUDTestSuite) SaveClient(client *models.Client) {
 	err := suite.Tx.SaveClient(client)
 	suite.Require().NoError(err)
@@ -70,6 +65,5 @@ func (suite *CRUDTestSuite) SaveAccessToken(token *models.AccessToken) {
 func (suite *CRUDTestSuite) SaveAccessTokenAndFields(token *models.AccessToken) {
 	suite.SaveUser(token.User)
 	suite.SaveClient(token.Client)
-	suite.SaveScope(token.Scope)
 	suite.SaveAccessToken(token)
 }

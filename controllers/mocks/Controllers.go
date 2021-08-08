@@ -41,13 +41,13 @@ func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name 
 	return r0, r1
 }
 
-// CreateTokenFromPassword provides a mock function with given fields: CRUD, username, password, clientID, scopeName
-func (_m *Controllers) CreateTokenFromPassword(CRUD controllers.TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
-	ret := _m.Called(CRUD, username, password, clientID, scopeName)
+// CreateTokenFromPassword provides a mock function with given fields: CRUD, username, password, clientID
+func (_m *Controllers) CreateTokenFromPassword(CRUD controllers.TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError) {
+	ret := _m.Called(CRUD, username, password, clientID)
 
 	var r0 *models.AccessToken
-	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID, string) *models.AccessToken); ok {
-		r0 = rf(CRUD, username, password, clientID, scopeName)
+	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID) *models.AccessToken); ok {
+		r0 = rf(CRUD, username, password, clientID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.AccessToken)
@@ -55,8 +55,8 @@ func (_m *Controllers) CreateTokenFromPassword(CRUD controllers.TokenControllerC
 	}
 
 	var r1 common.OAuthCustomError
-	if rf, ok := ret.Get(1).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID, string) common.OAuthCustomError); ok {
-		r1 = rf(CRUD, username, password, clientID, scopeName)
+	if rf, ok := ret.Get(1).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID) common.OAuthCustomError); ok {
+		r1 = rf(CRUD, username, password, clientID)
 	} else {
 		r1 = ret.Get(1).(common.OAuthCustomError)
 	}

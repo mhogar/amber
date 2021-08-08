@@ -22,7 +22,6 @@ type PostTokenPasswordGrantBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 	ClientID string `json:"client_id"`
-	Scope    string `json:"scope"`
 }
 
 func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
@@ -60,9 +59,6 @@ func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx da
 	if body.ClientID == "" {
 		return common.NewOAuthErrorResponse("invalid_request", "missing client_id parameter")
 	}
-	if body.Scope == "" {
-		return common.NewOAuthErrorResponse("invalid_request", "missing scope parameter")
-	}
 
 	//parse the client id
 	clientID, err := uuid.Parse(body.ClientID)
@@ -72,7 +68,7 @@ func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx da
 	}
 
 	//create the token
-	token, rerr := h.Controllers.CreateTokenFromPassword(tx, body.Username, body.Password, clientID, body.Scope)
+	token, rerr := h.Controllers.CreateTokenFromPassword(tx, body.Username, body.Password, clientID)
 	if rerr.Type == common.ErrorTypeClient {
 		return common.NewOAuthErrorResponse(rerr.ErrorName, rerr.Error())
 	}

@@ -80,7 +80,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParam
 	grantBody = handlers.PostTokenPasswordGrantBody{
 		Password: "password",
 		ClientID: "client id",
-		Scope:    "scope",
 	}
 	expectedErrorDescription = "missing username parameter"
 	suite.Run("MissingUsername", testCase)
@@ -88,7 +87,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParam
 	grantBody = handlers.PostTokenPasswordGrantBody{
 		Username: "username",
 		ClientID: "client id",
-		Scope:    "scope",
 	}
 	expectedErrorDescription = "missing password parameter"
 	suite.Run("MissingPassword", testCase)
@@ -96,18 +94,9 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithMissingParam
 	grantBody = handlers.PostTokenPasswordGrantBody{
 		Username: "username",
 		Password: "password",
-		Scope:    "scope",
 	}
 	expectedErrorDescription = "missing client_id parameter"
 	suite.Run("MissingClientID", testCase)
-
-	grantBody = handlers.PostTokenPasswordGrantBody{
-		Username: "username",
-		Password: "password",
-		ClientID: "client id",
-	}
-	expectedErrorDescription = "missing scope parameter"
-	suite.Run("MissingScope", testCase)
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithErrorParsingClient_ReturnsInvalidClient() {
@@ -118,7 +107,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithErrorParsing
 			Username: "username",
 			Password: "password",
 			ClientID: "invalid",
-			Scope:    "scope",
 		},
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
@@ -139,7 +127,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithClientErrorC
 			Username: "username",
 			Password: "password",
 			ClientID: uuid.New().String(),
-			Scope:    "scope",
 		},
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
@@ -164,7 +151,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErro
 			Username: "username",
 			Password: "password",
 			ClientID: uuid.New().String(),
-			Scope:    "scope",
 		},
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
@@ -182,7 +168,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErro
 func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithNoErrors_ReturnsAccessToken() {
 	//arrange
 	clientID := uuid.New()
-	token := models.CreateNewAccessToken(nil, nil, nil)
+	token := models.CreateNewAccessToken(nil, nil)
 
 	body := handlers.PostTokenBody{
 		GrantType: "password",
@@ -190,7 +176,6 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithNoErrors_Ret
 			Username: "username",
 			Password: "password",
 			ClientID: clientID.String(),
-			Scope:    "scope",
 		},
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
@@ -204,7 +189,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithNoErrors_Ret
 	suite.Equal(http.StatusOK, status)
 	helpers.AssertAccessTokenResponse(&suite.Suite, res, token.ID.String())
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateTokenFromPassword", &suite.TransactionMock, body.Username, body.Password, clientID, body.Scope)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateTokenFromPassword", &suite.TransactionMock, body.Username, body.Password, clientID)
 }
 
 func (suite *TokenHandlerTestSuite) TestDeleteToken_WithClientErrorDeletingToken_ReturnsBadRequest() {

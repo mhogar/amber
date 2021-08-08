@@ -11,7 +11,6 @@ type DataCRUD interface {
 	models.MigrationCRUD
 	models.UserCRUD
 	models.ClientCRUD
-	models.ScopeCRUD
 	models.AccessTokenCRUD
 }
 
