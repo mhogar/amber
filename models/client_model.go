@@ -24,8 +24,13 @@ type ClientCRUD interface {
 	// SaveClient saves the client and returns any errors
 	SaveClient(client *Client) error
 
-	// UpdateClient updates the client and returns any errors
-	UpdateClient(client *Client) error
+	// UpdateClient updates the client
+	// Returns result of whether the client was found, and any errors
+	UpdateClient(client *Client) (bool, error)
+
+	// DeleteClient deletes the client the with the id
+	// Returns result of whether the client was found, and any errors
+	DeleteClient(id uuid.UUID) (bool, error)
 
 	// GetClientByID fetches the client associated with the id
 	// If no clients are found, returns nil client. Also returns any errors

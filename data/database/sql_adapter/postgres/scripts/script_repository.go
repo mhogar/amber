@@ -79,6 +79,14 @@ CREATE TABLE "public"."client" (
 `
 }
 
+// DeleteClientScript gets the DeleteClient script
+func (ScriptRepository) DeleteClientScript() string {
+	return `
+DELETE FROM "client" c
+    WHERE c."id" = $1
+`
+}
+
 // DropClientTableScript gets the DropClientTable script
 func (ScriptRepository) DropClientTableScript() string {
 	return `

@@ -34,11 +34,23 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WithInvalidClient_ReturnsErro
 	}
 
 	//act
-	err := suite.Tx.UpdateClient(client)
+	_, err := suite.Tx.UpdateClient(client)
 
 	//assert
 	suite.Require().Error(err)
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
+}
+
+func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_ReturnsFalseResult() {
+	//arrange
+	client := models.CreateNewClient("name")
+
+	//act
+	res, err := suite.Tx.UpdateClient(client)
+
+	//assert
+	suite.False(res)
+	suite.NoError(err)
 }
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
@@ -49,14 +61,44 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 	client.Name = "new name"
 
 	//act
-	err := suite.Tx.UpdateClient(client)
+	res, err := suite.Tx.UpdateClient(client)
 	suite.Require().NoError(err)
 
 	//assert
 	resultClient, err := suite.Tx.GetClientByID(client.ID)
 
+	suite.True(res)
 	suite.NoError(err)
 	suite.EqualValues(client, resultClient)
+}
+
+func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_ReturnsFalseResult() {
+	//arrange
+	id := uuid.New()
+
+	//act
+	res, err := suite.Tx.DeleteClient(id)
+
+	//assert
+	suite.False(res)
+	suite.NoError(err)
+}
+
+func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
+	//arrange
+	client := models.CreateNewClient("name")
+	suite.SaveClient(client)
+
+	//act
+	res, err := suite.Tx.DeleteClient(client.ID)
+	suite.Require().NoError(err)
+
+	//assert
+	resultClient, err := suite.Tx.GetClientByID(client.ID)
+
+	suite.True(res)
+	suite.NoError(err)
+	suite.Nil(resultClient)
 }
 
 func (suite *ClientCRUDTestSuite) TestGetClientById_WhereClientNotFound_ReturnsNilClient() {
