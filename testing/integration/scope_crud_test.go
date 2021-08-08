@@ -36,7 +36,7 @@ func (suite *ScopeCRUDTestSuite) TestGetScopeByName_WhereScopeNotFound_ReturnsNi
 func (suite *ScopeCRUDTestSuite) TestGetScopeByName_GetsTheScopeWithName() {
 	//arrange
 	scope := models.CreateNewScope("name")
-	suite.SaveScope(suite.Tx, scope)
+	suite.SaveScope(scope)
 
 	//act
 	resultScope, err := suite.Tx.GetScopeByName(scope.Name)

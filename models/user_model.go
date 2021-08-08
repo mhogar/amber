@@ -41,12 +41,16 @@ type UserCRUD interface {
 	DeleteUser(user *User) error
 }
 
-func CreateNewUser(username string, passwordHash []byte) *User {
+func CreateUser(id uuid.UUID, username string, passwordHash []byte) *User {
 	return &User{
-		ID:           uuid.New(),
+		ID:           id,
 		Username:     username,
 		PasswordHash: passwordHash,
 	}
+}
+
+func CreateNewUser(username string, passwordHash []byte) *User {
+	return CreateUser(uuid.New(), username, passwordHash)
 }
 
 // Validate validates the user model has valid fields

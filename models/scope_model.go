@@ -29,11 +29,15 @@ type ScopeCRUD interface {
 	GetScopeByName(name string) (*Scope, error)
 }
 
-func CreateNewScope(name string) *Scope {
+func CreateScope(id uuid.UUID, name string) *Scope {
 	return &Scope{
-		ID:   uuid.New(),
+		ID:   id,
 		Name: name,
 	}
+}
+
+func CreateNewScope(name string) *Scope {
+	return CreateScope(uuid.New(), name)
 }
 
 // Validate validates the client model has valid fields

@@ -15,16 +15,18 @@ type ClientTestSuite struct {
 }
 
 func (suite *ClientTestSuite) SetupTest() {
-	suite.Client = models.CreateNewClient()
+	suite.Client = models.CreateNewClient("name")
 }
 
 func (suite *ClientTestSuite) TestCreateNewClient_CreatesClientWithSuppliedFields() {
 	//act
-	client := models.CreateNewClient()
+	name := "Client Name"
+	client := models.CreateNewClient(name)
 
 	//assert
 	suite.Require().NotNil(client)
-	suite.NotEqual(client.ID, uuid.Nil)
+	suite.NotEqual(uuid.Nil, client.ID)
+	suite.Equal(name, client.Name)
 }
 
 func (suite *ClientTestSuite) TestValidate_WithValidClient_ReturnsValid() {
@@ -44,6 +46,41 @@ func (suite *ClientTestSuite) TestValidate_WithNilID_ReturnsClientNilID() {
 
 	//assert
 	suite.Equal(models.ValidateClientNilID, verr)
+}
+
+func (suite *ClientTestSuite) TestValidate_WithEmptyName_ReturnsClientEmptyName() {
+	//arrange
+	suite.Client.Name = ""
+
+	//act
+	verr := suite.Client.Validate()
+
+	//assert
+	suite.Equal(models.ValidateClientEmptyName, verr)
+}
+
+func (suite *ClientTestSuite) TestValidate_ClientNameMaxLengthTestCases() {
+	var name string
+	var expectedValidateError int
+
+	testCase := func() {
+		//arrange
+		suite.Client.Name = name
+
+		//act
+		verr := suite.Client.Validate()
+
+		//assert
+		suite.Equal(expectedValidateError, verr)
+	}
+
+	name = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //30 chars
+	expectedValidateError = models.ValidateClientValid
+	suite.Run("ExactlyMaxLengthIsValid", testCase)
+
+	name += "a"
+	expectedValidateError = models.ValidateClientNameTooLong
+	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 
 func TestClientTestSuite(t *testing.T) {

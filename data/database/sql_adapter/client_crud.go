@@ -43,11 +43,11 @@ func (crud *SQLCRUD) DropClientTable() error {
 func (crud *SQLCRUD) SaveClient(client *models.Client) error {
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
-		return errors.New(fmt.Sprint("error validating client model:", verr))
+		return errors.New(fmt.Sprint("error validating client model: ", verr))
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveClientScript(), client.ID)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveClientScript(), client.ID, client.Name)
 	cancel()
 
 	if err != nil {
@@ -55,6 +55,41 @@ func (crud *SQLCRUD) SaveClient(client *models.Client) error {
 	}
 
 	return nil
+}
+
+// UpdateClient validates the client model is valid and updates the row in the client table
+// Returns result of whether the client was found, and any errors
+func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
+	verr := client.Validate()
+	if verr != models.ValidateClientValid {
+		return false, errors.New(fmt.Sprint("error validating client model: ", verr))
+	}
+
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(), client.ID, client.Name)
+	cancel()
+
+	if err != nil {
+		return false, common.ChainError("error executing save client statement", err)
+	}
+
+	count, _ := res.RowsAffected()
+	return count > 0, nil
+}
+
+// DeleteUser deletes the row in the user table with the matching id
+// Returns result of whether the client was found, and any errors
+func (crud *SQLCRUD) DeleteClient(id uuid.UUID) (bool, error) {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteClientScript(), id)
+	cancel()
+
+	if err != nil {
+		return false, common.ChainError("error executing delete client statement", err)
+	}
+
+	count, _ := res.RowsAffected()
+	return count > 0, nil
 }
 
 // GetClientByID gets the row in the client table with the matching id, and creates a new client model using its data
@@ -86,7 +121,7 @@ func readClientData(rows *sql.Rows) (*models.Client, error) {
 
 	//get the result
 	client := &models.Client{}
-	err := rows.Scan(&client.ID)
+	err := rows.Scan(&client.ID, &client.Name)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

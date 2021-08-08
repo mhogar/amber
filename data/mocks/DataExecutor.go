@@ -81,6 +81,27 @@ func (_m *DataExecutor) DeleteAllOtherUserTokens(token *models.AccessToken) erro
 	return r0
 }
 
+// DeleteClient provides a mock function with given fields: id
+func (_m *DataExecutor) DeleteClient(id uuid.UUID) (bool, error) {
+	ret := _m.Called(id)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
+		r0 = rf(id)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // DeleteMigrationByTimestamp provides a mock function with given fields: timestamp
 func (_m *DataExecutor) DeleteMigrationByTimestamp(timestamp string) error {
 	ret := _m.Called(timestamp)
@@ -343,6 +364,27 @@ func (_m *DataExecutor) Setup() error {
 	}
 
 	return r0
+}
+
+// UpdateClient provides a mock function with given fields: client
+func (_m *DataExecutor) UpdateClient(client *models.Client) (bool, error) {
+	ret := _m.Called(client)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*models.Client) bool); ok {
+		r0 = rf(client)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.Client) error); ok {
+		r1 = rf(client)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // UpdateUser provides a mock function with given fields: user

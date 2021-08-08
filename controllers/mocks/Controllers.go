@@ -18,6 +18,29 @@ type Controllers struct {
 	mock.Mock
 }
 
+// CreateClient provides a mock function with given fields: CRUD, name
+func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string) (*models.Client, common.CustomError) {
+	ret := _m.Called(CRUD, name)
+
+	var r0 *models.Client
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string) *models.Client); ok {
+		r0 = rf(CRUD, name)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Client)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string) common.CustomError); ok {
+		r1 = rf(CRUD, name)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // CreateTokenFromPassword provides a mock function with given fields: CRUD, username, password, clientID, scopeName
 func (_m *Controllers) CreateTokenFromPassword(CRUD controllers.TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
 	ret := _m.Called(CRUD, username, password, clientID, scopeName)
@@ -78,6 +101,20 @@ func (_m *Controllers) DeleteAllOtherUserTokens(CRUD controllers.TokenController
 	return r0
 }
 
+// DeleteClient provides a mock function with given fields: CRUD, id
+func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, id uuid.UUID) common.CustomError {
+	ret := _m.Called(CRUD, id)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, uuid.UUID) common.CustomError); ok {
+		r0 = rf(CRUD, id)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
 // DeleteToken provides a mock function with given fields: CRUD, token
 func (_m *Controllers) DeleteToken(CRUD controllers.TokenControllerCRUD, token *models.AccessToken) common.CustomError {
 	ret := _m.Called(CRUD, token)
@@ -99,6 +136,20 @@ func (_m *Controllers) DeleteUser(CRUD controllers.UserControllerCRUD, user *mod
 	var r0 common.CustomError
 	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, *models.User) common.CustomError); ok {
 		r0 = rf(CRUD, user)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
+// UpdateClient provides a mock function with given fields: CRUD, client
+func (_m *Controllers) UpdateClient(CRUD controllers.ClientControllerCRUD, client *models.Client) common.CustomError {
+	ret := _m.Called(CRUD, client)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, *models.Client) common.CustomError); ok {
+		r0 = rf(CRUD, client)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

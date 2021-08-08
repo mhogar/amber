@@ -65,7 +65,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUser_WithValidRequest_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	body := handlers.PostUserBody{
 		Username: "username",
@@ -114,7 +114,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithValidRequest_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	token := &models.AccessToken{User: &models.User{}}
 
@@ -228,7 +228,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithValidRequest_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	body := handlers.PatchUserPasswordBody{
 		OldPassword: "old password",

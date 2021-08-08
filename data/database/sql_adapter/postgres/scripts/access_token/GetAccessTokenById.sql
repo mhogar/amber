@@ -1,7 +1,7 @@
 SELECT
     tk."id",
     u."id", u."username", u."password_hash",
-    c."id",
+    c."id", c."name",
     s."id", s."name"
 FROM "access_token" tk
     INNER JOIN "user" u ON u."id" = tk."user_id"

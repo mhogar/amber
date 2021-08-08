@@ -36,13 +36,13 @@ func CreateDummyRequest(suite *suite.Suite, body interface{}) *http.Request {
 	return CreateRequest(suite, "", "", "", body)
 }
 
-// ParseResponse parses the provided http response, return its status code and body
-func ParseResponse(suite *suite.Suite, res *http.Response, body interface{}) (status int) {
+// ParseResponse parses the provided http response, asserts its status code, and returns its body
+func ParseResponse(suite *suite.Suite, res *http.Response, expectedStatusCode int, body interface{}) {
+	suite.Require().Equal(expectedStatusCode, res.StatusCode)
+
 	decoder := json.NewDecoder(res.Body)
 	err := decoder.Decode(body)
 	suite.Require().NoError(err)
-
-	return res.StatusCode
 }
 
 // AssertSuccessResponse asserts the response is a success response
@@ -54,9 +54,8 @@ func AssertSuccessResponse(suite *suite.Suite, res interface{}) {
 // ParseAndAssertSuccessResponse parses the response and asserts it is a success response
 func ParseAndAssertSuccessResponse(suite *suite.Suite, res *http.Response) {
 	var basicRes common.BasicResponse
-	status := ParseResponse(suite, res, &basicRes)
+	ParseResponse(suite, res, http.StatusOK, &basicRes)
 
-	suite.Equal(http.StatusOK, status)
 	AssertSuccessResponse(suite, basicRes)
 }
 
@@ -71,9 +70,8 @@ func AssertErrorResponse(suite *suite.Suite, res interface{}, expectedErrorSubSt
 // ParseAndAssertErrorResponse parses the response and asserts it is an error reponse with the expected status and error sub strings
 func ParseAndAssertErrorResponse(suite *suite.Suite, res *http.Response, expectedStatus int, expectedErrorSubStrings ...string) {
 	var errRes common.ErrorResponse
-	status := ParseResponse(suite, res, &errRes)
+	ParseResponse(suite, res, expectedStatus, &errRes)
 
-	suite.Equal(expectedStatus, status)
 	AssertErrorResponse(suite, errRes)
 }
 
@@ -98,9 +96,8 @@ func AssertOAuthErrorResponse(suite *suite.Suite, res interface{}, expectedError
 // ParseAndAssertOAuthErrorResponse parses the response and asserts it is an oauth error reponse with the expected status, error, and description sub strings
 func ParseAndAssertOAuthErrorResponse(suite *suite.Suite, res *http.Response, expectedStatus int, expectedError string, expectedDescriptionSubStrings ...string) {
 	var errRes common.OAuthErrorResponse
-	status := ParseResponse(suite, res, &errRes)
+	ParseResponse(suite, res, expectedStatus, &errRes)
 
-	suite.Equal(expectedStatus, status)
 	AssertOAuthErrorResponse(suite, errRes, expectedError, expectedDescriptionSubStrings...)
 }
 
@@ -112,17 +109,22 @@ func AssertAccessTokenResponse(suite *suite.Suite, res interface{}, expectedToke
 	suite.Equal("bearer", tokenRes.TokenType)
 }
 
-// ParseAndAssertAccessTokenResponse parses the response and asserts it is an access token response with the expect token
-func ParseAndAssertAccessTokenResponse(suite *suite.Suite, res *http.Response, expectedTokenID string) {
-	var tokenRes common.AccessTokenResponse
-	status := ParseResponse(suite, res, &tokenRes)
+func AssertSuccessDataResponse(suite *suite.Suite, res interface{}, expectedData interface{}) {
+	dataRes := res.(common.DataResponse)
 
-	suite.Equal(http.StatusOK, status)
-	AssertAccessTokenResponse(suite, res, expectedTokenID)
+	suite.True(dataRes.Success)
+	suite.EqualValues(expectedData, dataRes.Data)
 }
 
-// ParseAndAssertResponseOK asserts the response has an http OK status and returns the parsed result
-func ParseAndAssertResponseOK(suite *suite.Suite, res *http.Response, result interface{}) {
-	status := ParseResponse(suite, res, result)
-	suite.Equal(http.StatusOK, status)
+// ParseResponseOK asserts the response has an http OK status and returns the parsed result
+func ParseResponseOK(suite *suite.Suite, res *http.Response, result interface{}) {
+	ParseResponse(suite, res, http.StatusOK, result)
+}
+
+// ParseDataResponseOK asserts the response has an http OK status and returns the parsed result from the data field
+func ParseDataResponseOK(suite *suite.Suite, res *http.Response) map[string]interface{} {
+	var dataRes common.DataResponse
+	ParseResponse(suite, res, http.StatusOK, &dataRes)
+
+	return (dataRes.Data).(map[string]interface{})
 }

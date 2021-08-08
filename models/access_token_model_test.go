@@ -17,7 +17,7 @@ type AccessTokenTestSuite struct {
 func (suite *AccessTokenTestSuite) SetupTest() {
 	suite.Token = models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
-		models.CreateNewClient(),
+		models.CreateNewClient("name"),
 		models.CreateNewScope("name"),
 	)
 }
@@ -25,7 +25,7 @@ func (suite *AccessTokenTestSuite) SetupTest() {
 func (suite *AccessTokenTestSuite) TestCreateNewAccessToken_CreatesAccessTokenWithSuppliedFields() {
 	//arrange
 	user := models.CreateNewUser("", nil)
-	client := models.CreateNewClient()
+	client := models.CreateNewClient("name")
 	scope := models.CreateNewScope("")
 
 	//act

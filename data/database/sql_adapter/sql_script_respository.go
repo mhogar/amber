@@ -24,6 +24,8 @@ type ClientScriptRepository interface {
 	CreateClientTableScript() string
 	DropClientTableScript() string
 	SaveClientScript() string
+	UpdateClientScript() string
+	DeleteClientScript() string
 	GetClientByIdScript() string
 }
 

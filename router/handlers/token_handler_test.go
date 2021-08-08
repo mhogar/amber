@@ -179,7 +179,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithInternalErro
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithValidRequest_ReturnsAccessToken() {
+func (suite *TokenHandlerTestSuite) TestPostToken_PasswordGrant_WithNoErrors_ReturnsAccessToken() {
 	//arrange
 	clientID := uuid.New()
 	token := models.CreateNewAccessToken(nil, nil, nil)
@@ -236,7 +236,7 @@ func (suite *TokenHandlerTestSuite) TestDeleteToken_WithInternalErrorDeletingTok
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *TokenHandlerTestSuite) TestDeleteToken_WithValidRequest_ReturnsSuccess() {
+func (suite *TokenHandlerTestSuite) TestDeleteToken_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	token := &models.AccessToken{}
 

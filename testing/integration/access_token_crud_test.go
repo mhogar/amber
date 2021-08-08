@@ -35,10 +35,10 @@ func (suite *AccessTokenCRUDTestSuite) TestGetAccessTokenById_GetsTheAccessToken
 	//arrange
 	token := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
-		models.CreateNewClient(),
+		models.CreateNewClient("name"),
 		models.CreateNewScope("name"),
 	)
-	suite.SaveAccessTokenAndFields(suite.Tx, token)
+	suite.SaveAccessTokenAndFields(token)
 
 	//act
 	resultAccessToken, err := suite.Tx.GetAccessTokenByID(token.ID)
@@ -60,10 +60,10 @@ func (suite *AccessTokenCRUDTestSuite) TestDeleteAccessToken_DeletesAccessTokenW
 	//arrange
 	token := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
-		models.CreateNewClient(),
+		models.CreateNewClient("name"),
 		models.CreateNewScope("name"),
 	)
-	suite.SaveAccessTokenAndFields(suite.Tx, token)
+	suite.SaveAccessTokenAndFields(token)
 
 	//act
 	err := suite.Tx.DeleteAccessToken(token)
@@ -88,10 +88,10 @@ func (suite *AccessTokenCRUDTestSuite) TestDeleteAllOtherUserTokens_DeletesAllOt
 	//arrange
 	token1 := models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
-		models.CreateNewClient(),
+		models.CreateNewClient("name"),
 		models.CreateNewScope("name1"),
 	)
-	suite.SaveAccessTokenAndFields(suite.Tx, token1)
+	suite.SaveAccessTokenAndFields(token1)
 
 	token2 := models.CreateNewAccessToken(
 		token1.User,

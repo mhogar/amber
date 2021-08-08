@@ -47,29 +47,29 @@ func (suite *CRUDTestSuite) TearDownTest() {
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveUser(tx data.Transaction, user *models.User) {
-	err := tx.SaveUser(user)
+func (suite *CRUDTestSuite) SaveUser(user *models.User) {
+	err := suite.Tx.SaveUser(user)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveScope(tx data.Transaction, scope *models.Scope) {
-	err := tx.SaveScope(scope)
+func (suite *CRUDTestSuite) SaveScope(scope *models.Scope) {
+	err := suite.Tx.SaveScope(scope)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveClient(tx data.Transaction, client *models.Client) {
-	err := tx.SaveClient(client)
+func (suite *CRUDTestSuite) SaveClient(client *models.Client) {
+	err := suite.Tx.SaveClient(client)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveAccessToken(tx data.Transaction, token *models.AccessToken) {
-	err := tx.SaveAccessToken(token)
+func (suite *CRUDTestSuite) SaveAccessToken(token *models.AccessToken) {
+	err := suite.Tx.SaveAccessToken(token)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveAccessTokenAndFields(tx data.Transaction, token *models.AccessToken) {
-	suite.SaveUser(tx, token.User)
-	suite.SaveClient(tx, token.Client)
-	suite.SaveScope(tx, token.Scope)
-	suite.SaveAccessToken(tx, token)
+func (suite *CRUDTestSuite) SaveAccessTokenAndFields(token *models.AccessToken) {
+	suite.SaveUser(token.User)
+	suite.SaveClient(token.Client)
+	suite.SaveScope(token.Scope)
+	suite.SaveAccessToken(token)
 }

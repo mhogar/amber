@@ -123,7 +123,7 @@ func readAccessTokenData(rows *sql.Rows) (*models.AccessToken, error) {
 	err := rows.Scan(
 		&token.ID,
 		&token.User.ID, &token.User.Username, &token.User.PasswordHash,
-		&token.Client.ID,
+		&token.Client.ID, &token.Client.Name,
 		&token.Scope.ID, &token.Scope.Name,
 	)
 	if err != nil {

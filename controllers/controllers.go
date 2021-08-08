@@ -10,11 +10,13 @@ import (
 // Controllers encapsulates all other controller interfaces
 type Controllers interface {
 	UserController
+	ClientController
 	TokenController
 }
 
 type CoreControllers struct {
 	CoreUserController
+	CoreClientController
 	CoreTokenController
 }
 
@@ -33,6 +35,23 @@ type UserController interface {
 
 	// UpdateUserPassword updates the given user's password
 	UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError
+}
+
+// ClientControllerCRUD encapsulates the CRUD operations required by the ClientController
+type ClientControllerCRUD interface {
+	models.ClientCRUD
+	models.AccessTokenCRUD
+}
+
+type ClientController interface {
+	// CreateClient creates a new client with the given name
+	CreateClient(CRUD ClientControllerCRUD, name string) (*models.Client, common.CustomError)
+
+	// UpdateClient updates the given client
+	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
+
+	// DeleteClient deletes the given client
+	DeleteClient(CRUD ClientControllerCRUD, id uuid.UUID) common.CustomError
 }
 
 // TokenControllerCRUD encapsulates the CRUD operations required by the TokenController

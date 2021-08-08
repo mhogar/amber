@@ -50,7 +50,7 @@ func (ScriptRepository) GetAccessTokenByIdScript() string {
 SELECT
     tk."id",
     u."id", u."username", u."password_hash",
-    c."id",
+    c."id", c."name",
     s."id", s."name"
 FROM "access_token" tk
     INNER JOIN "user" u ON u."id" = tk."user_id"
@@ -73,8 +73,17 @@ func (ScriptRepository) CreateClientTableScript() string {
 	return `
 CREATE TABLE "public"."client" (
 	"id" uuid NOT NULL,
+	"name" varchar(30) NOT NULL,
 	CONSTRAINT "client_pk" PRIMARY KEY ("id")
 );
+`
+}
+
+// DeleteClientScript gets the DeleteClient script
+func (ScriptRepository) DeleteClientScript() string {
+	return `
+DELETE FROM "client" c
+    WHERE c."id" = $1
 `
 }
 
@@ -88,7 +97,7 @@ DROP TABLE "public"."client"
 // GetClientByIdScript gets the GetClientById script
 func (ScriptRepository) GetClientByIdScript() string {
 	return `
-SELECT c."id"
+SELECT c."id", c."name"
 	FROM "client" c
 	WHERE c."id" = $1
 `
@@ -97,8 +106,17 @@ SELECT c."id"
 // SaveClientScript gets the SaveClient script
 func (ScriptRepository) SaveClientScript() string {
 	return `
-INSERT INTO "client" ("id")
-	VALUES ($1)
+INSERT INTO "client" ("id", "name")
+	VALUES ($1, $2)
+`
+}
+
+// UpdateClientScript gets the UpdateClient script
+func (ScriptRepository) UpdateClientScript() string {
+	return `
+UPDATE "client" SET
+    "name" = $2
+WHERE "id" = $1
 `
 }
 

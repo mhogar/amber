@@ -23,10 +23,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	inDir := path.Join(viper.GetString("root_dir"), "database/sql_adapter/postgres/scripts")
+	inDir := path.Join(viper.GetString("root_dir"), "data/database/sql_adapter/postgres/scripts")
 
 	//load the template
-	tmpl := template.Must(template.ParseFiles(path.Join(viper.GetString("root_dir"), "database/sql_adapter/script_compiler/script_repository.go.tmpl")))
+	tmpl := template.Must(template.ParseFiles(path.Join(viper.GetString("root_dir"), "data/database/sql_adapter/script_compiler/script_repository.go.tmpl")))
 
 	var data []tmplData
 	createDataObjects(inDir, &data)
