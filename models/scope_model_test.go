@@ -80,7 +80,7 @@ func (suite *ScopeTestSuite) TestValidate_ScopeNameMaxLengthTestCases() {
 	expectedValidateError = models.ValidateScopeValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 
-	name = "a"
+	name += "a"
 	expectedValidateError = models.ValidateScopeNameTooLong
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
