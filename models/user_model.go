@@ -6,10 +6,9 @@ import (
 
 const (
 	ValidateUserValid               = 0x0
-	ValidateUserNilID               = 0x1
-	ValidateUserEmptyUsername       = 0x2
-	ValidateUserUsernameTooLong     = 0x4
-	ValidateUserInvalidPasswordHash = 0x8
+	ValidateUserEmptyUsername       = 0x1
+	ValidateUserUsernameTooLong     = 0x2
+	ValidateUserInvalidPasswordHash = 0x4
 )
 
 // UserUsernameMaxLength is the max length a user's username can be
@@ -17,7 +16,7 @@ const UserUsernameMaxLength = 30
 
 // User represents the user model
 type User struct {
-	ID           uuid.UUID
+	ID           int16
 	Username     string
 	PasswordHash []byte
 }
@@ -41,7 +40,7 @@ type UserCRUD interface {
 	DeleteUser(user *User) error
 }
 
-func CreateUser(id uuid.UUID, username string, passwordHash []byte) *User {
+func CreateUser(id int16, username string, passwordHash []byte) *User {
 	return &User{
 		ID:           id,
 		Username:     username,
@@ -50,17 +49,13 @@ func CreateUser(id uuid.UUID, username string, passwordHash []byte) *User {
 }
 
 func CreateNewUser(username string, passwordHash []byte) *User {
-	return CreateUser(uuid.New(), username, passwordHash)
+	return CreateUser(0, username, passwordHash)
 }
 
 // Validate validates the user model has valid fields
 // Returns an int indicating which fields are invalid
 func (u *User) Validate() int {
 	code := ValidateUserValid
-
-	if u.ID == uuid.Nil {
-		code |= ValidateUserNilID
-	}
 
 	if u.Username == "" {
 		code |= ValidateUserEmptyUsername

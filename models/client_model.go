@@ -6,7 +6,7 @@ import (
 
 const (
 	ValidateClientValid       = 0x0
-	ValidateClientNilID       = 0x1
+	ValidateClientNilUID      = 0x1
 	ValidateClientEmptyName   = 0x2
 	ValidateClientNameTooLong = 0x4
 )
@@ -16,7 +16,8 @@ const ClientNameMaxLength = 30
 
 // Client represents the client model
 type Client struct {
-	ID   uuid.UUID
+	ID   int8
+	UID  uuid.UUID
 	Name string
 }
 
@@ -37,15 +38,16 @@ type ClientCRUD interface {
 	GetClientByID(ID uuid.UUID) (*Client, error)
 }
 
-func CreateClient(id uuid.UUID, name string) *Client {
+func CreateClient(id int8, uid uuid.UUID, name string) *Client {
 	return &Client{
 		ID:   id,
+		UID:  uid,
 		Name: name,
 	}
 }
 
 func CreateNewClient(name string) *Client {
-	return CreateClient(uuid.New(), name)
+	return CreateClient(0, uuid.New(), name)
 }
 
 // Validate validates the client model has valid fields
@@ -53,8 +55,8 @@ func CreateNewClient(name string) *Client {
 func (c *Client) Validate() int {
 	code := ValidateClientValid
 
-	if c.ID == uuid.Nil {
-		code |= ValidateClientNilID
+	if c.UID == uuid.Nil {
+		code |= ValidateClientNilUID
 	}
 
 	if c.Name == "" {

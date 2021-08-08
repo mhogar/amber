@@ -41,17 +41,6 @@ func (suite *UserTestSuite) TestValidate_WithValidUser_ReturnsValid() {
 	suite.Equal(models.ValidateUserValid, verr)
 }
 
-func (suite *UserTestSuite) TestValidate_WithNilID_ReturnsUserNilID() {
-	//arrange
-	suite.User.ID = uuid.Nil
-
-	//act
-	verr := suite.User.Validate()
-
-	//assert
-	suite.Equal(models.ValidateUserNilID, verr)
-}
-
 func (suite *UserTestSuite) TestValidate_WithEmptyUsername_ReturnsUserInvalidUsername() {
 	//arrange
 	suite.User.Username = ""
