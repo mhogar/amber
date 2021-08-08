@@ -65,21 +65,25 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsSuccess() {
+func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientData() {
 	//arrange
 	body := handlers.PostClientBody{
 		Name: "name",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(nil, common.NoError())
+	client := models.CreateNewClient("name")
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(client, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.TransactionMock)
 
 	//assert
 	suite.Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
+		ID:   client.ID.String(),
+		Name: client.Name,
+	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.TransactionMock, body.Name)
 }
@@ -169,7 +173,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsSuccess() {
+func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientData() {
 	//arrange
 	body := handlers.PostClientBody{
 		Name: "name",
@@ -191,7 +195,10 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsSuccess()
 
 	//assert
 	suite.Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
+		ID:   id.String(),
+		Name: body.Name,
+	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.TransactionMock, mock.MatchedBy(func(client *models.Client) bool {
 		return client.ID == id && client.Name == body.Name

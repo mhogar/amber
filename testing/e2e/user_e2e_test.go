@@ -1,8 +1,6 @@
 package e2e_test
 
 import (
-	"authserver/common"
-	"authserver/config"
 	"authserver/router/handlers"
 	"authserver/testing/helpers"
 	"net/http"
@@ -13,11 +11,6 @@ import (
 
 type UserE2ETestSuite struct {
 	E2ETestSuite
-}
-
-func (suite *UserE2ETestSuite) TearDownSuite() {
-	//close server
-	suite.Server.Close()
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUser() {
@@ -33,30 +26,18 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
 
 	//login
-	postTokenBody := handlers.PostTokenBody{
-		GrantType: "password",
-		PostTokenPasswordGrantBody: handlers.PostTokenPasswordGrantBody{
-			Username: username,
-			Password: password,
-			ClientID: config.GetAppId().String(),
-			Scope:    "all",
-		},
-	}
-	res = suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
-
-	tokenRes := common.AccessTokenResponse{}
-	helpers.ParseAndAssertResponseOK(&suite.Suite, res, &tokenRes)
+	token := suite.Login(username, password)
 
 	//update user password
-	patchBody := handlers.PatchUserPasswordBody{
+	patchPasswordBody := handlers.PatchUserPasswordBody{
 		OldPassword: password,
 		NewPassword: "NewPassword123!",
 	}
-	res = suite.SendRequest(http.MethodPatch, "/user/password", tokenRes.AccessToken, patchBody)
+	res = suite.SendRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
 	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
 
 	//delete user
-	res = suite.SendRequest(http.MethodDelete, "/user", tokenRes.AccessToken, nil)
+	res = suite.SendRequest(http.MethodDelete, "/user", token, nil)
 	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
 }
 

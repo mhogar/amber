@@ -16,7 +16,7 @@ func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name strin
 	client := models.CreateNewClient(name)
 
 	//validate the client
-	verr := c.validateClient(client)
+	verr := validateClient(client)
 	if verr.Type != common.ErrorTypeNone {
 		return nil, verr
 	}
@@ -33,7 +33,7 @@ func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name strin
 
 func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError {
 	//validate the client
-	verr := c.validateClient(client)
+	verr := validateClient(client)
 	if verr.Type != common.ErrorTypeNone {
 		return verr
 	}
@@ -69,7 +69,7 @@ func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id uuid.UU
 	return common.NoError()
 }
 
-func (c CoreClientController) validateClient(client *models.Client) common.CustomError {
+func validateClient(client *models.Client) common.CustomError {
 	verr := client.Validate()
 	if verr&models.ValidateClientEmptyName != 0 {
 		return common.ClientError("client name cannot be empty")

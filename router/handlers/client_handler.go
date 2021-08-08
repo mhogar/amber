@@ -11,6 +11,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type ClientDataResponse struct {
+	ID   string `json:"id"`
+	Name string `json:"name"`
+}
+
 type PostClientBody struct {
 	Name string `json:"name"`
 }
@@ -26,7 +31,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	}
 
 	//create the client
-	_, rerr := h.Controllers.CreateClient(tx, body.Name)
+	client, rerr := h.Controllers.CreateClient(tx, body.Name)
 	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
@@ -34,7 +39,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return newClientDataResponse(client)
 }
 
 type PutClientBody struct {
@@ -70,7 +75,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return newClientDataResponse(client)
 }
 
 func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
@@ -91,4 +96,11 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	}
 
 	return common.NewSuccessResponse()
+}
+
+func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
+	return common.NewSuccessDataResponse(ClientDataResponse{
+		ID:   client.ID.String(),
+		Name: client.Name,
+	})
 }
