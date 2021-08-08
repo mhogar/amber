@@ -32,11 +32,15 @@ type ClientCRUD interface {
 	GetClientByID(ID uuid.UUID) (*Client, error)
 }
 
-func CreateNewClient(name string) *Client {
+func CreateClient(id uuid.UUID, name string) *Client {
 	return &Client{
-		ID:   uuid.New(),
+		ID:   id,
 		Name: name,
 	}
+}
+
+func CreateNewClient(name string) *Client {
+	return CreateClient(uuid.New(), name)
 }
 
 // Validate validates the client model has valid fields

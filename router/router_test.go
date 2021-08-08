@@ -290,7 +290,7 @@ func TestPutClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite{
 			Method:  "PUT",
-			Route:   "/client",
+			Route:   "/client/0",
 			Handler: "PutClient",
 		},
 	})
@@ -300,7 +300,7 @@ func TestDeleteClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite{
 			Method:  "DELETE",
-			Route:   "/client",
+			Route:   "/client/0",
 			Handler: "DeleteClient",
 		},
 	})

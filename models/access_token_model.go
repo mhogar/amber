@@ -36,13 +36,17 @@ type AccessTokenCRUD interface {
 	DeleteAllOtherUserTokens(token *AccessToken) error
 }
 
-func CreateNewAccessToken(user *User, client *Client, scope *Scope) *AccessToken {
+func CreateAccessToken(id uuid.UUID, user *User, client *Client, scope *Scope) *AccessToken {
 	return &AccessToken{
-		ID:     uuid.New(),
+		ID:     id,
 		User:   user,
 		Client: client,
 		Scope:  scope,
 	}
+}
+
+func CreateNewAccessToken(user *User, client *Client, scope *Scope) *AccessToken {
+	return CreateAccessToken(uuid.New(), user, client, scope)
 }
 
 // Validate validates the access token model has valid fields

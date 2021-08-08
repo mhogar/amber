@@ -34,8 +34,8 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 
 	//client routes
 	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true))
-	r.PUT("/client", rf.createHandler(rf.Handlers.PutClient, true))
-	r.DELETE("/client", rf.createHandler(rf.Handlers.DeleteClient, true))
+	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true))
+	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true))
 
 	//token routes
 	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
