@@ -12,11 +12,9 @@ CREATE TABLE "public"."access_token" (
 	"id" uuid NOT NULL,
 	"user_id" uuid NOT NULL,
 	"client_id" uuid NOT NULL,
-	"scope_id" uuid NOT NULL,
 	CONSTRAINT "access_token_pk" PRIMARY KEY ("id"),
 	CONSTRAINT "access_token_user_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE CASCADE,
-	CONSTRAINT "access_token_client_fk" FOREIGN KEY ("client_id") REFERENCES "public"."client"("id") ON DELETE CASCADE,
-	CONSTRAINT "access_token_scope_fk" FOREIGN KEY ("scope_id") REFERENCES "public"."scope"("id") ON DELETE CASCADE
+	CONSTRAINT "access_token_client_fk" FOREIGN KEY ("client_id") REFERENCES "public"."client"("id") ON DELETE CASCADE
 );
 `
 }
@@ -50,12 +48,10 @@ func (ScriptRepository) GetAccessTokenByIdScript() string {
 SELECT
     tk."id",
     u."id", u."username", u."password_hash",
-    c."id", c."name",
-    s."id", s."name"
+    c."id", c."name"
 FROM "access_token" tk
     INNER JOIN "user" u ON u."id" = tk."user_id"
     INNER JOIN "client" c ON c."id" = tk."client_id"
-    INNER JOIN "scope" s ON s."id" = tk."scope_id"
 WHERE tk."id" = $1
 `
 }
@@ -63,8 +59,8 @@ WHERE tk."id" = $1
 // SaveAccessTokenScript gets the SaveAccessToken script
 func (ScriptRepository) SaveAccessTokenScript() string {
 	return `
-INSERT INTO "access_token" ("id", "user_id", "client_id", "scope_id")
-	VALUES ($1, $2, $3, $4)
+INSERT INTO "access_token" ("id", "user_id", "client_id")
+	VALUES ($1, $2, $3)
 `
 }
 
@@ -161,42 +157,6 @@ func (ScriptRepository) SaveMigrationScript() string {
 	return `
 INSERT INTO "migration" ("timestamp") 
     VALUES ($1)
-`
-}
-
-// CreateScopeTableScript gets the CreateScopeTable script
-func (ScriptRepository) CreateScopeTableScript() string {
-	return `
-CREATE TABLE "public"."scope" (
-	"id" uuid NOT NULL,
-	"name" varchar(15) NOT NULL,
-	CONSTRAINT "scope_pk" PRIMARY KEY ("id"),
-	CONSTRAINT "scope_name_un" UNIQUE ("name")
-);
-`
-}
-
-// DropScopeTableScript gets the DropScopeTable script
-func (ScriptRepository) DropScopeTableScript() string {
-	return `
-DROP TABLE "public"."scope"
-`
-}
-
-// GetScopeByNameScript gets the GetScopeByName script
-func (ScriptRepository) GetScopeByNameScript() string {
-	return `
-SELECT s."id", s."name"
-	FROM "scope" s
-	WHERE s."name" = $1
-`
-}
-
-// SaveScopeScript gets the SaveScope script
-func (ScriptRepository) SaveScopeScript() string {
-	return `
-INSERT INTO "scope" ("id", "name")
-	VALUES ($1, $2)
 `
 }
 

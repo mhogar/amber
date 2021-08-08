@@ -56,7 +56,6 @@ func (suite *E2ETestSuite) Login(username string, password string) string {
 			Username: username,
 			Password: password,
 			ClientID: config.GetAppId().String(),
-			Scope:    "all",
 		},
 	}
 	res := suite.SendRequest(http.MethodPost, "/token", "", body)

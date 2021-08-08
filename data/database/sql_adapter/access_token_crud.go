@@ -48,7 +48,7 @@ func (crud *SQLCRUD) SaveAccessToken(token *models.AccessToken) error {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveAccessTokenScript(),
-		token.ID, token.User.ID, token.Client.ID, token.Scope.ID)
+		token.ID, token.User.ID, token.Client.ID)
 	cancel()
 
 	if err != nil {
@@ -116,7 +116,6 @@ func readAccessTokenData(rows *sql.Rows) (*models.AccessToken, error) {
 	token := &models.AccessToken{
 		User:   &models.User{},
 		Client: &models.Client{},
-		Scope:  &models.Scope{},
 	}
 
 	//get the result
@@ -124,7 +123,6 @@ func readAccessTokenData(rows *sql.Rows) (*models.AccessToken, error) {
 		&token.ID,
 		&token.User.ID, &token.User.Username, &token.User.PasswordHash,
 		&token.Client.ID, &token.Client.Name,
-		&token.Scope.ID, &token.Scope.Name,
 	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)

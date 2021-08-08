@@ -13,15 +13,9 @@ type CoreTokenController struct {
 	PasswordHasher passwordhelpers.PasswordHasher
 }
 
-func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID, scopeName string) (*models.AccessToken, common.OAuthCustomError) {
+func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError) {
 	//get the client
 	client, rerr := parseClient(CRUD, clientID)
-	if rerr.Type != common.ErrorTypeNone {
-		return nil, rerr
-	}
-
-	//get the scope
-	scope, rerr := parseScope(CRUD, scopeName)
 	if rerr.Type != common.ErrorTypeNone {
 		return nil, rerr
 	}
@@ -46,7 +40,7 @@ func (c CoreTokenController) CreateTokenFromPassword(CRUD TokenControllerCRUD, u
 	}
 
 	//create a new access token
-	token := models.CreateNewAccessToken(user, client, scope)
+	token := models.CreateNewAccessToken(user, client)
 
 	//save the token
 	err = CRUD.SaveAccessToken(token)

@@ -18,7 +18,6 @@ func (suite *AccessTokenTestSuite) SetupTest() {
 	suite.Token = models.CreateNewAccessToken(
 		models.CreateNewUser("username", []byte("password")),
 		models.CreateNewClient("name"),
-		models.CreateNewScope("name"),
 	)
 }
 
@@ -26,17 +25,15 @@ func (suite *AccessTokenTestSuite) TestCreateNewAccessToken_CreatesAccessTokenWi
 	//arrange
 	user := models.CreateNewUser("", nil)
 	client := models.CreateNewClient("name")
-	scope := models.CreateNewScope("")
 
 	//act
-	token := models.CreateNewAccessToken(user, client, scope)
+	token := models.CreateNewAccessToken(user, client)
 
 	//assert
 	suite.Require().NotNil(token)
 	suite.NotEqual(token.ID, uuid.Nil)
 	suite.Equal(token.User, user)
 	suite.Equal(token.Client, client)
-	suite.Equal(token.Scope, scope)
 }
 
 func (suite *AccessTokenTestSuite) TestValidate_WithValidAccessToken_ReturnsValid() {
@@ -100,28 +97,6 @@ func (suite *AccessTokenTestSuite) TestValidate_WithInvalidClient_ReturnsAccessT
 
 	//assert
 	suite.Equal(models.ValidateAccessTokenInvalidClient, verr)
-}
-
-func (suite *AccessTokenTestSuite) TestValidate_WithNilScope_ReturnsAccessTokenNilScope() {
-	//arrange
-	suite.Token.Scope = nil
-
-	//act
-	verr := suite.Token.Validate()
-
-	//assert
-	suite.Equal(models.ValidateAccessTokenNilScope, verr)
-}
-
-func (suite *AccessTokenTestSuite) TestValidate_WithInvalidScope_ReturnsAccessTokenInvalidScope() {
-	//arrange
-	suite.Token.Scope = models.CreateNewScope("")
-
-	//act
-	verr := suite.Token.Validate()
-
-	//assert
-	suite.Equal(models.ValidateAccessTokenInvalidScope, verr)
 }
 
 func TestAccessTokenTestSuite(t *testing.T) {

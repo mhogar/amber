@@ -203,29 +203,6 @@ func (_m *DataCRUD) GetMigrationByTimestamp(timestamp string) (*models.Migration
 	return r0, r1
 }
 
-// GetScopeByName provides a mock function with given fields: name
-func (_m *DataCRUD) GetScopeByName(name string) (*models.Scope, error) {
-	ret := _m.Called(name)
-
-	var r0 *models.Scope
-	if rf, ok := ret.Get(0).(func(string) *models.Scope); ok {
-		r0 = rf(name)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Scope)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetUserByID provides a mock function with given fields: ID
 func (_m *DataCRUD) GetUserByID(ID uuid.UUID) (*models.User, error) {
 	ret := _m.Called(ID)
@@ -293,20 +270,6 @@ func (_m *DataCRUD) SaveClient(client *models.Client) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*models.Client) error); ok {
 		r0 = rf(client)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SaveScope provides a mock function with given fields: scope
-func (_m *DataCRUD) SaveScope(scope *models.Scope) error {
-	ret := _m.Called(scope)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Scope) error); ok {
-		r0 = rf(scope)
 	} else {
 		r0 = ret.Error(0)
 	}
