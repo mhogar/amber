@@ -65,7 +65,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *ClientHandlerTestSuite) TestPostClient_WithValidRequest_ReturnsSuccess() {
+func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	body := handlers.PostClientBody{
 		Name: "name",
@@ -169,7 +169,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *ClientHandlerTestSuite) TestPutClient_WithValidRequest_ReturnsSuccess() {
+func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	body := handlers.PostClientBody{
 		Name: "name",
@@ -254,7 +254,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithInternalErrorDeletingU
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *ClientHandlerTestSuite) TestDeleteClient_WithValidRequest_ReturnsSuccess() {
+func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	id := uuid.New()
 	params := []httprouter.Param{
