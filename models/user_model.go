@@ -16,7 +16,7 @@ const UserUsernameMaxLength = 30
 
 // User represents the user model
 type User struct {
-	ID           int16
+	ID           int32
 	Username     string
 	PasswordHash []byte
 }
@@ -40,7 +40,7 @@ type UserCRUD interface {
 	DeleteUser(user *User) error
 }
 
-func CreateUser(id int16, username string, passwordHash []byte) *User {
+func CreateUser(id int32, username string, passwordHash []byte) *User {
 	return &User{
 		ID:           id,
 		Username:     username,

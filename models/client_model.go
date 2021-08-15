@@ -16,7 +16,7 @@ const ClientNameMaxLength = 30
 
 // Client represents the client model
 type Client struct {
-	ID   int8
+	ID   int16
 	UID  uuid.UUID
 	Name string
 }
@@ -38,7 +38,7 @@ type ClientCRUD interface {
 	GetClientByID(ID uuid.UUID) (*Client, error)
 }
 
-func CreateClient(id int8, uid uuid.UUID, name string) *Client {
+func CreateClient(id int16, uid uuid.UUID, name string) *Client {
 	return &Client{
 		ID:   id,
 		UID:  uid,
