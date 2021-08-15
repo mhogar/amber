@@ -14,7 +14,7 @@ import (
 )
 
 type RouterFactory interface {
-	// CreateRouter creates a new httprouter with the endpoints and panic handler configured
+	// CreateRouter creates a new httprouter with the endpoints and panic handler configured.
 	CreateRouter() *httprouter.Router
 }
 
@@ -101,11 +101,10 @@ func (rf CoreRouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *htt
 		return nil, common.InternalError()
 	}
 
-	// no token found
+	//no token found
 	if token == nil {
 		return nil, common.ClientError("bearer token invalid or expired")
 	}
 
-	// auth success
 	return token, common.NoError()
 }

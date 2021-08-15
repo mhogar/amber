@@ -5,12 +5,12 @@ import (
 )
 
 type ScopeFactory interface {
-	// CreateDataExecutorScope handles setup and clean up of the data executor, and passes it to the provided body function
-	// Returns any errors from the executor or body
+	// CreateDataExecutorScope handles setup and clean up of the data executor, and passes it to the provided body function.
+	// Returns any errors from the executor or body.
 	CreateDataExecutorScope(func(DataExecutor) error) error
 
-	// CreateTransactionScope handles transaction creation and commiting, and passes it to the provided body function
-	// Rollbacks on failure or error from body, and returns any errors from the transaction or body
+	// CreateTransactionScope handles transaction creation and commiting, and passes it to the provided body function.
+	// Rollbacks on failure or error from body, and returns any errors from the transaction or body.
 	CreateTransactionScope(DataExecutor, func(Transaction) (bool, error)) error
 }
 

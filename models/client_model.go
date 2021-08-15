@@ -11,29 +11,29 @@ const (
 	ValidateClientNameTooLong = 0x4
 )
 
-// ClientNameMaxLength is the max length a client's name can be
+// ClientNameMaxLength is the max length a client's name can be.
 const ClientNameMaxLength = 30
 
-// Client represents the client model
+// Client represents the client model.
 type Client struct {
 	UID  uuid.UUID
 	Name string
 }
 
 type ClientCRUD interface {
-	// CreateClient creates a new client and returns any errors
+	// CreateClient creates a new client and returns any errors.
 	CreateClient(client *Client) error
 
-	// GetClientByUID fetches the client associated with the uid
-	// If no clients are found, returns nil client. Also returns any errors
+	// GetClientByUID fetches the client associated with the uid.
+	// If no clients are found, returns nil client. Also returns any errors.
 	GetClientByUID(uid uuid.UUID) (*Client, error)
 
-	// UpdateClient updates the client
-	// Returns result of whether the client was found, and any errors
+	// UpdateClient updates the client.
+	// Returns result of whether the client was found, and any errors.
 	UpdateClient(client *Client) (bool, error)
 
-	// DeleteClient deletes the client the with the given uid
-	// Returns result of whether the client was found, and any errors
+	// DeleteClient deletes the client the with the given uid.
+	// Returns result of whether the client was found, and any errors.
 	DeleteClient(uid uuid.UUID) (bool, error)
 }
 
@@ -48,8 +48,8 @@ func CreateNewClient(name string) *Client {
 	return CreateClient(uuid.New(), name)
 }
 
-// Validate validates the client model has valid fields
-// Returns an int indicating which fields are invalid
+// Validate validates the client model has valid fields.
+// Returns an int indicating which fields are invalid.
 func (c *Client) Validate() int {
 	code := ValidateClientValid
 

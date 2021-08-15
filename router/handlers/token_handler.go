@@ -11,13 +11,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// PostTokenBody is the struct the body of requests to PostToken should be parsed into
+// PostTokenBody is the struct the body of requests to PostToken should be parsed into.
 type PostTokenBody struct {
 	GrantType string `json:"grant_type"`
 	PostTokenPasswordGrantBody
 }
 
-// PostTokenPasswordGrantBody is the struct the body of password grant requests to PostToken should be parsed into
+// PostTokenPasswordGrantBody is the struct the body of password grant requests to PostToken should be parsed into.
 type PostTokenPasswordGrantBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`

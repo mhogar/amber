@@ -5,7 +5,7 @@ package scripts
 // ScriptRepository is an implementation of the sql script repository interface that fetches scripts laoded from sql files.
 type ScriptRepository struct {}
 
-// CreateAccessTokenTableScript gets the CreateAccessTokenTable script
+// CreateAccessTokenTableScript gets the CreateAccessTokenTable script.
 func (ScriptRepository) CreateAccessTokenTableScript() string {
 	return `
 CREATE TABLE "public"."access_token" (
@@ -19,7 +19,7 @@ CREATE TABLE "public"."access_token" (
 `
 }
 
-// DeleteAccessTokenScript gets the DeleteAccessToken script
+// DeleteAccessTokenScript gets the DeleteAccessToken script.
 func (ScriptRepository) DeleteAccessTokenScript() string {
 	return `
 DELETE FROM "access_token" tk
@@ -27,7 +27,7 @@ DELETE FROM "access_token" tk
 `
 }
 
-// DeleteAllOtherUserTokensScript gets the DeleteAllOtherUserTokens script
+// DeleteAllOtherUserTokensScript gets the DeleteAllOtherUserTokens script.
 func (ScriptRepository) DeleteAllOtherUserTokensScript() string {
 	return `
 DELETE FROM "access_token" tk
@@ -38,14 +38,14 @@ DELETE FROM "access_token" tk
 `
 }
 
-// DropAccessTokenTableScript gets the DropAccessTokenTable script
+// DropAccessTokenTableScript gets the DropAccessTokenTable script.
 func (ScriptRepository) DropAccessTokenTableScript() string {
 	return `
 DROP TABLE "public"."access_token"
 `
 }
 
-// GetAccessTokenByIdScript gets the GetAccessTokenById script
+// GetAccessTokenByIdScript gets the GetAccessTokenById script.
 func (ScriptRepository) GetAccessTokenByIdScript() string {
 	return `
 SELECT
@@ -59,7 +59,7 @@ WHERE tk."id" = $1
 `
 }
 
-// SaveAccessTokenScript gets the SaveAccessToken script
+// SaveAccessTokenScript gets the SaveAccessToken script.
 func (ScriptRepository) SaveAccessTokenScript() string {
 	return `
 INSERT INTO "access_token" ("id", "user_key", "client_key")
@@ -71,7 +71,7 @@ INSERT INTO "access_token" ("id", "user_key", "client_key")
 `
 }
 
-// CreateClientScript gets the CreateClient script
+// CreateClientScript gets the CreateClient script.
 func (ScriptRepository) CreateClientScript() string {
 	return `
 INSERT INTO "client" ("uid", "name")
@@ -79,7 +79,7 @@ INSERT INTO "client" ("uid", "name")
 `
 }
 
-// CreateClientTableScript gets the CreateClientTable script
+// CreateClientTableScript gets the CreateClientTable script.
 func (ScriptRepository) CreateClientTableScript() string {
 	return `
 CREATE TABLE "public"."client" (
@@ -92,7 +92,7 @@ CREATE TABLE "public"."client" (
 `
 }
 
-// DeleteClientScript gets the DeleteClient script
+// DeleteClientScript gets the DeleteClient script.
 func (ScriptRepository) DeleteClientScript() string {
 	return `
 DELETE FROM "client" c
@@ -100,14 +100,14 @@ DELETE FROM "client" c
 `
 }
 
-// DropClientTableScript gets the DropClientTable script
+// DropClientTableScript gets the DropClientTable script.
 func (ScriptRepository) DropClientTableScript() string {
 	return `
 DROP TABLE "public"."client"
 `
 }
 
-// GetClientByUIDScript gets the GetClientByUID script
+// GetClientByUIDScript gets the GetClientByUID script.
 func (ScriptRepository) GetClientByUIDScript() string {
 	return `
 SELECT c."uid", c."name"
@@ -116,7 +116,7 @@ WHERE c."uid" = $1
 `
 }
 
-// UpdateClientScript gets the UpdateClient script
+// UpdateClientScript gets the UpdateClient script.
 func (ScriptRepository) UpdateClientScript() string {
 	return `
 UPDATE "client" SET
@@ -125,7 +125,7 @@ WHERE "uid" = $1
 `
 }
 
-// CreateMigrationTableScript gets the CreateMigrationTable script
+// CreateMigrationTableScript gets the CreateMigrationTable script.
 func (ScriptRepository) CreateMigrationTableScript() string {
 	return `
 CREATE TABLE IF NOT EXISTS "public"."migration" (
@@ -135,7 +135,7 @@ CREATE TABLE IF NOT EXISTS "public"."migration" (
 `
 }
 
-// DeleteMigrationByTimestampScript gets the DeleteMigrationByTimestamp script
+// DeleteMigrationByTimestampScript gets the DeleteMigrationByTimestamp script.
 func (ScriptRepository) DeleteMigrationByTimestampScript() string {
 	return `
 DELETE FROM "migration"
@@ -143,7 +143,7 @@ DELETE FROM "migration"
 `
 }
 
-// GetLatestTimestampScript gets the GetLatestTimestamp script
+// GetLatestTimestampScript gets the GetLatestTimestamp script.
 func (ScriptRepository) GetLatestTimestampScript() string {
 	return `
 SELECT m."timestamp" FROM "migration" m
@@ -152,7 +152,7 @@ SELECT m."timestamp" FROM "migration" m
 `
 }
 
-// GetMigrationByTimestampScript gets the GetMigrationByTimestamp script
+// GetMigrationByTimestampScript gets the GetMigrationByTimestamp script.
 func (ScriptRepository) GetMigrationByTimestampScript() string {
 	return `
 SELECT m."timestamp" 
@@ -161,7 +161,7 @@ SELECT m."timestamp"
 `
 }
 
-// SaveMigrationScript gets the SaveMigration script
+// SaveMigrationScript gets the SaveMigration script.
 func (ScriptRepository) SaveMigrationScript() string {
 	return `
 INSERT INTO "migration" ("timestamp") 
@@ -169,7 +169,7 @@ INSERT INTO "migration" ("timestamp")
 `
 }
 
-// CreateUserScript gets the CreateUser script
+// CreateUserScript gets the CreateUser script.
 func (ScriptRepository) CreateUserScript() string {
 	return `
 INSERT INTO "user" ("username", "password_hash")
@@ -177,7 +177,7 @@ INSERT INTO "user" ("username", "password_hash")
 `
 }
 
-// CreateUserTableScript gets the CreateUserTable script
+// CreateUserTableScript gets the CreateUserTable script.
 func (ScriptRepository) CreateUserTableScript() string {
 	return `
 CREATE TABLE "public"."user" (
@@ -190,7 +190,7 @@ CREATE TABLE "public"."user" (
 `
 }
 
-// DeleteUserScript gets the DeleteUser script
+// DeleteUserScript gets the DeleteUser script.
 func (ScriptRepository) DeleteUserScript() string {
 	return `
 DELETE FROM "user" u
@@ -198,14 +198,14 @@ DELETE FROM "user" u
 `
 }
 
-// DropUserTableScript gets the DropUserTable script
+// DropUserTableScript gets the DropUserTable script.
 func (ScriptRepository) DropUserTableScript() string {
 	return `
 DROP TABLE "public"."user"
 `
 }
 
-// GetUserByUsernameScript gets the GetUserByUsername script
+// GetUserByUsernameScript gets the GetUserByUsername script.
 func (ScriptRepository) GetUserByUsernameScript() string {
 	return `
 SELECT u."username", u."password_hash"
@@ -214,7 +214,7 @@ SELECT u."username", u."password_hash"
 `
 }
 
-// UpdateUserScript gets the UpdateUser script
+// UpdateUserScript gets the UpdateUser script.
 func (ScriptRepository) UpdateUserScript() string {
 	return `
 UPDATE "user" SET

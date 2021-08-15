@@ -11,7 +11,7 @@ const (
 	ValidateMigrationInvalidTimestamp = 0x1
 )
 
-// Migration represents the migration model
+// Migration represents the migration model.
 type Migration struct {
 	Timestamp string
 }
@@ -19,8 +19,8 @@ type Migration struct {
 type MigrationCRUD interface {
 	migrationrunner.MigrationCRUD
 
-	// GetMigrationByTimestamp fetches the migration with the matching timestamp
-	// If no migrations are found, returns nil migration. Also returns any errors
+	// GetMigrationByTimestamp fetches the migration with the matching timestamp.
+	// If no migrations are found, returns nil migration. Also returns any errors.
 	GetMigrationByTimestamp(timestamp string) (*Migration, error)
 }
 
@@ -30,8 +30,8 @@ func CreateNewMigration(timestamp string) *Migration {
 	}
 }
 
-// Validate validates the migration is a valid migration model
-// Returns an int indicating which fields are invalid
+// Validate validates the migration is a valid migration model.
+// Returns an int indicating which fields are invalid.
 func (m Migration) Validate() int {
 	code := ValidateMigrationValid
 

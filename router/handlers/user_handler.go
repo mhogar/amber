@@ -11,7 +11,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// PostUserBody is the struct the body of requests to PostUser should be parsed into
+// PostUserBody is the struct the body of requests to PostUser should be parsed into.
 type PostUserBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -51,7 +51,7 @@ func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *mo
 	return common.NewSuccessResponse()
 }
 
-// PatchUserPasswordBody is the struct the body of requests to PatchUserPassword should be parsed into
+// PatchUserPasswordBody is the struct the body of requests to PatchUserPassword should be parsed into.
 type PatchUserPasswordBody struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`

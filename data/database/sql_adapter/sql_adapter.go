@@ -10,7 +10,7 @@ import (
 type SQLDriver interface {
 	SQLScriptRepository
 
-	// GetDriverName returns the name for the driver
+	// GetDriverName returns the name for the driver.
 	GetDriverName() string
 }
 
@@ -22,7 +22,7 @@ type SQLAdapter struct {
 	SQLDriver      SQLDriver
 	ContextFactory ContextFactory
 
-	// DbKey is the key that will be used to resolve the database's connection string
+	// DbKey is the key that will be used to resolve the database's connection string.
 	DbKey string
 }
 

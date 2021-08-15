@@ -23,7 +23,7 @@ func main() {
 	}
 }
 
-// Run runs the config generator and returns any errors
+// Run runs the config generator and returns any errors.
 func Run(name string) error {
 	filename := fmt.Sprint("config.", name, ".yml")
 

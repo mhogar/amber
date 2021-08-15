@@ -30,7 +30,7 @@ func (suite *E2ETestSuite) SetupSuite() {
 	runner := server.CreateHTTPTestServerRunner(dependencies.ResolveRouterFactory())
 	suite.Server = runner.Server.(*server.HTTPTestServer).Server
 
-	// run the server
+	//run the server
 	err = runner.Run()
 	suite.Require().NoError(err)
 }

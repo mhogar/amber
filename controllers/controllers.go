@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Controllers encapsulates all other controller interfaces
+// Controllers encapsulates all other controller interfaces.
 type Controllers interface {
 	UserController
 	ClientController
@@ -20,41 +20,41 @@ type CoreControllers struct {
 	CoreTokenController
 }
 
-// UserControllerCRUD encapsulates the CRUD operations required by the UserController
+// UserControllerCRUD encapsulates the CRUD operations required by the UserController.
 type UserControllerCRUD interface {
 	models.UserCRUD
 	models.AccessTokenCRUD
 }
 
 type UserController interface {
-	// CreateUser creates a new user with the given username and password
+	// CreateUser creates a new user with the given username and password.
 	CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError)
 
-	// UpdateUserPassword updates the given user's password
+	// UpdateUserPassword updates the given user's password.
 	UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError
 
-	// DeleteUser deletes the user with given username
+	// DeleteUser deletes the user with given username.
 	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError
 }
 
-// ClientControllerCRUD encapsulates the CRUD operations required by the ClientController
+// ClientControllerCRUD encapsulates the CRUD operations required by the ClientController.
 type ClientControllerCRUD interface {
 	models.ClientCRUD
 	models.AccessTokenCRUD
 }
 
 type ClientController interface {
-	// CreateClient creates a new client with the given name
+	// CreateClient creates a new client with the given name.
 	CreateClient(CRUD ClientControllerCRUD, name string) (*models.Client, common.CustomError)
 
-	// UpdateClient updates the given client
+	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
-	// DeleteClient deletes the client with the given uid
+	// DeleteClient deletes the client with the given uid.
 	DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError
 }
 
-// TokenControllerCRUD encapsulates the CRUD operations required by the TokenController
+// TokenControllerCRUD encapsulates the CRUD operations required by the TokenController.
 type TokenControllerCRUD interface {
 	models.UserCRUD
 	models.ClientCRUD
@@ -62,12 +62,12 @@ type TokenControllerCRUD interface {
 }
 
 type TokenController interface {
-	// CreateTokenFromPassword creates a new access token, authenticating using a password
+	// CreateTokenFromPassword creates a new access token, authenticating using a password.
 	CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError)
 
-	// DeleteToken deletes the access token
+	// DeleteToken deletes the access token.
 	DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError
 
-	// DeleteToken deletes all of the user's tokens accept for the provided one
+	// DeleteToken deletes all of the user's tokens accept for the provided one.
 	DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError
 }

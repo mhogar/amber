@@ -2,7 +2,7 @@ package common
 
 import "net/http"
 
-// BasicResponse represents a response with a simple true/false success field
+// BasicResponse represents a response with a simple true/false success field.
 type BasicResponse struct {
 	Success bool `json:"success"`
 }
@@ -13,7 +13,7 @@ func NewSuccessResponse() (int, BasicResponse) {
 	}
 }
 
-// ErrorResponse represents a response with a true/false success field and an error message
+// ErrorResponse represents a response with a true/false success field and an error message.
 type ErrorResponse struct {
 	Success bool   `json:"success"`
 	Error   string `json:"error"`
@@ -34,7 +34,7 @@ func NewInternalServerErrorResponse() (int, ErrorResponse) {
 	return http.StatusInternalServerError, NewErrorResponse("an internal error occurred")
 }
 
-// DataResponse represents a response with a true/false success field and generic data
+// DataResponse represents a response with a true/false success field and generic data.
 type DataResponse struct {
 	Success bool        `json:"success"`
 	Data    interface{} `json:"data"`
@@ -47,7 +47,7 @@ func NewSuccessDataResponse(data interface{}) (int, DataResponse) {
 	}
 }
 
-// OAuthErrorResponse represents an error response defined by the oauth spec
+// OAuthErrorResponse represents an error response defined by the oauth spec.
 type OAuthErrorResponse struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
@@ -60,7 +60,7 @@ func NewOAuthErrorResponse(name string, description string) (int, OAuthErrorResp
 	}
 }
 
-// AccessTokenResponse represents an access token response defined by the oauth spec
+// AccessTokenResponse represents an access token response defined by the oauth spec.
 type AccessTokenResponse struct {
 	AccessToken string `json:"access_token"`
 	TokenType   string `json:"token_type"`

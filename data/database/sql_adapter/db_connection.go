@@ -10,9 +10,9 @@ import (
 	"github.com/spf13/viper"
 )
 
-// OpenConnection opens the connection to SQL database server using the fields from the database config
-// Initializes the adapter's context and cancel function, as well as its db instance
-// Returns any errors
+// OpenConnection opens the connection to SQL database server using the fields from the database config.
+// Initializes the adapter's context and cancel function, as well as its db instance.
+// Returns any errors.
 func (a *SQLAdapter) OpenConnection() error {
 	//load the database config
 	dbConfig := viper.Get("database").(config.DatabaseConfig)
@@ -37,10 +37,10 @@ func (a *SQLAdapter) OpenConnection() error {
 	return nil
 }
 
-// CloseConnection closes the connection to the SQL database server and resets its db instance
-// The adapter also calls its cancel function to cancel any child requests that may still be running
-// Niether the adapter's db instance or context should be used after calling this function
-// Returns any errors
+// CloseConnection closes the connection to the SQL database server and resets its db instance.
+// The adapter also calls its cancel function to cancel any child requests that may still be running.
+// Niether the adapter's db instance or context should be used after calling this function.
+// Returns any errors.
 func (a *SQLAdapter) CloseConnection() error {
 	err := a.DB.Close()
 	if err != nil {
@@ -56,8 +56,8 @@ func (a *SQLAdapter) CloseConnection() error {
 	return nil
 }
 
-// Ping pings the SQL database server to verify it can still be reached
-// Returns an error if it cannot, or if any other errors are encountered
+// Ping pings the SQL database server to verify it can still be reached.
+// Returns an error if it cannot, or if any other errors are encountered.
 func (DB *SQLAdapter) Ping() error {
 	ctx, cancel := DB.ContextFactory.CreateStandardTimeoutContext()
 	err := DB.DB.PingContext(ctx)

@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-// HTTPServer is a wrapper for an http server that implements the server interface
+// HTTPServer is a wrapper for an http server that implements the server interface.
 type HTTPServer struct {
 	http.Server
 }
@@ -22,11 +22,11 @@ func CreateHTTPServerRunner(routerFactory router.RouterFactory) Runner {
 	}
 }
 
-// Start starts the http server. Always returns a non-nil error
+// Start starts the http server. Always returns a non-nil error.
 func (s *HTTPServer) Start() error {
 	fmt.Println("Server is running on port", s.Addr)
 	return s.ListenAndServe()
 }
 
-// Close does nothing but exists to satisfy the server interface
+// Close does nothing but exists to satisfy the server interface.
 func (*HTTPServer) Close() {}
