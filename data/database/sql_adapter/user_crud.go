@@ -45,16 +45,13 @@ func (crud *SQLCRUD) CreateUser(user *models.User) error {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserScript(),
-		user.ID, user.Username, user.PasswordHash)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserScript(),
+		user.Username, user.PasswordHash)
 	cancel()
 
 	if err != nil {
 		return common.ChainError("error executing create user statement", err)
 	}
-
-	id, _ := res.LastInsertId()
-	user.ID = int32(id)
 
 	return nil
 }
@@ -84,7 +81,7 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserScript(),
-		user.ID, user.Username, user.PasswordHash)
+		user.Username, user.PasswordHash)
 	cancel()
 
 	if err != nil {
@@ -97,9 +94,9 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 
 // DeleteUser deletes the row in the user table with the matching id
 // Returns result of whether the user was found, and any errors
-func (crud *SQLCRUD) DeleteUser(id int32) (bool, error) {
+func (crud *SQLCRUD) DeleteUser(username string) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), id)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), username)
 	cancel()
 
 	if err != nil {
@@ -124,7 +121,7 @@ func readUserData(rows *sql.Rows) (*models.User, error) {
 
 	//get the result
 	user := &models.User{}
-	err := rows.Scan(&user.ID, &user.Username, &user.PasswordHash)
+	err := rows.Scan(&user.Username, &user.PasswordHash)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

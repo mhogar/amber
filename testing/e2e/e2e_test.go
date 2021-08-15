@@ -23,7 +23,7 @@ func (suite *E2ETestSuite) SetupSuite() {
 	err := config.InitConfig("../..")
 	suite.Require().NoError(err)
 
-	//set db key and create database
+	//set db key
 	viper.Set("db_key", "integration")
 
 	//create the test server

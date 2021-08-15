@@ -5,6 +5,8 @@ import (
 	"authserver/models"
 	"fmt"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 type CoreClientController struct{}
@@ -51,9 +53,9 @@ func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *mo
 	return common.NoError()
 }
 
-func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id int16) common.CustomError {
+func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError {
 	//delete the client
-	res, err := CRUD.DeleteClient(id)
+	res, err := CRUD.DeleteClient(uid)
 	if err != nil {
 		log.Println(common.ChainError("error deleting client", err))
 		return common.InternalError()
@@ -61,7 +63,7 @@ func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id int16) 
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with id %d not found", id))
+		return common.ClientError(fmt.Sprintf("client with uid %s not found", uid.String()))
 	}
 
 	return common.NoError()

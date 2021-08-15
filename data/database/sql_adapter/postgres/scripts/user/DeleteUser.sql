@@ -1,2 +1,2 @@
 DELETE FROM "user" u
-    WHERE u."id" = $1
+    WHERE u."username" = $1

@@ -25,7 +25,7 @@ func (suite *ClientTestSuite) TestCreateNewClient_CreatesClientWithSuppliedField
 
 	//assert
 	suite.Require().NotNil(client)
-	suite.NotEqual(uuid.Nil, client.ID)
+	suite.NotEqual(uuid.Nil, client.UID)
 	suite.Equal(name, client.Name)
 }
 

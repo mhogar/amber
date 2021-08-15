@@ -83,7 +83,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_WhereUserIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.DeleteUser(-100)
+	res, err := suite.Tx.DeleteUser("not_a_real_username")
 
 	//assert
 	suite.False(res)
@@ -96,7 +96,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	suite.CreateUser(user)
 
 	//act
-	res, err := suite.Tx.DeleteUser(user.ID)
+	res, err := suite.Tx.DeleteUser(user.Username)
 
 	//assert
 	suite.True(res)
@@ -117,7 +117,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserTokens() {
 	suite.SaveAccessTokenAndFields(token)
 
 	//act
-	res, err := suite.Tx.DeleteUser(user.ID)
+	res, err := suite.Tx.DeleteUser(user.Username)
 
 	//assert
 	suite.True(res)

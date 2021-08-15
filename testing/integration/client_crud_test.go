@@ -71,7 +71,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 
 func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.DeleteClient(-100)
+	res, err := suite.Tx.DeleteClient(uuid.New())
 
 	//assert
 	suite.False(res)
@@ -84,7 +84,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	suite.CreateClient(client)
 
 	//act
-	res, err := suite.Tx.DeleteClient(client.ID)
+	res, err := suite.Tx.DeleteClient(client.UID)
 	suite.Require().NoError(err)
 
 	//assert

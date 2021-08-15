@@ -12,14 +12,12 @@ const UserUsernameMaxLength = 30
 
 // User represents the user model
 type User struct {
-	ID           int32
 	Username     string
 	PasswordHash []byte
 }
 
 type UserCRUD interface {
-	// CreateUser creates a new user
-	// Updates the model with the new id and returns any errors
+	// CreateUser creates a new user and returns any errors
 	CreateUser(user *User) error
 
 	// GetUserByUsername fetches the user with the matching username
@@ -30,14 +28,13 @@ type UserCRUD interface {
 	// Returns result of whether the user was found, and any errors
 	UpdateUser(user *User) (bool, error)
 
-	// DeleteUser deletes the user with the given id
+	// DeleteUser deletes the user with the given username
 	// Returns result of whether the user was found, and any errors
-	DeleteUser(id int32) (bool, error)
+	DeleteUser(username string) (bool, error)
 }
 
 func CreateUser(username string, passwordHash []byte) *User {
 	return &User{
-		ID:           0,
 		Username:     username,
 		PasswordHash: passwordHash,
 	}

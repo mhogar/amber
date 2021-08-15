@@ -26,7 +26,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsB
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
@@ -44,7 +44,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -61,7 +61,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
@@ -79,7 +79,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
 		ID:   client.UID.String(),
 		Name: client.Name,
@@ -102,7 +102,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBad
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
 }
 
@@ -120,7 +120,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBa
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
@@ -145,7 +145,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -169,22 +169,22 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientData() {
 	//arrange
-	body := handlers.PostClientBody{
+	body := handlers.PutClientBody{
 		Name: "name",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	id := uuid.New()
+	uid := uuid.New()
 	params := []httprouter.Param{
 		{
 			Key:   "id",
-			Value: id.String(),
+			Value: uid.String(),
 		},
 	}
 
@@ -194,14 +194,14 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
-		ID:   id.String(),
+		ID:   uid.String(),
 		Name: body.Name,
 	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.TransactionMock, mock.MatchedBy(func(client *models.Client) bool {
-		return client.UID == id && client.Name == body.Name
+		return client.UID == uid && client.Name == body.Name
 	}))
 }
 
@@ -218,7 +218,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithErrorParsingId_Returns
 	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
 }
 
@@ -238,7 +238,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithClientErrorDeletingUse
 	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -257,17 +257,17 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithInternalErrorDeletingU
 	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSuccess() {
 	//arrange
-	id := uuid.New()
+	uid := uuid.New()
 	params := []httprouter.Param{
 		{
 			Key:   "id",
-			Value: id.String(),
+			Value: uid.String(),
 		},
 	}
 
@@ -277,10 +277,10 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSucces
 	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteClient", &suite.TransactionMock, id)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteClient", &suite.TransactionMock, uid)
 }
 
 func TestClientHandlerTestSuite(t *testing.T) {

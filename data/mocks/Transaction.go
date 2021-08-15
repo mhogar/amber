@@ -99,20 +99,20 @@ func (_m *Transaction) DeleteAllOtherUserTokens(token *models.AccessToken) error
 	return r0
 }
 
-// DeleteClient provides a mock function with given fields: id
-func (_m *Transaction) DeleteClient(id int16) (bool, error) {
-	ret := _m.Called(id)
+// DeleteClient provides a mock function with given fields: uid
+func (_m *Transaction) DeleteClient(uid uuid.UUID) (bool, error) {
+	ret := _m.Called(uid)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int16) bool); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
+		r0 = rf(uid)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int16) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(uid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -134,20 +134,20 @@ func (_m *Transaction) DeleteMigrationByTimestamp(timestamp string) error {
 	return r0
 }
 
-// DeleteUser provides a mock function with given fields: id
-func (_m *Transaction) DeleteUser(id int32) (bool, error) {
-	ret := _m.Called(id)
+// DeleteUser provides a mock function with given fields: username
+func (_m *Transaction) DeleteUser(username string) (bool, error) {
+	ret := _m.Called(username)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(int32) bool); ok {
-		r0 = rf(id)
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(username)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(int32) error); ok {
-		r1 = rf(id)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
 	} else {
 		r1 = ret.Error(1)
 	}

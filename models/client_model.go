@@ -16,14 +16,12 @@ const ClientNameMaxLength = 30
 
 // Client represents the client model
 type Client struct {
-	ID   int16
 	UID  uuid.UUID
 	Name string
 }
 
 type ClientCRUD interface {
-	// CreateClient creates a new client
-	// Updates the model with the new id and returns any errors
+	// CreateClient creates a new client and returns any errors
 	CreateClient(client *Client) error
 
 	// GetClientByUID fetches the client associated with the uid
@@ -34,14 +32,13 @@ type ClientCRUD interface {
 	// Returns result of whether the client was found, and any errors
 	UpdateClient(client *Client) (bool, error)
 
-	// DeleteClient deletes the client the with the given id
+	// DeleteClient deletes the client the with the given uid
 	// Returns result of whether the client was found, and any errors
-	DeleteClient(id int16) (bool, error)
+	DeleteClient(uid uuid.UUID) (bool, error)
 }
 
 func CreateClient(uid uuid.UUID, name string) *Client {
 	return &Client{
-		ID:   0,
 		UID:  uid,
 		Name: name,
 	}

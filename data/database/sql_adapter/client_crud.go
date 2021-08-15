@@ -39,7 +39,7 @@ func (crud *SQLCRUD) DropClientTable() error {
 }
 
 // CreateClient validates the client model is valid and inserts a new row into the client table
-// Updates the model with new inserted id and returns any errors
+// Returns any errors
 func (crud *SQLCRUD) CreateClient(client *models.Client) error {
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
@@ -47,15 +47,12 @@ func (crud *SQLCRUD) CreateClient(client *models.Client) error {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateClientScript(), client.UID, client.Name)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateClientScript(), client.UID, client.Name)
 	cancel()
 
 	if err != nil {
 		return common.ChainError("error executing create client statement", err)
 	}
-
-	id, _ := res.LastInsertId()
-	client.ID = int16(id)
 
 	return nil
 }
@@ -84,7 +81,7 @@ func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(), client.ID, client.UID, client.Name)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(), client.UID, client.Name)
 	cancel()
 
 	if err != nil {
@@ -97,9 +94,9 @@ func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
 
 // DeleteUser deletes the row in the user table with the matching id
 // Returns result of whether the client was found, and any errors
-func (crud *SQLCRUD) DeleteClient(id int16) (bool, error) {
+func (crud *SQLCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteClientScript(), id)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteClientScript(), uid)
 	cancel()
 
 	if err != nil {
@@ -124,7 +121,7 @@ func readClientData(rows *sql.Rows) (*models.Client, error) {
 
 	//get the result
 	client := &models.Client{}
-	err := rows.Scan(&client.ID, &client.UID, &client.Name)
+	err := rows.Scan(&client.UID, &client.Name)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

@@ -24,7 +24,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInvalidJSONBody_ReturnsBadRe
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
@@ -43,7 +43,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_Retu
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -61,7 +61,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
@@ -79,7 +79,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.TransactionMock, body.Username, body.Password)
@@ -96,7 +96,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_Re
 	status, res := suite.CoreHandlers.DeleteUser(nil, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -110,7 +110,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 	status, res := suite.CoreHandlers.DeleteUser(nil, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
@@ -124,10 +124,10 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() 
 	status, res := suite.CoreHandlers.DeleteUser(nil, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.TransactionMock, token.User)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.TransactionMock, token.User.Username)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_ReturnsBadRequest() {
@@ -140,7 +140,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
@@ -161,7 +161,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -181,7 +181,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
@@ -203,7 +203,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusBadRequest, status)
+	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
@@ -224,7 +224,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusInternalServerError, status)
+	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
@@ -245,7 +245,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, token, &suite.TransactionMock)
 
 	//assert
-	suite.Equal(http.StatusOK, status)
+	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.TransactionMock, token.User, body.OldPassword, body.NewPassword)

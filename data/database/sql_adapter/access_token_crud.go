@@ -48,7 +48,7 @@ func (crud *SQLCRUD) SaveAccessToken(token *models.AccessToken) error {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveAccessTokenScript(),
-		token.ID, token.User.ID, token.Client.ID)
+		token.ID, token.User.Username, token.Client.UID)
 	cancel()
 
 	if err != nil {
@@ -91,7 +91,7 @@ func (crud *SQLCRUD) DeleteAccessToken(token *models.AccessToken) error {
 // Returns any errors
 func (crud *SQLCRUD) DeleteAllOtherUserTokens(token *models.AccessToken) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserTokensScript(), token.User.ID, token.ID)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserTokensScript(), token.ID, token.User.Username)
 	cancel()
 
 	if err != nil {
@@ -121,8 +121,8 @@ func readAccessTokenData(rows *sql.Rows) (*models.AccessToken, error) {
 	//get the result
 	err := rows.Scan(
 		&token.ID,
-		&token.User.ID, &token.User.Username, &token.User.PasswordHash,
-		&token.Client.ID, &token.Client.Name,
+		&token.User.Username, &token.User.PasswordHash,
+		&token.Client.UID, &token.Client.Name,
 	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)

@@ -33,8 +33,8 @@ type UserController interface {
 	// UpdateUserPassword updates the given user's password
 	UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError
 
-	// DeleteUser deletes the given id
-	DeleteUser(CRUD UserControllerCRUD, id int32) common.CustomError
+	// DeleteUser deletes the user with given username
+	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError
 }
 
 // ClientControllerCRUD encapsulates the CRUD operations required by the ClientController
@@ -50,8 +50,8 @@ type ClientController interface {
 	// UpdateClient updates the given client
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
-	// DeleteClient deletes the given id
-	DeleteClient(CRUD ClientControllerCRUD, id int16) common.CustomError
+	// DeleteClient deletes the client with the given uid
+	DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError
 }
 
 // TokenControllerCRUD encapsulates the CRUD operations required by the TokenController
