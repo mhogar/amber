@@ -5,7 +5,6 @@ import (
 
 	"authserver/models"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -28,7 +27,6 @@ func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
 
 	//assert
 	suite.Require().NotNil(user)
-	suite.NotEqual(user.ID, uuid.Nil)
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
 }
@@ -39,17 +37,6 @@ func (suite *UserTestSuite) TestValidate_WithValidUser_ReturnsValid() {
 
 	//assert
 	suite.Equal(models.ValidateUserValid, verr)
-}
-
-func (suite *UserTestSuite) TestValidate_WithNilID_ReturnsUserNilID() {
-	//arrange
-	suite.User.ID = uuid.Nil
-
-	//act
-	verr := suite.User.Validate()
-
-	//assert
-	suite.Equal(models.ValidateUserNilID, verr)
 }
 
 func (suite *UserTestSuite) TestValidate_WithEmptyUsername_ReturnsUserInvalidUsername() {

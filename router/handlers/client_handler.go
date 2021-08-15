@@ -49,7 +49,7 @@ type PutClientBody struct {
 func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	var body PutClientBody
 
-	// parse the id
+	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
 		log.Println(common.ChainError("error parsing id", err))
@@ -79,7 +79,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 }
 
 func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
-	// parse the id
+	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
 		log.Println(common.ChainError("error parsing id", err))
@@ -100,7 +100,7 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 
 func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(ClientDataResponse{
-		ID:   client.ID.String(),
+		ID:   client.UID.String(),
 		Name: client.Name,
 	})
 }

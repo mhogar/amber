@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 )
 
-// CreateAccessTokenTable creates the access token table in the database
-// Returns any errors
+// CreateAccessTokenTable creates the access token table in the database.
+// Returns any errors.
 func (crud *SQLCRUD) CreateAccessTokenTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateAccessTokenTableScript())
@@ -24,8 +24,8 @@ func (crud *SQLCRUD) CreateAccessTokenTable() error {
 	return err
 }
 
-// DropAccessTokenTable drops the access token table from the database
-// Returns any errors
+// DropAccessTokenTable drops the access token table from the database.
+// Returns any errors.
 func (crud *SQLCRUD) DropAccessTokenTable() error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DropAccessTokenTableScript())
@@ -38,8 +38,8 @@ func (crud *SQLCRUD) DropAccessTokenTable() error {
 	return err
 }
 
-// SaveAccessToken validates the access token model is valid and inserts a new row into the access_token table
-// Returns any errors
+// SaveAccessToken validates the access token model is valid and inserts a new row into the access_token table.
+// Returns any errors.
 func (crud *SQLCRUD) SaveAccessToken(token *models.AccessToken) error {
 	verr := token.Validate()
 	if verr != models.ValidateAccessTokenValid {
@@ -48,7 +48,7 @@ func (crud *SQLCRUD) SaveAccessToken(token *models.AccessToken) error {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveAccessTokenScript(),
-		token.ID, token.User.ID, token.Client.ID)
+		token.ID, token.User.Username, token.Client.UID)
 	cancel()
 
 	if err != nil {
@@ -58,8 +58,8 @@ func (crud *SQLCRUD) SaveAccessToken(token *models.AccessToken) error {
 	return nil
 }
 
-// GetAccessTokenByID gets the row in the access_token table with the matching id, and creates a new access token model with associated models using its data
-// Returns the model and any errors
+// GetAccessTokenByID gets the row in the access_token table with the matching id, and creates a new access token model with associated models using its data.
+// Returns the model and any errors.
 func (crud *SQLCRUD) GetAccessTokenByID(ID uuid.UUID) (*models.AccessToken, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetAccessTokenByIdScript(), ID)
@@ -73,8 +73,8 @@ func (crud *SQLCRUD) GetAccessTokenByID(ID uuid.UUID) (*models.AccessToken, erro
 	return readAccessTokenData(rows)
 }
 
-// DeleteAccessToken deletes the row in the access_token table with the matching id
-// Returns any errors
+// DeleteAccessToken deletes the row in the access_token table with the matching id.
+// Returns any errors.
 func (crud *SQLCRUD) DeleteAccessToken(token *models.AccessToken) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAccessTokenScript(), token.ID)
@@ -87,11 +87,11 @@ func (crud *SQLCRUD) DeleteAccessToken(token *models.AccessToken) error {
 	return nil
 }
 
-// DeleteAllOtherUserTokens deletes all the rows in the access_token table with the matching user id, and not the token id
-// Returns any errors
+// DeleteAllOtherUserTokens deletes all the rows in the access_token table with the matching user id, and not the token id.
+// Returns any errors.
 func (crud *SQLCRUD) DeleteAllOtherUserTokens(token *models.AccessToken) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserTokensScript(), token.User.ID, token.ID)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserTokensScript(), token.ID, token.User.Username)
 	cancel()
 
 	if err != nil {
@@ -121,8 +121,8 @@ func readAccessTokenData(rows *sql.Rows) (*models.AccessToken, error) {
 	//get the result
 	err := rows.Scan(
 		&token.ID,
-		&token.User.ID, &token.User.Username, &token.User.PasswordHash,
-		&token.Client.ID, &token.Client.Name,
+		&token.User.Username, &token.User.PasswordHash,
+		&token.Client.UID, &token.Client.Name,
 	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)

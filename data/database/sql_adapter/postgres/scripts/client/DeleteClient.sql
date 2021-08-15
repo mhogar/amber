@@ -1,2 +1,2 @@
 DELETE FROM "client" c
-    WHERE c."id" = $1
+    WHERE c."uid" = $1

@@ -6,40 +6,40 @@ import (
 
 const (
 	ValidateClientValid       = 0x0
-	ValidateClientNilID       = 0x1
+	ValidateClientNilUID      = 0x1
 	ValidateClientEmptyName   = 0x2
 	ValidateClientNameTooLong = 0x4
 )
 
-// ClientNameMaxLength is the max length a client's name can be
+// ClientNameMaxLength is the max length a client's name can be.
 const ClientNameMaxLength = 30
 
-// Client represents the client model
+// Client represents the client model.
 type Client struct {
-	ID   uuid.UUID
+	UID  uuid.UUID
 	Name string
 }
 
 type ClientCRUD interface {
-	// SaveClient saves the client and returns any errors
-	SaveClient(client *Client) error
+	// CreateClient creates a new client and returns any errors.
+	CreateClient(client *Client) error
 
-	// UpdateClient updates the client
-	// Returns result of whether the client was found, and any errors
+	// GetClientByUID fetches the client associated with the uid.
+	// If no clients are found, returns nil client. Also returns any errors.
+	GetClientByUID(uid uuid.UUID) (*Client, error)
+
+	// UpdateClient updates the client.
+	// Returns result of whether the client was found, and any errors.
 	UpdateClient(client *Client) (bool, error)
 
-	// DeleteClient deletes the client the with the id
-	// Returns result of whether the client was found, and any errors
-	DeleteClient(id uuid.UUID) (bool, error)
-
-	// GetClientByID fetches the client associated with the id
-	// If no clients are found, returns nil client. Also returns any errors
-	GetClientByID(ID uuid.UUID) (*Client, error)
+	// DeleteClient deletes the client the with the given uid.
+	// Returns result of whether the client was found, and any errors.
+	DeleteClient(uid uuid.UUID) (bool, error)
 }
 
-func CreateClient(id uuid.UUID, name string) *Client {
+func CreateClient(uid uuid.UUID, name string) *Client {
 	return &Client{
-		ID:   id,
+		UID:  uid,
 		Name: name,
 	}
 }
@@ -48,13 +48,13 @@ func CreateNewClient(name string) *Client {
 	return CreateClient(uuid.New(), name)
 }
 
-// Validate validates the client model has valid fields
-// Returns an int indicating which fields are invalid
+// Validate validates the client model has valid fields.
+// Returns an int indicating which fields are invalid.
 func (c *Client) Validate() int {
 	code := ValidateClientValid
 
-	if c.ID == uuid.Nil {
-		code |= ValidateClientNilID
+	if c.UID == uuid.Nil {
+		code |= ValidateClientNilUID
 	}
 
 	if c.Name == "" {

@@ -101,13 +101,13 @@ func (_m *Controllers) DeleteAllOtherUserTokens(CRUD controllers.TokenController
 	return r0
 }
 
-// DeleteClient provides a mock function with given fields: CRUD, id
-func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, id uuid.UUID) common.CustomError {
-	ret := _m.Called(CRUD, id)
+// DeleteClient provides a mock function with given fields: CRUD, uid
+func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, uid uuid.UUID) common.CustomError {
+	ret := _m.Called(CRUD, uid)
 
 	var r0 common.CustomError
 	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, uuid.UUID) common.CustomError); ok {
-		r0 = rf(CRUD, id)
+		r0 = rf(CRUD, uid)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}
@@ -129,13 +129,13 @@ func (_m *Controllers) DeleteToken(CRUD controllers.TokenControllerCRUD, token *
 	return r0
 }
 
-// DeleteUser provides a mock function with given fields: CRUD, user
-func (_m *Controllers) DeleteUser(CRUD controllers.UserControllerCRUD, user *models.User) common.CustomError {
-	ret := _m.Called(CRUD, user)
+// DeleteUser provides a mock function with given fields: CRUD, username
+func (_m *Controllers) DeleteUser(CRUD controllers.UserControllerCRUD, username string) common.CustomError {
+	ret := _m.Called(CRUD, username)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, *models.User) common.CustomError); ok {
-		r0 = rf(CRUD, user)
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string) common.CustomError); ok {
+		r0 = rf(CRUD, username)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

@@ -1,66 +1,53 @@
 package models
 
-import (
-	"github.com/google/uuid"
-)
-
 const (
 	ValidateUserValid               = 0x0
-	ValidateUserNilID               = 0x1
-	ValidateUserEmptyUsername       = 0x2
-	ValidateUserUsernameTooLong     = 0x4
-	ValidateUserInvalidPasswordHash = 0x8
+	ValidateUserEmptyUsername       = 0x1
+	ValidateUserUsernameTooLong     = 0x2
+	ValidateUserInvalidPasswordHash = 0x4
 )
 
-// UserUsernameMaxLength is the max length a user's username can be
+// UserUsernameMaxLength is the max length a user's username can be.
 const UserUsernameMaxLength = 30
 
-// User represents the user model
+// User represents the user model.
 type User struct {
-	ID           uuid.UUID
 	Username     string
 	PasswordHash []byte
 }
 
 type UserCRUD interface {
-	// SaveUser saves the user and returns any errors
-	SaveUser(user *User) error
+	// CreateUser creates a new user and returns any errors.
+	CreateUser(user *User) error
 
-	// GetUserByID fetches the user associated with the id
-	// If no users are found, returns nil user. Also returns any errors
-	GetUserByID(ID uuid.UUID) (*User, error)
-
-	// GetUserByUsername fetches the user with the matching username
-	// If no users are found, returns nil user. Also returns any errors
+	// GetUserByUsername fetches the user with the matching username.
+	// If no users are found, returns nil user. Also returns any errors.
 	GetUserByUsername(username string) (*User, error)
 
-	// UpdateUser updates the user and returns any errors
-	UpdateUser(user *User) error
+	// UpdateUser updates the user and returns any errors.
+	// Returns result of whether the user was found, and any errors.
+	UpdateUser(user *User) (bool, error)
 
-	// DeleteUser deletes the user and returns any errors
-	DeleteUser(user *User) error
+	// DeleteUser deletes the user with the given username.
+	// Returns result of whether the user was found, and any errors.
+	DeleteUser(username string) (bool, error)
 }
 
-func CreateUser(id uuid.UUID, username string, passwordHash []byte) *User {
+func CreateUser(username string, passwordHash []byte) *User {
 	return &User{
-		ID:           id,
 		Username:     username,
 		PasswordHash: passwordHash,
 	}
 }
 
 func CreateNewUser(username string, passwordHash []byte) *User {
-	return CreateUser(uuid.New(), username, passwordHash)
+	return CreateUser(username, passwordHash)
 }
 
-// Validate validates the user model has valid fields
-// Returns an int indicating which fields are invalid
+// Validate validates the user model has valid fields.
+// Returns an int indicating which fields are invalid.
 func (u *User) Validate() int {
 	code := ValidateUserValid
-
-	if u.ID == uuid.Nil {
-		code |= ValidateUserNilID
-	}
 
 	if u.Username == "" {
 		code |= ValidateUserEmptyUsername

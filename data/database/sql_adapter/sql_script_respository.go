@@ -1,6 +1,6 @@
 package sqladapter
 
-// SQLScriptRepository is an interface for encapsulating other sql script repository
+// SQLScriptRepository is an interface for encapsulating other sql script repository.
 type SQLScriptRepository interface {
 	AccessTokenScriptRepository
 	ClientScriptRepository
@@ -8,7 +8,7 @@ type SQLScriptRepository interface {
 	UserScriptRepository
 }
 
-// AccessTokenScriptRepository is an interface for fetching access token sql scripts
+// AccessTokenScriptRepository is an interface for fetching access token sql scripts.
 type AccessTokenScriptRepository interface {
 	CreateAccessTokenTableScript() string
 	DropAccessTokenTableScript() string
@@ -18,17 +18,17 @@ type AccessTokenScriptRepository interface {
 	DeleteAllOtherUserTokensScript() string
 }
 
-// ClientScriptRepository is an interface for fetching client sql scripts
+// ClientScriptRepository is an interface for fetching client sql scripts.
 type ClientScriptRepository interface {
 	CreateClientTableScript() string
 	DropClientTableScript() string
-	SaveClientScript() string
+	CreateClientScript() string
+	GetClientByUIDScript() string
 	UpdateClientScript() string
 	DeleteClientScript() string
-	GetClientByIdScript() string
 }
 
-// MigrationScriptRepository is an interface for fetching migration sql scripts
+// MigrationScriptRepository is an interface for fetching migration sql scripts.
 type MigrationScriptRepository interface {
 	CreateMigrationTableScript() string
 	SaveMigrationScript() string
@@ -37,12 +37,11 @@ type MigrationScriptRepository interface {
 	DeleteMigrationByTimestampScript() string
 }
 
-// UserScriptRepository is an interface for fetching user sql scripts
+// UserScriptRepository is an interface for fetching user sql scripts.
 type UserScriptRepository interface {
 	CreateUserTableScript() string
 	DropUserTableScript() string
-	SaveUserScript() string
-	GetUserByIdScript() string
+	CreateUserScript() string
 	GetUserByUsernameScript() string
 	UpdateUserScript() string
 	DeleteUserScript() string

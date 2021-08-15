@@ -51,7 +51,7 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	}
 
 	//save the user
-	err = CRUD.SaveUser(user)
+	err = CRUD.CreateUser(user)
 	if err != nil {
 		log.Println(common.ChainError("error saving user", err))
 		return nil, common.InternalError()
@@ -60,12 +60,17 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError {
+func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError {
 	//delete the user
-	err := CRUD.DeleteUser(user)
+	res, err := CRUD.DeleteUser(username)
 	if err != nil {
 		log.Println(common.ChainError("error deleting user", err))
 		return common.InternalError()
+	}
+
+	//verify user was actually found
+	if !res {
+		return common.ClientError(fmt.Sprintf("user with username %s not found", username))
 	}
 
 	//return success
@@ -94,9 +99,9 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, user *mo
 		return common.InternalError()
 	}
 
-	//update the user
+	//update the user (don't check result because we know the user already exists)
 	user.PasswordHash = hash
-	err = CRUD.UpdateUser(user)
+	_, err = CRUD.UpdateUser(user)
 	if err != nil {
 		log.Println(common.ChainError("error updating user", err))
 		return common.InternalError()

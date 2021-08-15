@@ -23,14 +23,14 @@ func (suite *E2ETestSuite) SetupSuite() {
 	err := config.InitConfig("../..")
 	suite.Require().NoError(err)
 
-	//set db key and create database
+	//set db key
 	viper.Set("db_key", "integration")
 
 	//create the test server
 	runner := server.CreateHTTPTestServerRunner(dependencies.ResolveRouterFactory())
 	suite.Server = runner.Server.(*server.HTTPTestServer).Server
 
-	// run the server
+	//run the server
 	err = runner.Run()
 	suite.Require().NoError(err)
 }

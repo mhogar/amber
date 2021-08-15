@@ -6,7 +6,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-// BCryptPasswordHasher is an implementation of the PasswordHasher that uses the bcrypt algorithm
+// BCryptPasswordHasher is an implementation of the PasswordHasher that uses the bcrypt algorithm.
 type BCryptPasswordHasher struct{}
 
 func (BCryptPasswordHasher) HashPassword(password string) ([]byte, error) {

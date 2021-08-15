@@ -22,7 +22,7 @@ func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name strin
 	}
 
 	//save the client
-	err := CRUD.SaveClient(client)
+	err := CRUD.CreateClient(client)
 	if err != nil {
 		log.Println(common.ChainError("error saving client", err))
 		return nil, common.InternalError()
@@ -47,15 +47,15 @@ func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *mo
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with id %s not found", client.ID))
+		return common.ClientError(fmt.Sprintf("client with id %s not found", client.UID))
 	}
 
 	return common.NoError()
 }
 
-func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id uuid.UUID) common.CustomError {
-	//delete the client with id
-	res, err := CRUD.DeleteClient(id)
+func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError {
+	//delete the client
+	res, err := CRUD.DeleteClient(uid)
 	if err != nil {
 		log.Println(common.ChainError("error deleting client", err))
 		return common.InternalError()
@@ -63,7 +63,7 @@ func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id uuid.UU
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with id %s not found", id))
+		return common.ClientError(fmt.Sprintf("client with uid %s not found", uid.String()))
 	}
 
 	return common.NoError()

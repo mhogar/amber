@@ -8,13 +8,13 @@ const (
 	ErrorTypeClient   = iota
 )
 
-// CustomError is an error with an added type field to determine how it should be handled
+// CustomError is an error with an added type field to determine how it should be handled.
 type CustomError struct {
 	error
 	Type int
 }
 
-// NoError returns a CustomError with type ErrorTypeNone
+// NoError returns a CustomError with type ErrorTypeNone.
 func NoError() CustomError {
 	return CustomError{
 		error: nil,
@@ -22,7 +22,7 @@ func NoError() CustomError {
 	}
 }
 
-// InternalError returns a CustomError with type ErrorTypeInternal and an internal error message
+// InternalError returns a CustomError with type ErrorTypeInternal and an internal error message.
 func InternalError() CustomError {
 	return CustomError{
 		error: errors.New("an internal error occurred"),
@@ -30,7 +30,7 @@ func InternalError() CustomError {
 	}
 }
 
-// ClientError returns a CustomError with type ErrorTypeClient and the provided message
+// ClientError returns a CustomError with type ErrorTypeClient and the provided message.
 func ClientError(message string) CustomError {
 	return CustomError{
 		error: errors.New(message),
@@ -38,13 +38,13 @@ func ClientError(message string) CustomError {
 	}
 }
 
-// OAuthCustomError is a CustomError with an added error name field to determine the oauth error name
+// OAuthCustomError is a CustomError with an added error name field to determine the oauth error name.
 type OAuthCustomError struct {
 	CustomError
 	ErrorName string
 }
 
-// OAuthNoError returns an OAuthCustomError with type ErrorTypeNone
+// OAuthNoError returns an OAuthCustomError with type ErrorTypeNone.
 func OAuthNoError() OAuthCustomError {
 	return OAuthCustomError{
 		CustomError: NoError(),
@@ -52,7 +52,7 @@ func OAuthNoError() OAuthCustomError {
 	}
 }
 
-// OAuthInternalError returns an OAuthCustomError with type ErrorTypeInternal and an internal error message
+// OAuthInternalError returns an OAuthCustomError with type ErrorTypeInternal and an internal error message.
 func OAuthInternalError() OAuthCustomError {
 	return OAuthCustomError{
 		CustomError: InternalError(),
@@ -60,7 +60,7 @@ func OAuthInternalError() OAuthCustomError {
 	}
 }
 
-// ClientError returns a CustomError with type ErrorTypeClient and the provided error name and message
+// ClientError returns a CustomError with type ErrorTypeClient and the provided error name and message.
 func OAuthClientError(errorName string, message string) OAuthCustomError {
 	return OAuthCustomError{
 		CustomError: ClientError(message),

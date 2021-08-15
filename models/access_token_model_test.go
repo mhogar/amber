@@ -90,7 +90,7 @@ func (suite *AccessTokenTestSuite) TestValidate_WithNilClient_ReturnsAccessToken
 
 func (suite *AccessTokenTestSuite) TestValidate_WithInvalidClient_ReturnsAccessTokenInvalidClient() {
 	//arrange
-	suite.Token.Client = &models.Client{ID: uuid.Nil}
+	suite.Token.Client = &models.Client{UID: uuid.Nil}
 
 	//act
 	verr := suite.Token.Validate()

@@ -36,7 +36,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGett
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, errors.New(""))
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(nil, errors.New(""))
 
 	//act
 	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
@@ -52,7 +52,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WhereClientWi
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(nil, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(nil, nil)
 
 	//act
 	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
@@ -68,7 +68,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorGett
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(&models.Client{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
@@ -85,7 +85,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WhereUserWith
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(&models.Client{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 
 	//act
@@ -102,7 +102,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WherePassword
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(&models.Client{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(errors.New(""))
 
@@ -120,7 +120,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithErrorSavi
 	password := "password"
 	clientID := uuid.New()
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(&models.Client{}, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(&models.Client{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(errors.New(""))
@@ -137,21 +137,21 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithNoErrors_
 	//arrange
 	username := "username"
 	password := "password"
-	clientID := uuid.New()
+	clientUID := uuid.New()
 
-	client := &models.Client{ID: clientID}
-	user := &models.User{ID: uuid.New()}
+	client := models.CreateClient(clientUID, "name")
+	user := models.CreateNewUser(username, []byte(password))
 
-	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(client, nil)
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(nil)
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientUID)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByID", clientID)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", clientUID)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", mock.Anything, password)
 	suite.CRUDMock.AssertCalled(suite.T(), "SaveAccessToken", token)

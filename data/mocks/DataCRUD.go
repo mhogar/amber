@@ -15,6 +15,20 @@ type DataCRUD struct {
 	mock.Mock
 }
 
+// CreateClient provides a mock function with given fields: client
+func (_m *DataCRUD) CreateClient(client *models.Client) error {
+	ret := _m.Called(client)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.Client) error); ok {
+		r0 = rf(client)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // CreateMigration provides a mock function with given fields: timestamp
 func (_m *DataCRUD) CreateMigration(timestamp string) error {
 	ret := _m.Called(timestamp)
@@ -22,6 +36,20 @@ func (_m *DataCRUD) CreateMigration(timestamp string) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string) error); ok {
 		r0 = rf(timestamp)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// CreateUser provides a mock function with given fields: user
+func (_m *DataCRUD) CreateUser(user *models.User) error {
+	ret := _m.Called(user)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
+		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -57,20 +85,20 @@ func (_m *DataCRUD) DeleteAllOtherUserTokens(token *models.AccessToken) error {
 	return r0
 }
 
-// DeleteClient provides a mock function with given fields: id
-func (_m *DataCRUD) DeleteClient(id uuid.UUID) (bool, error) {
-	ret := _m.Called(id)
+// DeleteClient provides a mock function with given fields: uid
+func (_m *DataCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
+	ret := _m.Called(uid)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
-		r0 = rf(id)
+		r0 = rf(uid)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(id)
+		r1 = rf(uid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -92,18 +120,25 @@ func (_m *DataCRUD) DeleteMigrationByTimestamp(timestamp string) error {
 	return r0
 }
 
-// DeleteUser provides a mock function with given fields: user
-func (_m *DataCRUD) DeleteUser(user *models.User) error {
-	ret := _m.Called(user)
+// DeleteUser provides a mock function with given fields: username
+func (_m *DataCRUD) DeleteUser(username string) (bool, error) {
+	ret := _m.Called(username)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
-		r0 = rf(user)
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string) bool); ok {
+		r0 = rf(username)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(bool)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // GetAccessTokenByID provides a mock function with given fields: ID
@@ -129,13 +164,13 @@ func (_m *DataCRUD) GetAccessTokenByID(ID uuid.UUID) (*models.AccessToken, error
 	return r0, r1
 }
 
-// GetClientByID provides a mock function with given fields: ID
-func (_m *DataCRUD) GetClientByID(ID uuid.UUID) (*models.Client, error) {
-	ret := _m.Called(ID)
+// GetClientByUID provides a mock function with given fields: uid
+func (_m *DataCRUD) GetClientByUID(uid uuid.UUID) (*models.Client, error) {
+	ret := _m.Called(uid)
 
 	var r0 *models.Client
 	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Client); ok {
-		r0 = rf(ID)
+		r0 = rf(uid)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Client)
@@ -144,7 +179,7 @@ func (_m *DataCRUD) GetClientByID(ID uuid.UUID) (*models.Client, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(ID)
+		r1 = rf(uid)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -203,29 +238,6 @@ func (_m *DataCRUD) GetMigrationByTimestamp(timestamp string) (*models.Migration
 	return r0, r1
 }
 
-// GetUserByID provides a mock function with given fields: ID
-func (_m *DataCRUD) GetUserByID(ID uuid.UUID) (*models.User, error) {
-	ret := _m.Called(ID)
-
-	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.User); ok {
-		r0 = rf(ID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.User)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(ID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetUserByUsername provides a mock function with given fields: username
 func (_m *DataCRUD) GetUserByUsername(username string) (*models.User, error) {
 	ret := _m.Called(username)
@@ -256,34 +268,6 @@ func (_m *DataCRUD) SaveAccessToken(token *models.AccessToken) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*models.AccessToken) error); ok {
 		r0 = rf(token)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SaveClient provides a mock function with given fields: client
-func (_m *DataCRUD) SaveClient(client *models.Client) error {
-	ret := _m.Called(client)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Client) error); ok {
-		r0 = rf(client)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// SaveUser provides a mock function with given fields: user
-func (_m *DataCRUD) SaveUser(user *models.User) error {
-	ret := _m.Called(user)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
-		r0 = rf(user)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -327,15 +311,22 @@ func (_m *DataCRUD) UpdateClient(client *models.Client) (bool, error) {
 }
 
 // UpdateUser provides a mock function with given fields: user
-func (_m *DataCRUD) UpdateUser(user *models.User) error {
+func (_m *DataCRUD) UpdateUser(user *models.User) (bool, error) {
 	ret := _m.Called(user)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.User) error); ok {
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*models.User) bool); ok {
 		r0 = rf(user)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(bool)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.User) error); ok {
+		r1 = rf(user)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

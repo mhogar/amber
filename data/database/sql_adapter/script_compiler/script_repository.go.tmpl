@@ -5,7 +5,7 @@ package scripts
 // ScriptRepository is an implementation of the sql script repository interface that fetches scripts laoded from sql files.
 type ScriptRepository struct {}
 {{range $scriptData := .}}
-// {{$scriptData.Name}}Script gets the {{$scriptData.Name}} script
+// {{$scriptData.Name}}Script gets the {{$scriptData.Name}} script.
 func (ScriptRepository) {{$scriptData.Name}}Script() string {
 	return `
 {{$scriptData.Script}}

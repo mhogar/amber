@@ -25,7 +25,7 @@ func (suite *ClientTestSuite) TestCreateNewClient_CreatesClientWithSuppliedField
 
 	//assert
 	suite.Require().NotNil(client)
-	suite.NotEqual(uuid.Nil, client.ID)
+	suite.NotEqual(uuid.Nil, client.UID)
 	suite.Equal(name, client.Name)
 }
 
@@ -37,15 +37,15 @@ func (suite *ClientTestSuite) TestValidate_WithValidClient_ReturnsValid() {
 	suite.Equal(models.ValidateClientValid, verr)
 }
 
-func (suite *ClientTestSuite) TestValidate_WithNilID_ReturnsClientNilID() {
+func (suite *ClientTestSuite) TestValidate_WithNilUID_ReturnsClientNilUID() {
 	//arrange
-	suite.Client.ID = uuid.Nil
+	suite.Client.UID = uuid.Nil
 
 	//act
 	verr := suite.Client.Validate()
 
 	//assert
-	suite.Equal(models.ValidateClientNilID, verr)
+	suite.Equal(models.ValidateClientNilUID, verr)
 }
 
 func (suite *ClientTestSuite) TestValidate_WithEmptyName_ReturnsClientEmptyName() {
