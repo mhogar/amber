@@ -9,9 +9,9 @@ type ScriptRepository struct {}
 func (ScriptRepository) CreateAccessTokenTableScript() string {
 	return `
 CREATE TABLE "public"."access_token" (
-	"id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
-	"client_id" uuid NOT NULL,
+	"id" UUID NOT NULL,
+	"user_id" INTEGER NOT NULL,
+	"client_id" SMALLINT NOT NULL,
 	CONSTRAINT "access_token_pk" PRIMARY KEY ("id"),
 	CONSTRAINT "access_token_user_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE CASCADE,
 	CONSTRAINT "access_token_client_fk" FOREIGN KEY ("client_id") REFERENCES "public"."client"("id") ON DELETE CASCADE
@@ -48,7 +48,7 @@ func (ScriptRepository) GetAccessTokenByIdScript() string {
 SELECT
     tk."id",
     u."id", u."username", u."password_hash",
-    c."id", c."name"
+    c."id", c."uid", c."name"
 FROM "access_token" tk
     INNER JOIN "user" u ON u."id" = tk."user_id"
     INNER JOIN "client" c ON c."id" = tk."client_id"
@@ -64,12 +64,21 @@ INSERT INTO "access_token" ("id", "user_id", "client_id")
 `
 }
 
+// CreateClientScript gets the CreateClient script
+func (ScriptRepository) CreateClientScript() string {
+	return `
+INSERT INTO "client" ("uid", "name")
+	VALUES ($1, $2)
+`
+}
+
 // CreateClientTableScript gets the CreateClientTable script
 func (ScriptRepository) CreateClientTableScript() string {
 	return `
 CREATE TABLE "public"."client" (
-	"id" uuid NOT NULL,
-	"name" varchar(30) NOT NULL,
+	"id" SMALLSERIAL,
+	"uid" UUID NOT NULL,
+	"name" VARCHAR(30) NOT NULL,
 	CONSTRAINT "client_pk" PRIMARY KEY ("id")
 );
 `
@@ -90,20 +99,12 @@ DROP TABLE "public"."client"
 `
 }
 
-// GetClientByIdScript gets the GetClientById script
-func (ScriptRepository) GetClientByIdScript() string {
+// GetClientByUIDScript gets the GetClientByUID script
+func (ScriptRepository) GetClientByUIDScript() string {
 	return `
-SELECT c."id", c."name"
+SELECT c."id", c."uid", c."name"
 	FROM "client" c
-	WHERE c."id" = $1
-`
-}
-
-// SaveClientScript gets the SaveClient script
-func (ScriptRepository) SaveClientScript() string {
-	return `
-INSERT INTO "client" ("id", "name")
-	VALUES ($1, $2)
+	WHERE c."uid" = $1
 `
 }
 
@@ -120,7 +121,7 @@ WHERE "id" = $1
 func (ScriptRepository) CreateMigrationTableScript() string {
 	return `
 CREATE TABLE IF NOT EXISTS "public"."migration" (
-    "timestamp" char(14) NOT NULL,
+    "timestamp" CHAR(14) NOT NULL,
     CONSTRAINT "migration_pk" PRIMARY KEY ("timestamp")
 );
 `
@@ -160,13 +161,21 @@ INSERT INTO "migration" ("timestamp")
 `
 }
 
+// CreateUserScript gets the CreateUser script
+func (ScriptRepository) CreateUserScript() string {
+	return `
+INSERT INTO "user" ("username", "password_hash")
+	VALUES ($1, $2)
+`
+}
+
 // CreateUserTableScript gets the CreateUserTable script
 func (ScriptRepository) CreateUserTableScript() string {
 	return `
 CREATE TABLE "public"."user" (
-	"id" uuid NOT NULL,
-	"username" varchar(30) NOT NULL,
-	"password_hash" bytea NOT NULL,
+	"id" SERIAL,
+	"username" VARCHAR(30) NOT NULL,
+	"password_hash" BYTEA NOT NULL,
 	CONSTRAINT "user_pk" PRIMARY KEY ("id"),
 	CONSTRAINT "user_username_un" UNIQUE ("username")
 );
@@ -188,15 +197,6 @@ DROP TABLE "public"."user"
 `
 }
 
-// GetUserByIdScript gets the GetUserById script
-func (ScriptRepository) GetUserByIdScript() string {
-	return `
-SELECT u."id", u."username", u."password_hash"
-	FROM "user" u
-	WHERE u."id" = $1
-`
-}
-
 // GetUserByUsernameScript gets the GetUserByUsername script
 func (ScriptRepository) GetUserByUsernameScript() string {
 	return `
@@ -206,20 +206,11 @@ SELECT u."id", u."username", u."password_hash"
 `
 }
 
-// SaveUserScript gets the SaveUser script
-func (ScriptRepository) SaveUserScript() string {
-	return `
-INSERT INTO "user" ("id", "username", "password_hash")
-	VALUES ($1, $2, $3)
-`
-}
-
 // UpdateUserScript gets the UpdateUser script
 func (ScriptRepository) UpdateUserScript() string {
 	return `
 UPDATE "user" SET
-    "username" = $2,
-    "password_hash" = $3
+    "password_hash" = $2
 WHERE "id" = $1
 `
 }

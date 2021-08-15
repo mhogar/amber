@@ -40,7 +40,7 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 
 func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
-	rerr := h.Controllers.DeleteUser(tx, token.User)
+	rerr := h.Controllers.DeleteUser(tx, token.User.ID)
 	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}

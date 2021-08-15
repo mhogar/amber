@@ -6,8 +6,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 // CreateUserTable creates the user table in the database
@@ -38,39 +36,27 @@ func (crud *SQLCRUD) DropUserTable() error {
 	return err
 }
 
-// SaveUser validates the user model is valid and inserts a new row into the user table
-// Returns any errors
-func (crud *SQLCRUD) SaveUser(user *models.User) error {
+// CreateUser validates the user model is valid and inserts a new row into the user table
+// Updates the model with the new inserted id and returns any errors
+func (crud *SQLCRUD) CreateUser(user *models.User) error {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
 		return errors.New(fmt.Sprint("error validating user model:", verr))
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveUserScript(),
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserScript(),
 		user.ID, user.Username, user.PasswordHash)
 	cancel()
 
 	if err != nil {
-		return common.ChainError("error executing save user statement", err)
+		return common.ChainError("error executing create user statement", err)
 	}
+
+	id, _ := res.LastInsertId()
+	user.ID = int32(id)
 
 	return nil
-}
-
-// GetUserByID gets the row in the user table with the matching id, and creates a new user model using its data
-// Returns the model and any errors
-func (crud *SQLCRUD) GetUserByID(ID uuid.UUID) (*models.User, error) {
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserByIdScript(), ID)
-	defer cancel()
-
-	if err != nil {
-		return nil, common.ChainError("error executing get user by id query", err)
-	}
-	defer rows.Close()
-
-	return readUserData(rows)
 }
 
 // GetUserByUsername gets the row in the user table with the matching username, and creates a new user model using its data
@@ -89,37 +75,39 @@ func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 }
 
 // UpdateUser validates the user model is valid and updates the row in the user table with the matching id
-// Returns any errors
-func (crud *SQLCRUD) UpdateUser(user *models.User) error {
+// Returns result of whether the user was found, and any errors
+func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
-		return errors.New(fmt.Sprint("error validating user model:", verr))
+		return false, errors.New(fmt.Sprint("error validating user model:", verr))
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserScript(),
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserScript(),
 		user.ID, user.Username, user.PasswordHash)
 	cancel()
 
 	if err != nil {
-		return common.ChainError("error executing update user statement", err)
+		return false, common.ChainError("error executing update user statement", err)
 	}
 
-	return nil
+	count, _ := res.RowsAffected()
+	return count > 0, nil
 }
 
 // DeleteUser deletes the row in the user table with the matching id
-// Returns any errors
-func (crud *SQLCRUD) DeleteUser(user *models.User) error {
+// Returns result of whether the user was found, and any errors
+func (crud *SQLCRUD) DeleteUser(id int32) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), user.ID)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), id)
 	cancel()
 
 	if err != nil {
-		return common.ChainError("error executing delete user statement", err)
+		return false, common.ChainError("error executing delete user statement", err)
 	}
 
-	return nil
+	count, _ := res.RowsAffected()
+	return count > 0, nil
 }
 
 func readUserData(rows *sql.Rows) (*models.User, error) {

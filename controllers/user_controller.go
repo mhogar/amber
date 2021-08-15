@@ -51,7 +51,7 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	}
 
 	//save the user
-	err = CRUD.SaveUser(user)
+	err = CRUD.CreateUser(user)
 	if err != nil {
 		log.Println(common.ChainError("error saving user", err))
 		return nil, common.InternalError()
@@ -60,12 +60,17 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError {
+func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, id int32) common.CustomError {
 	//delete the user
-	err := CRUD.DeleteUser(user)
+	res, err := CRUD.DeleteUser(id)
 	if err != nil {
 		log.Println(common.ChainError("error deleting user", err))
 		return common.InternalError()
+	}
+
+	//verify user was actually found
+	if !res {
+		return common.ClientError(fmt.Sprintf("user with id %d not found", id))
 	}
 
 	//return success
@@ -96,10 +101,15 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, user *mo
 
 	//update the user
 	user.PasswordHash = hash
-	err = CRUD.UpdateUser(user)
+	res, err := CRUD.UpdateUser(user)
 	if err != nil {
 		log.Println(common.ChainError("error updating user", err))
 		return common.InternalError()
+	}
+
+	//verify user was actually found
+	if !res {
+		return common.ClientError(fmt.Sprintf("user %s not found", user.Username))
 	}
 
 	//return success

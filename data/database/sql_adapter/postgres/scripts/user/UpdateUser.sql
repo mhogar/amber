@@ -1,4 +1,3 @@
 UPDATE "user" SET
-    "username" = $2,
-    "password_hash" = $3
+    "password_hash" = $2
 WHERE "id" = $1

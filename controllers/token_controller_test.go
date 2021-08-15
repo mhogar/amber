@@ -137,10 +137,10 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithNoErrors_
 	//arrange
 	username := "username"
 	password := "password"
-	clientID := uuid.New()
+	clientUID := uuid.New()
 
-	client := &models.Client{ID: clientID}
-	user := &models.User{ID: uuid.New()}
+	client := models.CreateClient(clientUID, "name")
+	user := models.CreateNewUser(username, []byte(password))
 
 	suite.CRUDMock.On("GetClientByID", mock.Anything).Return(client, nil)
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
@@ -148,10 +148,10 @@ func (suite *TokenControllerTestSuite) TestCreateTokenFromPassword_WithNoErrors_
 	suite.CRUDMock.On("SaveAccessToken", mock.Anything).Return(nil)
 
 	//act
-	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientID)
+	token, rerr := suite.TokenController.CreateTokenFromPassword(&suite.CRUDMock, username, password, clientUID)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByID", clientID)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByID", clientUID)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", mock.Anything, password)
 	suite.CRUDMock.AssertCalled(suite.T(), "SaveAccessToken", token)

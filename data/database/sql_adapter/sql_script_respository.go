@@ -22,10 +22,10 @@ type AccessTokenScriptRepository interface {
 type ClientScriptRepository interface {
 	CreateClientTableScript() string
 	DropClientTableScript() string
-	SaveClientScript() string
+	CreateClientScript() string
+	GetClientByUIDScript() string
 	UpdateClientScript() string
 	DeleteClientScript() string
-	GetClientByIdScript() string
 }
 
 // MigrationScriptRepository is an interface for fetching migration sql scripts
@@ -41,8 +41,7 @@ type MigrationScriptRepository interface {
 type UserScriptRepository interface {
 	CreateUserTableScript() string
 	DropUserTableScript() string
-	SaveUserScript() string
-	GetUserByIdScript() string
+	CreateUserScript() string
 	GetUserByUsernameScript() string
 	UpdateUserScript() string
 	DeleteUserScript() string

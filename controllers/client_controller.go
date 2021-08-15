@@ -5,8 +5,6 @@ import (
 	"authserver/models"
 	"fmt"
 	"log"
-
-	"github.com/google/uuid"
 )
 
 type CoreClientController struct{}
@@ -22,7 +20,7 @@ func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name strin
 	}
 
 	//save the client
-	err := CRUD.SaveClient(client)
+	err := CRUD.CreateClient(client)
 	if err != nil {
 		log.Println(common.ChainError("error saving client", err))
 		return nil, common.InternalError()
@@ -47,14 +45,14 @@ func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *mo
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with id %s not found", client.ID))
+		return common.ClientError(fmt.Sprintf("client with id %s not found", client.UID))
 	}
 
 	return common.NoError()
 }
 
-func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id uuid.UUID) common.CustomError {
-	//delete the client with id
+func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id int16) common.CustomError {
+	//delete the client
 	res, err := CRUD.DeleteClient(id)
 	if err != nil {
 		log.Println(common.ChainError("error deleting client", err))
@@ -63,7 +61,7 @@ func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, id uuid.UU
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with id %s not found", id))
+		return common.ClientError(fmt.Sprintf("client with id %d not found", id))
 	}
 
 	return common.NoError()

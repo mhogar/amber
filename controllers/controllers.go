@@ -30,11 +30,11 @@ type UserController interface {
 	// CreateUser creates a new user with the given username and password
 	CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError)
 
-	// DeleteUser deletes the given user
-	DeleteUser(CRUD UserControllerCRUD, user *models.User) common.CustomError
-
 	// UpdateUserPassword updates the given user's password
 	UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError
+
+	// DeleteUser deletes the given id
+	DeleteUser(CRUD UserControllerCRUD, id int32) common.CustomError
 }
 
 // ClientControllerCRUD encapsulates the CRUD operations required by the ClientController
@@ -50,8 +50,8 @@ type ClientController interface {
 	// UpdateClient updates the given client
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
-	// DeleteClient deletes the given client
-	DeleteClient(CRUD ClientControllerCRUD, id uuid.UUID) common.CustomError
+	// DeleteClient deletes the given id
+	DeleteClient(CRUD ClientControllerCRUD, id int16) common.CustomError
 }
 
 // TokenControllerCRUD encapsulates the CRUD operations required by the TokenController

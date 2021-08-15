@@ -10,7 +10,7 @@ import (
 
 func parseClient(clientCRUD models.ClientCRUD, clientID uuid.UUID) (*models.Client, common.OAuthCustomError) {
 	//get the client
-	client, err := clientCRUD.GetClientByID(clientID)
+	client, err := clientCRUD.GetClientByUID(clientID)
 	if err != nil {
 		log.Println(common.ChainError("error getting client by id", err))
 		return nil, common.OAuthInternalError()

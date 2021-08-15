@@ -81,7 +81,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 	//assert
 	suite.Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
-		ID:   client.ID.String(),
+		ID:   client.UID.String(),
 		Name: client.Name,
 	})
 
@@ -201,7 +201,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.TransactionMock, mock.MatchedBy(func(client *models.Client) bool {
-		return client.ID == id && client.Name == body.Name
+		return client.UID == id && client.Name == body.Name
 	}))
 }
 

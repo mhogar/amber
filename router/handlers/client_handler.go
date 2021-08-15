@@ -6,6 +6,7 @@ import (
 	"authserver/models"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
@@ -80,14 +81,14 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 
 func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	// parse the id
-	id, err := uuid.Parse(params.ByName("id"))
+	id, err := strconv.Atoi(params.ByName("id"))
 	if err != nil {
 		log.Println(common.ChainError("error parsing id", err))
 		return common.NewBadRequestResponse("client id is in an invalid format")
 	}
 
 	//delete the client
-	rerr := h.Controllers.DeleteClient(tx, id)
+	rerr := h.Controllers.DeleteClient(tx, int16(id))
 	if rerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(rerr.Error())
 	}
@@ -100,7 +101,7 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 
 func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(ClientDataResponse{
-		ID:   client.ID.String(),
+		ID:   client.UID.String(),
 		Name: client.Name,
 	})
 }

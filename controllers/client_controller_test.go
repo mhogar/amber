@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -45,7 +44,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNameGreaterThanMax_
 func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_ReturnsInternalError() {
 	//arrange
 	name := "name"
-	suite.CRUDMock.On("SaveClient", mock.Anything).Return(errors.New(""))
+	suite.CRUDMock.On("CreateClient", mock.Anything).Return(errors.New(""))
 
 	//act
 	client, rerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
@@ -58,7 +57,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_R
 func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoError() {
 	//arrange
 	name := "name"
-	suite.CRUDMock.On("SaveClient", mock.Anything).Return(nil)
+	suite.CRUDMock.On("CreateClient", mock.Anything).Return(nil)
 
 	//act
 	client, rerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
@@ -68,7 +67,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoE
 	suite.Equal(name, client.Name)
 
 	helpers.AssertNoError(&suite.Suite, rerr)
-	suite.CRUDMock.AssertCalled(suite.T(), "SaveClient", client)
+	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithEmptyName_ReturnsClientError() {
@@ -114,7 +113,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdating
 	rerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, rerr, "client with id", client.ID.String(), "not found")
+	helpers.AssertClientError(&suite.Suite, rerr, "client with id", client.UID.String(), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoError() {
@@ -132,11 +131,10 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoE
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithErrorDeletingClient_ReturnsInternalError() {
 	//arrange
-	id := uuid.New()
 	suite.CRUDMock.On("DeleteClient", mock.Anything).Return(false, errors.New(""))
 
 	//act
-	rerr := suite.ClientController.DeleteClient(&suite.CRUDMock, id)
+	rerr := suite.ClientController.DeleteClient(&suite.CRUDMock, 0)
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, rerr)
@@ -144,19 +142,19 @@ func (suite *ClientControllerTestSuite) TestDeleteClient_WithErrorDeletingClient
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithFalseResultDeletingClient_ReturnsClientError() {
 	//arrange
-	id := uuid.New()
+	id := int16(100)
 	suite.CRUDMock.On("DeleteClient", mock.Anything).Return(false, nil)
 
 	//act
 	rerr := suite.ClientController.DeleteClient(&suite.CRUDMock, id)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, rerr, "client with id", id.String(), "not found")
+	helpers.AssertClientError(&suite.Suite, rerr, "client with id", fmt.Sprint(id), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithNoErrors_ReturnsNoError() {
 	//arrange
-	id := uuid.New()
+	id := int16(100)
 	suite.CRUDMock.On("DeleteClient", mock.Anything).Return(true, nil)
 
 	//act

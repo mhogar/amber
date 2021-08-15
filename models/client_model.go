@@ -22,32 +22,33 @@ type Client struct {
 }
 
 type ClientCRUD interface {
-	// SaveClient saves the client and returns any errors
-	SaveClient(client *Client) error
+	// CreateClient creates a new client
+	// Updates the model with the new id and returns any errors
+	CreateClient(client *Client) error
+
+	// GetClientByUID fetches the client associated with the uid
+	// If no clients are found, returns nil client. Also returns any errors
+	GetClientByUID(uid uuid.UUID) (*Client, error)
 
 	// UpdateClient updates the client
 	// Returns result of whether the client was found, and any errors
 	UpdateClient(client *Client) (bool, error)
 
-	// DeleteClient deletes the client the with the id
+	// DeleteClient deletes the client the with the given id
 	// Returns result of whether the client was found, and any errors
-	DeleteClient(id uuid.UUID) (bool, error)
-
-	// GetClientByID fetches the client associated with the id
-	// If no clients are found, returns nil client. Also returns any errors
-	GetClientByID(ID uuid.UUID) (*Client, error)
+	DeleteClient(id int16) (bool, error)
 }
 
-func CreateClient(id int16, uid uuid.UUID, name string) *Client {
+func CreateClient(uid uuid.UUID, name string) *Client {
 	return &Client{
-		ID:   id,
+		ID:   0,
 		UID:  uid,
 		Name: name,
 	}
 }
 
 func CreateNewClient(name string) *Client {
-	return CreateClient(0, uuid.New(), name)
+	return CreateClient(uuid.New(), name)
 }
 
 // Validate validates the client model has valid fields
