@@ -31,7 +31,7 @@ func (suite *MigrationCRUDTestSuite) TestGetMigrationByTimestamp_WhereTimestampN
 
 func (suite *MigrationCRUDTestSuite) TestGetMigrationByTimestamp_FindsMigration() {
 	//arrange
-	timestamp := "00000000000001"
+	timestamp := "999"
 	err := suite.Tx.CreateMigration(timestamp)
 	suite.Require().NoError(err)
 
@@ -47,10 +47,10 @@ func (suite *MigrationCRUDTestSuite) TestGetMigrationByTimestamp_FindsMigration(
 func (suite *MigrationCRUDTestSuite) TestGetLatestTimestamp_ReturnsLatestTimestamp() {
 	//arrange
 	timestamps := []string{
-		"99990000000001",
-		"99990000000005",
-		"99990000000002",
-		"99990000000003",
+		"991",
+		"995",
+		"992",
+		"993",
 	}
 
 	for _, timestamp := range timestamps {
@@ -77,7 +77,7 @@ func (suite *MigrationCRUDTestSuite) TestDeleteMigrationByTimestamp_WithNoMigrat
 
 func (suite *MigrationCRUDTestSuite) TestDeleteMigrationByTimestamp_DeletesMigration() {
 	//arrange
-	timestamp := "00000000000001"
+	timestamp := "999"
 	err := suite.Tx.CreateMigration(timestamp)
 	suite.Require().NoError(err)
 

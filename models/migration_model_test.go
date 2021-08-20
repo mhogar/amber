@@ -14,7 +14,7 @@ type MigrationTestSuite struct {
 
 func (suite *MigrationTestSuite) SetupTest() {
 	suite.Migration = models.CreateNewMigration(
-		"00010101000000",
+		"001",
 	)
 }
 
@@ -51,13 +51,13 @@ func (suite *MigrationTestSuite) TestValidate_WithVariousInvalidTimestamps_Retur
 		suite.EqualValues(models.ValidateMigrationInvalidTimestamp, verr)
 	}
 
-	timestamp = "0001010100000"
+	timestamp = "00"
 	suite.Run("TooFewDigits", testCase)
 
-	timestamp = "000101010000000"
+	timestamp = "0000"
 	suite.Run("TooManyDigits", testCase)
 
-	timestamp = "000101010a0000"
+	timestamp = "0a0"
 	suite.Run("ContainsNonDigit", testCase)
 }
 

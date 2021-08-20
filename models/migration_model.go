@@ -35,7 +35,7 @@ func CreateNewMigration(timestamp string) *Migration {
 func (m Migration) Validate() int {
 	code := ValidateMigrationValid
 
-	matched, _ := regexp.MatchString(`^\d{14}$`, m.Timestamp)
+	matched, _ := regexp.MatchString(`^\d{3}$`, m.Timestamp)
 	if !matched {
 		code |= ValidateMigrationInvalidTimestamp
 	}
