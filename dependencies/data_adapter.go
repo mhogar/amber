@@ -24,7 +24,7 @@ func ResolveDataAdapter() data.DataAdapter {
 
 func GetMigrationRepository(exec data.DataExecutor, sf data.ScopeFactory) migrationrunner.MigrationRepository {
 	return &migrations.MigrationRepository{
-		Executor:         exec,
-		CoreScopeFactory: sf,
+		Executor:     exec,
+		ScopeFactory: sf,
 	}
 }
