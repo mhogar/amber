@@ -76,7 +76,7 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WherePass
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithNoErrors_ReturnsNoError() {
 	//arrange
 	password := "password"
-	existingUser := models.CreateNewUser("username", []byte(password))
+	existingUser := models.CreateUser("username", []byte(password))
 
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(existingUser, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)

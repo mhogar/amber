@@ -34,7 +34,7 @@ func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_Retur
 func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
 	//arrange
 	session := models.CreateNewSession(
-		models.CreateNewUser("username", []byte("password")),
+		models.CreateUser("username", []byte("password")),
 	)
 	suite.SaveSessionAndFields(session)
 
@@ -57,7 +57,7 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_WithNoSessionToDelete_Retur
 func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	//arrange
 	session := models.CreateNewSession(
-		models.CreateNewUser("username", []byte("password")),
+		models.CreateUser("username", []byte("password")),
 	)
 	suite.SaveSessionAndFields(session)
 
@@ -75,7 +75,7 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
 	//arrange
 	session := models.CreateNewSession(
-		models.CreateNewUser("", nil),
+		models.CreateUser("", nil),
 	)
 
 	//act
@@ -88,7 +88,7 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessions
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
 	//arrange
 	session1 := models.CreateNewSession(
-		models.CreateNewUser("username", []byte("password")),
+		models.CreateUser("username", []byte("password")),
 	)
 	suite.SaveSessionAndFields(session1)
 

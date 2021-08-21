@@ -48,7 +48,7 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorAuthenticati
 func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorSavingSession_ReturnsInternalError() {
 	//arrange
 	password := "password"
-	user := models.CreateNewUser("username", []byte(password))
+	user := models.CreateUser("username", []byte(password))
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.CRUDMock.On("SaveSession", mock.Anything).Return(errors.New(""))
@@ -64,7 +64,7 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorSavingSessio
 func (suite *SessionControllerTestSuite) TestCreateSession_WithNoErrors_ReturnsNoError() {
 	//arrange
 	password := "password"
-	user := models.CreateNewUser("username", []byte(password))
+	user := models.CreateUser("username", []byte(password))
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.CRUDMock.On("SaveSession", mock.Anything).Return(nil)

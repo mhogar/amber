@@ -16,13 +16,13 @@ type SessionTestSuite struct {
 
 func (suite *SessionTestSuite) SetupTest() {
 	suite.Session = models.CreateNewSession(
-		models.CreateNewUser("username", []byte("password")),
+		models.CreateUser("username", []byte("password")),
 	)
 }
 
 func (suite *SessionTestSuite) TestCreateNewSession_CreatesSessionWithSuppliedFields() {
 	//arrange
-	user := models.CreateNewUser("", nil)
+	user := models.CreateUser("", nil)
 
 	//act
 	session := models.CreateNewSession(user)
@@ -65,7 +65,7 @@ func (suite *SessionTestSuite) TestValidate_WithNilUser_ReturnsSessionNilUser() 
 
 func (suite *SessionTestSuite) TestValidate_WithInvalidUser_ReturnsSessionInvalidUser() {
 	//arrange
-	suite.Session.User = models.CreateNewUser("", nil)
+	suite.Session.User = models.CreateUser("", nil)
 
 	//act
 	verr := suite.Session.Validate()

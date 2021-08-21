@@ -169,7 +169,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithErrorDeletingUser_ReturnsInternalError() {
 	//arrange
-	user := models.CreateNewUser("username", []byte("password hash"))
+	user := models.CreateUser("username", []byte("password hash"))
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(false, errors.New(""))
 
 	//act
@@ -193,7 +193,7 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError() {
 	//arrange
-	user := models.CreateNewUser("username", []byte("password hash"))
+	user := models.CreateUser("username", []byte("password hash"))
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(true, nil)
 
 	//act
@@ -279,7 +279,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	oldPasswordHash := []byte("hashed old password")
 	newPasswordHash := []byte("hashed new password")
 
-	user := models.CreateNewUser("username", oldPasswordHash)
+	user := models.CreateUser("username", oldPasswordHash)
 
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(nil)
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())

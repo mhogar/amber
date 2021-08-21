@@ -40,10 +40,6 @@ func CreateUser(username string, passwordHash []byte) *User {
 	}
 }
 
-func CreateNewUser(username string, passwordHash []byte) *User {
-	return CreateUser(username, passwordHash)
-}
-
 // Validate validates the user model has valid fields.
 // Returns an int indicating which fields are invalid.
 func (u *User) Validate() int {

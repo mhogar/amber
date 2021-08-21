@@ -14,7 +14,7 @@ type UserCRUDTestSuite struct {
 
 func (suite *UserCRUDTestSuite) TestCreateUser_WithInvalidUser_ReturnsError() {
 	//act
-	err := suite.Tx.CreateUser(models.CreateNewUser("", nil))
+	err := suite.Tx.CreateUser(models.CreateUser("", nil))
 
 	//assert
 	suite.Require().Error(err)
@@ -32,7 +32,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 
 func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
 	//arrange
-	user := models.CreateNewUser("username", []byte("password"))
+	user := models.CreateUser("username", []byte("password"))
 	suite.CreateUser(user)
 
 	//act
@@ -45,7 +45,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 	//act
-	_, err := suite.Tx.UpdateUser(models.CreateNewUser("", nil))
+	_, err := suite.Tx.UpdateUser(models.CreateUser("", nil))
 
 	//assert
 	suite.Require().Error(err)
@@ -54,7 +54,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.UpdateUser(models.CreateNewUser("username", []byte("password")))
+	res, err := suite.Tx.UpdateUser(models.CreateUser("username", []byte("password")))
 
 	//assert
 	suite.False(res)
@@ -65,7 +65,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 	//arrange
 	newPassword := []byte("new_password")
 
-	user := models.CreateNewUser("username", []byte("password"))
+	user := models.CreateUser("username", []byte("password"))
 	suite.CreateUser(user)
 
 	//act
@@ -92,7 +92,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_WhereUserIsNotFound_ReturnsFalseR
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	//arrange
-	user := models.CreateNewUser("username", []byte("password"))
+	user := models.CreateUser("username", []byte("password"))
 	suite.CreateUser(user)
 
 	//act
@@ -109,7 +109,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
-	user := models.CreateNewUser("username", []byte("password"))
+	user := models.CreateUser("username", []byte("password"))
 	token := models.CreateNewSession(user)
 	suite.SaveSessionAndFields(token)
 
