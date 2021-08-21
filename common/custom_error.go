@@ -37,33 +37,3 @@ func ClientError(message string) CustomError {
 		Type:  ErrorTypeClient,
 	}
 }
-
-// OAuthCustomError is a CustomError with an added error name field to determine the oauth error name.
-type OAuthCustomError struct {
-	CustomError
-	ErrorName string
-}
-
-// OAuthNoError returns an OAuthCustomError with type ErrorTypeNone.
-func OAuthNoError() OAuthCustomError {
-	return OAuthCustomError{
-		CustomError: NoError(),
-		ErrorName:   "",
-	}
-}
-
-// OAuthInternalError returns an OAuthCustomError with type ErrorTypeInternal and an internal error message.
-func OAuthInternalError() OAuthCustomError {
-	return OAuthCustomError{
-		CustomError: InternalError(),
-		ErrorName:   "",
-	}
-}
-
-// ClientError returns a CustomError with type ErrorTypeClient and the provided error name and message.
-func OAuthClientError(errorName string, message string) OAuthCustomError {
-	return OAuthCustomError{
-		CustomError: ClientError(message),
-		ErrorName:   errorName,
-	}
-}

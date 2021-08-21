@@ -107,14 +107,11 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	suite.Nil(resultUser)
 }
 
-func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserTokens() {
+func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
 	user := models.CreateNewUser("username", []byte("password"))
-	token := models.CreateNewAccessToken(
-		user,
-		models.CreateNewClient("name"),
-	)
-	suite.SaveAccessTokenAndFields(token)
+	token := models.CreateNewSession(user)
+	suite.SaveSessionAndFields(token)
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -123,9 +120,9 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserTokens() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultAccessToken, err := suite.Tx.GetAccessTokenByID(token.ID)
+	resultSession, err := suite.Tx.GetSessionByID(token.ID)
 	suite.NoError(err)
-	suite.Nil(resultAccessToken)
+	suite.Nil(resultSession)
 }
 
 func TestUserCRUDTestSuite(t *testing.T) {

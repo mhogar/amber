@@ -5,72 +5,6 @@ package scripts
 // ScriptRepository is an implementation of the sql script repository interface that fetches scripts laoded from sql files.
 type ScriptRepository struct {}
 
-// CreateAccessTokenTableScript gets the CreateAccessTokenTable script.
-func (ScriptRepository) CreateAccessTokenTableScript() string {
-	return `
-CREATE TABLE "public"."access_token" (
-	"id" UUID NOT NULL,
-	"user_key" INTEGER NOT NULL,
-	"client_key" SMALLINT NOT NULL,
-	CONSTRAINT "access_token_pk" PRIMARY KEY ("id"),
-	CONSTRAINT "access_token_user_fk" FOREIGN KEY ("user_key") REFERENCES "public"."user"("key") ON DELETE CASCADE,
-	CONSTRAINT "access_token_client_fk" FOREIGN KEY ("client_key") REFERENCES "public"."client"("key") ON DELETE CASCADE
-);
-`
-}
-
-// DeleteAccessTokenScript gets the DeleteAccessToken script.
-func (ScriptRepository) DeleteAccessTokenScript() string {
-	return `
-DELETE FROM "access_token" tk
-    WHERE tk."id" = $1
-`
-}
-
-// DeleteAllOtherUserTokensScript gets the DeleteAllOtherUserTokens script.
-func (ScriptRepository) DeleteAllOtherUserTokensScript() string {
-	return `
-DELETE FROM "access_token" tk
-    WHERE tk."id" != $1 AND
-        tk."user_key" IN (
-            SELECT u."key" FROM "user" u WHERE u."username" = $2
-        )
-`
-}
-
-// DropAccessTokenTableScript gets the DropAccessTokenTable script.
-func (ScriptRepository) DropAccessTokenTableScript() string {
-	return `
-DROP TABLE "public"."access_token"
-`
-}
-
-// GetAccessTokenByIdScript gets the GetAccessTokenById script.
-func (ScriptRepository) GetAccessTokenByIdScript() string {
-	return `
-SELECT
-    tk."id",
-    u."username", u."password_hash",
-    c."uid", c."name"
-FROM "access_token" tk
-    INNER JOIN "user" u ON u."key" = tk."user_key"
-    INNER JOIN "client" c ON c."key" = tk."client_key"
-WHERE tk."id" = $1
-`
-}
-
-// SaveAccessTokenScript gets the SaveAccessToken script.
-func (ScriptRepository) SaveAccessTokenScript() string {
-	return `
-INSERT INTO "access_token" ("id", "user_key", "client_key")
-	WITH
-		t1 AS (SELECT u."key" FROM "user" u WHERE u."username" = $2),
-		t2 AS (SELECT c."key" FROM "client" c WHERE c."uid" = $3)
-	SELECT $1, t1."key", t2."key"
-		FROM t1, t2
-`
-}
-
 // CreateClientScript gets the CreateClient script.
 func (ScriptRepository) CreateClientScript() string {
 	return `
@@ -166,6 +100,67 @@ func (ScriptRepository) SaveMigrationScript() string {
 	return `
 INSERT INTO "migration" ("timestamp") 
     VALUES ($1)
+`
+}
+
+// CreateSessionTableScript gets the CreateSessionTable script.
+func (ScriptRepository) CreateSessionTableScript() string {
+	return `
+CREATE TABLE "public"."session" (
+	"id" UUID NOT NULL,
+	"user_key" INTEGER NOT NULL,
+	CONSTRAINT "session_pk" PRIMARY KEY ("id"),
+	CONSTRAINT "session_user_fk" FOREIGN KEY ("user_key") REFERENCES "user"("key") ON DELETE CASCADE
+);
+`
+}
+
+// DeleteAllOtherUserSessionsScript gets the DeleteAllOtherUserSessions script.
+func (ScriptRepository) DeleteAllOtherUserSessionsScript() string {
+	return `
+DELETE FROM "session" s
+    WHERE s."id" != $1 AND
+        s."user_key" IN (
+            SELECT u."key" FROM "user" u WHERE u."username" = $2
+        )
+`
+}
+
+// DeleteSessionScript gets the DeleteSession script.
+func (ScriptRepository) DeleteSessionScript() string {
+	return `
+DELETE FROM "session" s
+    WHERE s."id" = $1
+`
+}
+
+// DropSessionTableScript gets the DropSessionTable script.
+func (ScriptRepository) DropSessionTableScript() string {
+	return `
+DROP TABLE "public"."session"
+`
+}
+
+// GetSessionByIdScript gets the GetSessionById script.
+func (ScriptRepository) GetSessionByIdScript() string {
+	return `
+SELECT
+    s."id",
+    u."username", u."password_hash"
+FROM "session" s
+    INNER JOIN "user" u ON u."key" = s."user_key"
+WHERE s."id" = $1
+`
+}
+
+// SaveSessionScript gets the SaveSession script.
+func (ScriptRepository) SaveSessionScript() string {
+	return `
+INSERT INTO "session" ("id", "user_key")
+	WITH
+		t1 AS (SELECT u."key" FROM "user" u WHERE u."username" = $2)
+	SELECT $1, t1."key"
+		FROM t1
 `
 }
 

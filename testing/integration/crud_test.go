@@ -57,13 +57,12 @@ func (suite *CRUDTestSuite) CreateClient(client *models.Client) {
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveAccessToken(token *models.AccessToken) {
-	err := suite.Tx.SaveAccessToken(token)
+func (suite *CRUDTestSuite) SaveSession(token *models.Session) {
+	err := suite.Tx.SaveSession(token)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveAccessTokenAndFields(token *models.AccessToken) {
+func (suite *CRUDTestSuite) SaveSessionAndFields(token *models.Session) {
 	suite.CreateUser(token.User)
-	suite.CreateClient(token.Client)
-	suite.SaveAccessToken(token)
+	suite.SaveSession(token)
 }

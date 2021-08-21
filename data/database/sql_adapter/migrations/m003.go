@@ -11,7 +11,7 @@ import (
 func m003(exec data.DataExecutor, sf data.ScopeFactory) migrationrunner.Migration {
 	return migrationrunner.Migration{
 		Timestamp:   "003",
-		Description: "create access tokens table",
+		Description: "create sessions table",
 		Migrator: &migrator003{
 			Executor:     exec,
 			ScopeFactory: sf,
@@ -28,10 +28,10 @@ func (m migrator003) Up() error {
 	return m.ScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
 		sqlTx := tx.(*sqladapter.SQLTransaction)
 
-		//create the access_token table
-		err := sqlTx.CreateAccessTokenTable()
+		//create the session table
+		err := sqlTx.CreateSessionTable()
 		if err != nil {
-			return false, common.ChainError("error creating scope table", err)
+			return false, common.ChainError("error creating session table", err)
 		}
 
 		return true, nil
@@ -42,10 +42,10 @@ func (m migrator003) Down() error {
 	return m.ScopeFactory.CreateTransactionScope(m.Executor, func(tx data.Transaction) (bool, error) {
 		sqlTx := tx.(*sqladapter.SQLTransaction)
 
-		//drop the access token table
-		err := sqlTx.DropAccessTokenTable()
+		//drop the session table
+		err := sqlTx.DropSessionTable()
 		if err != nil {
-			return false, common.ChainError("error dropping access token table", err)
+			return false, common.ChainError("error dropping session table", err)
 		}
 
 		return true, nil

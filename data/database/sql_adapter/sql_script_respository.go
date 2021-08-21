@@ -2,20 +2,20 @@ package sqladapter
 
 // SQLScriptRepository is an interface for encapsulating other sql script repository.
 type SQLScriptRepository interface {
-	AccessTokenScriptRepository
+	SessionScriptRepository
 	ClientScriptRepository
 	MigrationScriptRepository
 	UserScriptRepository
 }
 
-// AccessTokenScriptRepository is an interface for fetching access token sql scripts.
-type AccessTokenScriptRepository interface {
-	CreateAccessTokenTableScript() string
-	DropAccessTokenTableScript() string
-	SaveAccessTokenScript() string
-	GetAccessTokenByIdScript() string
-	DeleteAccessTokenScript() string
-	DeleteAllOtherUserTokensScript() string
+// SessionScriptRepository is an interface for fetching session sql scripts.
+type SessionScriptRepository interface {
+	CreateSessionTableScript() string
+	DropSessionTableScript() string
+	SaveSessionScript() string
+	GetSessionByIdScript() string
+	DeleteSessionScript() string
+	DeleteAllOtherUserSessionsScript() string
 }
 
 // ClientScriptRepository is an interface for fetching client sql scripts.

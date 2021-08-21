@@ -11,19 +11,21 @@ import (
 type Controllers interface {
 	UserController
 	ClientController
-	TokenController
+	AuthController
+	SessionController
 }
 
 type CoreControllers struct {
 	CoreUserController
 	CoreClientController
-	CoreTokenController
+	CoreAuthController
+	CoreSessionController
 }
 
 // UserControllerCRUD encapsulates the CRUD operations required by the UserController.
 type UserControllerCRUD interface {
 	models.UserCRUD
-	models.AccessTokenCRUD
+	models.SessionCRUD
 }
 
 type UserController interface {
@@ -40,7 +42,7 @@ type UserController interface {
 // ClientControllerCRUD encapsulates the CRUD operations required by the ClientController.
 type ClientControllerCRUD interface {
 	models.ClientCRUD
-	models.AccessTokenCRUD
+	models.SessionCRUD
 }
 
 type ClientController interface {
@@ -54,20 +56,32 @@ type ClientController interface {
 	DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError
 }
 
-// TokenControllerCRUD encapsulates the CRUD operations required by the TokenController.
-type TokenControllerCRUD interface {
+// AuthControllerCRUD encapsulates the CRUD operations required by the AuthController.
+type AuthControllerCRUD interface {
 	models.UserCRUD
-	models.ClientCRUD
-	models.AccessTokenCRUD
 }
 
-type TokenController interface {
-	// CreateTokenFromPassword creates a new access token, authenticating using a password.
-	CreateTokenFromPassword(CRUD TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError)
+type AuthController interface {
+	// AuthenticateUserWithPassword authenticates a user with their username and password.
+	// Returns the user if authentication was successful, or nil if not.
+	// Also returns any errors.
+	AuthenticateUserWithPassword(CRUD AuthControllerCRUD, username string, password string) (*models.User, common.CustomError)
+}
 
-	// DeleteToken deletes the access token.
-	DeleteToken(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError
+// SessionControllerCRUD encapsulates the CRUD operations required by the SessionController.
+type SessionControllerCRUD interface {
+	models.UserCRUD
+	models.ClientCRUD
+	models.SessionCRUD
+}
 
-	// DeleteToken deletes all of the user's tokens accept for the provided one.
-	DeleteAllOtherUserTokens(CRUD TokenControllerCRUD, token *models.AccessToken) common.CustomError
+type SessionController interface {
+	// CreateSession creates a new session by authorizing the user with a password.
+	CreateSession(CRUD SessionControllerCRUD, username string, password string) (*models.Session, common.CustomError)
+
+	// DeleteSession deletes the session.
+	DeleteSession(CRUD SessionControllerCRUD, session *models.Session) common.CustomError
+
+	// DeleteSession deletes all of the user's sessions accept for the provided one.
+	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, session *models.Session) common.CustomError
 }

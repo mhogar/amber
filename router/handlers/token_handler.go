@@ -68,11 +68,11 @@ func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx da
 	}
 
 	//create the token
-	token, rerr := h.Controllers.CreateTokenFromPassword(tx, body.Username, body.Password, clientID)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewOAuthErrorResponse(rerr.ErrorName, rerr.Error())
+	token, cerr := h.Controllers.CreateTokenFromPassword(tx, body.Username, body.Password, clientID)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewOAuthErrorResponse(cerr.ErrorName, cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -81,11 +81,11 @@ func (h CoreHandlers) handlePasswordGrant(body PostTokenPasswordGrantBody, tx da
 
 func (h CoreHandlers) DeleteToken(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the token
-	rerr := h.Controllers.DeleteToken(tx, token)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.DeleteToken(tx, token)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 

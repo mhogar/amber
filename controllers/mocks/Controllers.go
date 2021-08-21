@@ -18,6 +18,29 @@ type Controllers struct {
 	mock.Mock
 }
 
+// AuthenticateUserWithPassword provides a mock function with given fields: CRUD, username, password
+func (_m *Controllers) AuthenticateUserWithPassword(CRUD controllers.AuthControllerCRUD, username string, password string) (*models.User, common.CustomError) {
+	ret := _m.Called(CRUD, username, password)
+
+	var r0 *models.User
+	if rf, ok := ret.Get(0).(func(controllers.AuthControllerCRUD, string, string) *models.User); ok {
+		r0 = rf(CRUD, username, password)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.AuthControllerCRUD, string, string) common.CustomError); ok {
+		r1 = rf(CRUD, username, password)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // CreateClient provides a mock function with given fields: CRUD, name
 func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string) (*models.Client, common.CustomError) {
 	ret := _m.Called(CRUD, name)
@@ -41,24 +64,24 @@ func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name 
 	return r0, r1
 }
 
-// CreateTokenFromPassword provides a mock function with given fields: CRUD, username, password, clientID
-func (_m *Controllers) CreateTokenFromPassword(CRUD controllers.TokenControllerCRUD, username string, password string, clientID uuid.UUID) (*models.AccessToken, common.OAuthCustomError) {
-	ret := _m.Called(CRUD, username, password, clientID)
+// CreateSession provides a mock function with given fields: CRUD, username, password
+func (_m *Controllers) CreateSession(CRUD controllers.SessionControllerCRUD, username string, password string) (*models.Session, common.CustomError) {
+	ret := _m.Called(CRUD, username, password)
 
-	var r0 *models.AccessToken
-	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID) *models.AccessToken); ok {
-		r0 = rf(CRUD, username, password, clientID)
+	var r0 *models.Session
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, string, string) *models.Session); ok {
+		r0 = rf(CRUD, username, password)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.AccessToken)
+			r0 = ret.Get(0).(*models.Session)
 		}
 	}
 
-	var r1 common.OAuthCustomError
-	if rf, ok := ret.Get(1).(func(controllers.TokenControllerCRUD, string, string, uuid.UUID) common.OAuthCustomError); ok {
-		r1 = rf(CRUD, username, password, clientID)
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.SessionControllerCRUD, string, string) common.CustomError); ok {
+		r1 = rf(CRUD, username, password)
 	} else {
-		r1 = ret.Get(1).(common.OAuthCustomError)
+		r1 = ret.Get(1).(common.CustomError)
 	}
 
 	return r0, r1
@@ -87,13 +110,13 @@ func (_m *Controllers) CreateUser(CRUD controllers.UserControllerCRUD, username 
 	return r0, r1
 }
 
-// DeleteAllOtherUserTokens provides a mock function with given fields: CRUD, token
-func (_m *Controllers) DeleteAllOtherUserTokens(CRUD controllers.TokenControllerCRUD, token *models.AccessToken) common.CustomError {
-	ret := _m.Called(CRUD, token)
+// DeleteAllOtherUserSessions provides a mock function with given fields: CRUD, session
+func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionControllerCRUD, session *models.Session) common.CustomError {
+	ret := _m.Called(CRUD, session)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, *models.AccessToken) common.CustomError); ok {
-		r0 = rf(CRUD, token)
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, *models.Session) common.CustomError); ok {
+		r0 = rf(CRUD, session)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}
@@ -115,13 +138,13 @@ func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, uid u
 	return r0
 }
 
-// DeleteToken provides a mock function with given fields: CRUD, token
-func (_m *Controllers) DeleteToken(CRUD controllers.TokenControllerCRUD, token *models.AccessToken) common.CustomError {
-	ret := _m.Called(CRUD, token)
+// DeleteSession provides a mock function with given fields: CRUD, session
+func (_m *Controllers) DeleteSession(CRUD controllers.SessionControllerCRUD, session *models.Session) common.CustomError {
+	ret := _m.Called(CRUD, session)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, *models.AccessToken) common.CustomError); ok {
-		r0 = rf(CRUD, token)
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, *models.Session) common.CustomError); ok {
+		r0 = rf(CRUD, session)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

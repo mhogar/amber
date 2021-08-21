@@ -57,27 +57,13 @@ func (_m *DataCRUD) CreateUser(user *models.User) error {
 	return r0
 }
 
-// DeleteAccessToken provides a mock function with given fields: token
-func (_m *DataCRUD) DeleteAccessToken(token *models.AccessToken) error {
-	ret := _m.Called(token)
+// DeleteAllOtherUserSessions provides a mock function with given fields: session
+func (_m *DataCRUD) DeleteAllOtherUserSessions(session *models.Session) error {
+	ret := _m.Called(session)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.AccessToken) error); ok {
-		r0 = rf(token)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
-// DeleteAllOtherUserTokens provides a mock function with given fields: token
-func (_m *DataCRUD) DeleteAllOtherUserTokens(token *models.AccessToken) error {
-	ret := _m.Called(token)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.AccessToken) error); ok {
-		r0 = rf(token)
+	if rf, ok := ret.Get(0).(func(*models.Session) error); ok {
+		r0 = rf(session)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -120,6 +106,20 @@ func (_m *DataCRUD) DeleteMigrationByTimestamp(timestamp string) error {
 	return r0
 }
 
+// DeleteSession provides a mock function with given fields: session
+func (_m *DataCRUD) DeleteSession(session *models.Session) error {
+	ret := _m.Called(session)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.Session) error); ok {
+		r0 = rf(session)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteUser provides a mock function with given fields: username
 func (_m *DataCRUD) DeleteUser(username string) (bool, error) {
 	ret := _m.Called(username)
@@ -134,29 +134,6 @@ func (_m *DataCRUD) DeleteUser(username string) (bool, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(username)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetAccessTokenByID provides a mock function with given fields: ID
-func (_m *DataCRUD) GetAccessTokenByID(ID uuid.UUID) (*models.AccessToken, error) {
-	ret := _m.Called(ID)
-
-	var r0 *models.AccessToken
-	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.AccessToken); ok {
-		r0 = rf(ID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.AccessToken)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(ID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -238,6 +215,29 @@ func (_m *DataCRUD) GetMigrationByTimestamp(timestamp string) (*models.Migration
 	return r0, r1
 }
 
+// GetSessionByID provides a mock function with given fields: ID
+func (_m *DataCRUD) GetSessionByID(ID uuid.UUID) (*models.Session, error) {
+	ret := _m.Called(ID)
+
+	var r0 *models.Session
+	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Session); ok {
+		r0 = rf(ID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Session)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetUserByUsername provides a mock function with given fields: username
 func (_m *DataCRUD) GetUserByUsername(username string) (*models.User, error) {
 	ret := _m.Called(username)
@@ -261,13 +261,13 @@ func (_m *DataCRUD) GetUserByUsername(username string) (*models.User, error) {
 	return r0, r1
 }
 
-// SaveAccessToken provides a mock function with given fields: token
-func (_m *DataCRUD) SaveAccessToken(token *models.AccessToken) error {
-	ret := _m.Called(token)
+// SaveSession provides a mock function with given fields: session
+func (_m *DataCRUD) SaveSession(session *models.Session) error {
+	ret := _m.Called(session)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.AccessToken) error); ok {
-		r0 = rf(token)
+	if rf, ok := ret.Get(0).(func(*models.Session) error); ok {
+		r0 = rf(session)
 	} else {
 		r0 = ret.Error(0)
 	}

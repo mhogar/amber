@@ -49,16 +49,16 @@ type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, dat
 func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var token *models.AccessToken
-		var rerr common.CustomError
+		var cerr common.CustomError
 
 		err := rf.CoreScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
-				token, rerr = rf.getAccessToken(exec, req)
-				if rerr.Type == common.ErrorTypeClient {
-					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
+				token, cerr = rf.getAccessToken(exec, req)
+				if cerr.Type == common.ErrorTypeClient {
+					sendErrorResponse(w, http.StatusUnauthorized, cerr.Error())
 					return nil
-				} else if rerr.Type == common.ErrorTypeInternal {
+				} else if cerr.Type == common.ErrorTypeInternal {
 					sendInternalErrorResponse(w)
 					return nil
 				}

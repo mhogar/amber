@@ -1,0 +1,117 @@
+package integration_test
+
+import (
+	"authserver/models"
+	"authserver/testing/helpers"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/suite"
+)
+
+type SessionCRUDTestSuite struct {
+	CRUDTestSuite
+}
+
+func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsError() {
+	//act
+	err := suite.Tx.SaveSession(models.CreateNewSession(nil))
+
+	//assert
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "session model")
+}
+
+func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_ReturnsNilSession() {
+	//act
+	session, err := suite.Tx.GetSessionByID(uuid.New())
+
+	//assert
+	suite.NoError(err)
+	suite.Nil(session)
+}
+
+func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
+	//arrange
+	session := models.CreateNewSession(
+		models.CreateNewUser("username", []byte("password")),
+	)
+	suite.SaveSessionAndFields(session)
+
+	//act
+	resultSession, err := suite.Tx.GetSessionByID(session.ID)
+
+	//assert
+	suite.NoError(err)
+	suite.EqualValues(session, resultSession)
+}
+
+func (suite *SessionCRUDTestSuite) TestDeleteSession_WithNoSessionToDelete_ReturnsNilError() {
+	//act
+	err := suite.Tx.DeleteSession(models.CreateNewSession(nil))
+
+	//assert
+	suite.NoError(err)
+}
+
+func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
+	//arrange
+	session := models.CreateNewSession(
+		models.CreateNewUser("username", []byte("password")),
+	)
+	suite.SaveSessionAndFields(session)
+
+	//act
+	err := suite.Tx.DeleteSession(session)
+
+	//assert
+	suite.Require().NoError(err)
+
+	resultSession, err := suite.Tx.GetSessionByID(session.ID)
+	suite.NoError(err)
+	suite.Nil(resultSession)
+}
+
+func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
+	//arrange
+	session := models.CreateNewSession(
+		models.CreateNewUser("", nil),
+	)
+
+	//act
+	err := suite.Tx.DeleteAllOtherUserSessions(session)
+
+	//assert
+	suite.NoError(err)
+}
+
+func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
+	//arrange
+	session1 := models.CreateNewSession(
+		models.CreateNewUser("username", []byte("password")),
+	)
+	suite.SaveSessionAndFields(session1)
+
+	session2 := models.CreateNewSession(session1.User)
+	suite.Tx.SaveSession(session2)
+
+	//act
+	err := suite.Tx.DeleteAllOtherUserSessions(session1)
+
+	//assert
+	suite.Require().NoError(err)
+
+	//can still find session1
+	resultSession, err := suite.Tx.GetSessionByID(session1.ID)
+	suite.NoError(err)
+	suite.EqualValues(session1, resultSession)
+
+	//session2 was deleted
+	resultSession, err = suite.Tx.GetSessionByID(session2.ID)
+	suite.NoError(err)
+	suite.Nil(resultSession)
+}
+
+func TestSessionCRUDTestSuite(t *testing.T) {
+	suite.Run(t, &SessionCRUDTestSuite{})
+}

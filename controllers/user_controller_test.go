@@ -38,11 +38,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithEmptyUsername_ReturnsCl
 	password := "password"
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, rerr, "username cannot be empty")
+	helpers.AssertClientError(&suite.Suite, cerr, "username cannot be empty")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithUsernameLongerThanMax_ReturnsClientError() {
@@ -51,11 +51,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithUsernameLongerThanMax_R
 	password := "password"
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, rerr, "username cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
+	helpers.AssertClientError(&suite.Suite, cerr, "username cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorGettingUserByUsername_ReturnsInternalError() {
@@ -66,11 +66,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorGettingUserByUsern
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsClientError() {
@@ -81,11 +81,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_Retur
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, rerr, "error creating user")
+	helpers.AssertClientError(&suite.Suite, cerr, "error creating user")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsClientError() {
@@ -97,11 +97,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCri
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaError(passwordhelpers.ValidatePasswordCriteriaTooShort, ""))
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, rerr, "password", "not", "minimum criteria")
+	helpers.AssertClientError(&suite.Suite, cerr, "password", "not", "minimum criteria")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword_ReturnsInternalError() {
@@ -114,11 +114,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorCreatingUser_ReturnsInternalError() {
@@ -132,11 +132,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorCreatingUser_Retur
 	suite.CRUDMock.On("CreateUser", mock.Anything).Return(errors.New(""))
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError() {
@@ -146,14 +146,13 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 
 	hash := []byte("password hash")
 
-	suite.CRUDMock.On("GetAccessTokenByID", mock.Anything).Return(&models.AccessToken{}, nil)
 	suite.CRUDMock.On("GetUserByUsername", username).Return(nil, nil)
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(hash, nil)
 	suite.CRUDMock.On("CreateUser", mock.Anything).Return(nil)
 
 	//act
-	user, rerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
@@ -165,7 +164,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
 
-	helpers.AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithErrorDeletingUser_ReturnsInternalError() {
@@ -174,10 +173,10 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithErrorDeletingUser_Retur
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(false, errors.New(""))
 
 	//act
-	rerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
+	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser_ReturnsClientError() {
@@ -186,10 +185,10 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(false, nil)
 
 	//act
-	rerr := suite.UserController.DeleteUser(&suite.CRUDMock, username)
+	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, username)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, rerr, "user with username", username, "not found")
+	helpers.AssertClientError(&suite.Suite, cerr, "user with username", username, "not found")
 }
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError() {
@@ -198,12 +197,12 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(true, nil)
 
 	//act
-	rerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
+	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUser", user.Username)
 
-	helpers.AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereOldPasswordIsInvalid_ReturnsClientError() {
@@ -215,10 +214,10 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereOldPasswordIsI
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	//act
-	rerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, rerr, "old password", "invalid")
+	helpers.AssertClientError(&suite.Suite, cerr, "old password", "invalid")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereNewPasswordDoesNotMeetCriteria_ReturnsClientError() {
@@ -231,10 +230,10 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereNewPasswordDoe
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaError(passwordhelpers.ValidatePasswordCriteriaTooShort, ""))
 
 	//act
-	rerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, rerr, "password", "not", "minimum criteria")
+	helpers.AssertClientError(&suite.Suite, cerr, "password", "not", "minimum criteria")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNewPassword_ReturnsInternalError() {
@@ -248,10 +247,10 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNew
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	rerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUser_ReturnsInternalError() {
@@ -266,10 +265,10 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUs
 	suite.CRUDMock.On("UpdateUser", mock.Anything).Return(false, errors.New(""))
 
 	//act
-	rerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, rerr)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsNoError() {
@@ -288,7 +287,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	suite.CRUDMock.On("UpdateUser", mock.Anything).Return(true, nil)
 
 	//act
-	rerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, user, oldPassword, newPassword)
 
 	//assert
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", oldPasswordHash, oldPassword)
@@ -297,7 +296,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUser", user)
 
 	suite.Equal(newPasswordHash, user.PasswordHash)
-	helpers.AssertNoError(&suite.Suite, rerr)
+	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
 func TestUserControlTestSuite(t *testing.T) {

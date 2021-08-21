@@ -27,11 +27,11 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 	}
 
 	//create the user
-	_, rerr := h.Controllers.CreateUser(tx, body.Username, body.Password)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	_, cerr := h.Controllers.CreateUser(tx, body.Username, body.Password)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -40,11 +40,11 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 
 func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
 	//delete the user
-	rerr := h.Controllers.DeleteUser(tx, token.User.Username)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.DeleteUser(tx, token.User.Username)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -67,20 +67,20 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	//update the password
-	rerr := h.Controllers.UpdateUserPassword(tx, token.User, body.OldPassword, body.NewPassword)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.UpdateUserPassword(tx, token.User, body.OldPassword, body.NewPassword)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
 	//delete all other user access tokens
-	rerr = h.Controllers.DeleteAllOtherUserTokens(tx, token)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr = h.Controllers.DeleteAllOtherUserTokens(tx, token)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
