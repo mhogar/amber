@@ -16,6 +16,7 @@ func ResolveControllers() controllerspkg.Controllers {
 			UserController: controllerspkg.CoreUserController{
 				PasswordHasher:            ResolvePasswordHasher(),
 				PasswordCriteriaValidator: ResolvePasswordCriteriaValidator(),
+				AuthController:            ResolveAuthController(),
 			},
 			ClientController: controllerspkg.CoreClientController{},
 			AuthController:   ResolveAuthController(),

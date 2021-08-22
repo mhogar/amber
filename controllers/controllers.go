@@ -32,8 +32,8 @@ type UserController interface {
 	// CreateUser creates a new user with the given username and password.
 	CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError)
 
-	// UpdateUserPassword updates the given user's password.
-	UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError
+	// UpdateUserPassword updates the password for the given username.
+	UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError
 
 	// DeleteUser deletes the user with given username.
 	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError

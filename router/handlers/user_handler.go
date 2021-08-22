@@ -66,15 +66,8 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
-	//get the user model
-	user, err := tx.GetUserByUsername(session.Username)
-	if err != nil {
-		log.Println(common.ChainError("error getting user by username", err))
-		return common.NewInternalServerErrorResponse()
-	}
-
 	//update the password
-	cerr := h.Controllers.UpdateUserPassword(tx, user, body.OldPassword, body.NewPassword)
+	cerr := h.Controllers.UpdateUserPassword(tx, session.Username, body.OldPassword, body.NewPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -83,7 +76,7 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	//delete all other user sessions
-	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, user.Username, session.Token)
+	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, session.Username, session.Token)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

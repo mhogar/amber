@@ -180,13 +180,13 @@ func (_m *Controllers) UpdateClient(CRUD controllers.ClientControllerCRUD, clien
 	return r0
 }
 
-// UpdateUserPassword provides a mock function with given fields: CRUD, user, oldPassword, newPassword
-func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError {
-	ret := _m.Called(CRUD, user, oldPassword, newPassword)
+// UpdateUserPassword provides a mock function with given fields: CRUD, username, oldPassword, newPassword
+func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+	ret := _m.Called(CRUD, username, oldPassword, newPassword)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, *models.User, string, string) common.CustomError); ok {
-		r0 = rf(CRUD, user, oldPassword, newPassword)
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string, string, string) common.CustomError); ok {
+		r0 = rf(CRUD, username, oldPassword, newPassword)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

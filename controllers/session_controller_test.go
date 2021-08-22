@@ -150,6 +150,6 @@ func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithNoEr
 	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
-func TestSessionControlTestSuite(t *testing.T) {
+func TestSessionControllerTestSuite(t *testing.T) {
 	suite.Run(t, &SessionControllerTestSuite{})
 }
