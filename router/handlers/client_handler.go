@@ -20,7 +20,7 @@ type PostClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostClientBody
 
 	//parse the body
@@ -31,7 +31,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	}
 
 	//create the client
-	client, cerr := h.Controllers.CreateClient(tx, body.Name)
+	client, cerr := h.Controllers.CreateClient(CRUD, body.Name)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -46,7 +46,7 @@ type PutClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PutClientBody
 
 	//parse the id
@@ -67,7 +67,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	client := models.CreateClient(id, body.Name)
 
 	//update the client
-	cerr := h.Controllers.UpdateClient(tx, client)
+	cerr := h.Controllers.UpdateClient(CRUD, client)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -78,7 +78,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	return newClientDataResponse(client)
 }
 
-func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
@@ -87,7 +87,7 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	}
 
 	//delete the client
-	cerr := h.Controllers.DeleteClient(tx, id)
+	cerr := h.Controllers.DeleteClient(CRUD, id)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

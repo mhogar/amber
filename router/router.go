@@ -44,7 +44,7 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	return r
 }
 
-type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.Transaction) (int, interface{})
+type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {

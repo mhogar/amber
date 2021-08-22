@@ -11,13 +11,13 @@ import (
 type HandlersTestSuite struct {
 	suite.Suite
 	ControllersMock controllermocks.Controllers
-	TransactionMock datamocks.Transaction
+	DataCRUDMock    datamocks.DataCRUD
 	CoreHandlers    handlers.CoreHandlers
 }
 
 func (suite *HandlersTestSuite) SetupTest() {
 	suite.ControllersMock = controllermocks.Controllers{}
-	suite.TransactionMock = datamocks.Transaction{}
+	suite.DataCRUDMock = datamocks.DataCRUD{}
 
 	suite.CoreHandlers = handlers.CoreHandlers{
 		Controllers: &suite.ControllersMock,

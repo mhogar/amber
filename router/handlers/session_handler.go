@@ -21,7 +21,7 @@ type PostSessionBody struct {
 	Password string `json:"password"`
 }
 
-func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostSessionBody
 
 	//parse the body
@@ -32,7 +32,7 @@ func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *mod
 	}
 
 	//create the session
-	session, cerr := h.Controllers.CreateSession(tx, body.Username, body.Password)
+	session, cerr := h.Controllers.CreateSession(CRUD, body.Username, body.Password)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -43,9 +43,9 @@ func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *mod
 	return newSessionDataResponse(session)
 }
 
-func (h CoreHandlers) DeleteSession(_ *http.Request, _ httprouter.Params, session *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteSession(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//delete the session
-	cerr := h.Controllers.DeleteSession(tx, session.Token)
+	cerr := h.Controllers.DeleteSession(CRUD, session.Token)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
