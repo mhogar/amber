@@ -11,7 +11,7 @@ type DataCRUD interface {
 	models.MigrationCRUD
 	models.UserCRUD
 	models.ClientCRUD
-	models.AccessTokenCRUD
+	models.SessionCRUD
 }
 
 type Transaction interface {

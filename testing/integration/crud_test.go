@@ -47,23 +47,17 @@ func (suite *CRUDTestSuite) TearDownTest() {
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) CreateUser(user *models.User) {
+func (suite *CRUDTestSuite) SaveUser(user *models.User) {
 	err := suite.Tx.CreateUser(user)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) CreateClient(client *models.Client) {
+func (suite *CRUDTestSuite) SaveClient(client *models.Client) {
 	err := suite.Tx.CreateClient(client)
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveAccessToken(token *models.AccessToken) {
-	err := suite.Tx.SaveAccessToken(token)
+func (suite *CRUDTestSuite) SaveSession(session *models.Session) {
+	err := suite.Tx.SaveSession(session)
 	suite.Require().NoError(err)
-}
-
-func (suite *CRUDTestSuite) SaveAccessTokenAndFields(token *models.AccessToken) {
-	suite.CreateUser(token.User)
-	suite.CreateClient(token.Client)
-	suite.SaveAccessToken(token)
 }

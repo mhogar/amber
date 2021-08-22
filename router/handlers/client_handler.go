@@ -20,7 +20,7 @@ type PostClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostClientBody
 
 	//parse the body
@@ -31,11 +31,11 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	}
 
 	//create the client
-	client, rerr := h.Controllers.CreateClient(tx, body.Name)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	client, cerr := h.Controllers.CreateClient(CRUD, body.Name)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -46,7 +46,7 @@ type PutClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PutClientBody
 
 	//parse the id
@@ -67,18 +67,18 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	client := models.CreateClient(id, body.Name)
 
 	//update the client
-	rerr := h.Controllers.UpdateClient(tx, client)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.UpdateClient(CRUD, client)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
 	return newClientDataResponse(client)
 }
 
-func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
@@ -87,11 +87,11 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	}
 
 	//delete the client
-	rerr := h.Controllers.DeleteClient(tx, id)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.DeleteClient(CRUD, id)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 

@@ -11,9 +11,9 @@ func Run(sf data.ScopeFactory, c controllers.UserController, username string, pa
 	return sf.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 		return sf.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
 			//create the user
-			_, rerr := c.CreateUser(tx, username, password)
-			if rerr.Type != common.ErrorTypeNone {
-				return false, common.ChainError("error creating user", rerr)
+			_, cerr := c.CreateUser(tx, username, password)
+			if cerr.Type != common.ErrorTypeNone {
+				return false, common.ChainError("error creating user", cerr)
 			}
 
 			return true, nil

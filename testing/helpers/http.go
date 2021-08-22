@@ -85,30 +85,6 @@ func ParseAndAssertInternalServerErrorResponse(suite *suite.Suite, res *http.Res
 	ParseAndAssertErrorResponse(suite, res, http.StatusInternalServerError, "internal error")
 }
 
-// AssertOAuthErrorResponse asserts the response is an oauth error reponse with the expected status, error, and description sub strings.
-func AssertOAuthErrorResponse(suite *suite.Suite, res interface{}, expectedError string, expectedDescriptionSubStrings ...string) {
-	errRes := res.(common.OAuthErrorResponse)
-
-	suite.Contains(errRes.Error, expectedError)
-	AssertContainsSubstrings(suite, errRes.ErrorDescription, expectedDescriptionSubStrings...)
-}
-
-// ParseAndAssertOAuthErrorResponse parses the response and asserts it is an oauth error reponse with the expected status, error, and description sub strings.
-func ParseAndAssertOAuthErrorResponse(suite *suite.Suite, res *http.Response, expectedStatus int, expectedError string, expectedDescriptionSubStrings ...string) {
-	var errRes common.OAuthErrorResponse
-	ParseResponse(suite, res, expectedStatus, &errRes)
-
-	AssertOAuthErrorResponse(suite, errRes, expectedError, expectedDescriptionSubStrings...)
-}
-
-// AssertAccessTokenResponse asserts the response is an access token response with the expect token.
-func AssertAccessTokenResponse(suite *suite.Suite, res interface{}, expectedTokenID string) {
-	tokenRes := res.(common.AccessTokenResponse)
-
-	suite.Equal(expectedTokenID, tokenRes.AccessToken)
-	suite.Equal("bearer", tokenRes.TokenType)
-}
-
 // AssertSuccessDataResponse asserts the response's data field is equivalent to the expected data.
 func AssertSuccessDataResponse(suite *suite.Suite, res interface{}, expectedData interface{}) {
 	dataRes := res.(common.DataResponse)

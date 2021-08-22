@@ -46,29 +46,3 @@ func NewSuccessDataResponse(data interface{}) (int, DataResponse) {
 		Data:    data,
 	}
 }
-
-// OAuthErrorResponse represents an error response defined by the oauth spec.
-type OAuthErrorResponse struct {
-	Error            string `json:"error"`
-	ErrorDescription string `json:"error_description"`
-}
-
-func NewOAuthErrorResponse(name string, description string) (int, OAuthErrorResponse) {
-	return http.StatusBadRequest, OAuthErrorResponse{
-		Error:            name,
-		ErrorDescription: description,
-	}
-}
-
-// AccessTokenResponse represents an access token response defined by the oauth spec.
-type AccessTokenResponse struct {
-	AccessToken string `json:"access_token"`
-	TokenType   string `json:"token_type"`
-}
-
-func NewAccessTokenResponse(token string) (int, AccessTokenResponse) {
-	return http.StatusOK, AccessTokenResponse{
-		AccessToken: token,
-		TokenType:   "bearer",
-	}
-}

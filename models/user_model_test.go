@@ -14,7 +14,7 @@ type UserTestSuite struct {
 }
 
 func (suite *UserTestSuite) SetupTest() {
-	suite.User = models.CreateNewUser("username", []byte("password"))
+	suite.User = models.CreateUser("username", []byte("password"))
 }
 
 func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
@@ -23,7 +23,7 @@ func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
 	hash := []byte("this is a password")
 
 	//act
-	user := models.CreateNewUser(username, hash)
+	user := models.CreateUser(username, hash)
 
 	//assert
 	suite.Require().NotNil(user)

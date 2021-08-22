@@ -92,7 +92,7 @@ func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
 	return count > 0, nil
 }
 
-// DeleteUser deletes the row in the user table with the matching id.
+// DeleteUser deletes the row in the user table with the matching uid.
 // Returns result of whether the client was found, and any errors.
 func (crud *SQLCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()

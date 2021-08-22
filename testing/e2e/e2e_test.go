@@ -1,7 +1,6 @@
 package e2e_test
 
 import (
-	"authserver/common"
 	"authserver/config"
 	"authserver/dependencies"
 	"authserver/router/handlers"
@@ -50,20 +49,13 @@ func (suite *E2ETestSuite) SendRequest(method string, endpoint string, bearerTok
 }
 
 func (suite *E2ETestSuite) Login(username string, password string) string {
-	body := handlers.PostTokenBody{
-		GrantType: "password",
-		PostTokenPasswordGrantBody: handlers.PostTokenPasswordGrantBody{
-			Username: username,
-			Password: password,
-			ClientID: config.GetAppId().String(),
-		},
+	body := handlers.PostSessionBody{
+		Username: username,
+		Password: password,
 	}
-	res := suite.SendRequest(http.MethodPost, "/token", "", body)
+	res := suite.SendRequest(http.MethodPost, "/session", "", body)
 
-	tokenRes := common.AccessTokenResponse{}
-	helpers.ParseResponseOK(&suite.Suite, res, &tokenRes)
-
-	return tokenRes.AccessToken
+	return helpers.ParseDataResponseOK(&suite.Suite, res)["token"].(string)
 }
 
 func (suite *E2ETestSuite) LoginAsMaxAdmin() string {
@@ -71,6 +63,6 @@ func (suite *E2ETestSuite) LoginAsMaxAdmin() string {
 }
 
 func (suite *E2ETestSuite) Logout(token string) {
-	res := suite.SendRequest(http.MethodDelete, "/token", token, nil)
+	res := suite.SendRequest(http.MethodDelete, "/session", token, nil)
 	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
 }

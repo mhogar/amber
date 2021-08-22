@@ -12,11 +12,12 @@ import (
 type CoreUserController struct {
 	PasswordHasher            passwordhelpers.PasswordHasher
 	PasswordCriteriaValidator passwordhelpers.PasswordCriteriaValidator
+	AuthController            AuthController
 }
 
 func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
 	//create the user model
-	user := models.CreateNewUser(username, nil)
+	user := models.CreateUser(username, nil)
 
 	//validate the username
 	verr := user.Validate()
@@ -77,12 +78,13 @@ func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, username string)
 	return common.NoError()
 }
 
-func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, user *models.User, oldPassword string, newPassword string) common.CustomError {
-	//validate old password
-	err := c.PasswordHasher.ComparePasswords(user.PasswordHash, oldPassword)
-	if err != nil {
-		log.Println(common.ChainError("error comparing password hashes", err))
+func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+	//authenticate user first with their old password
+	user, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
+	if cerr.Type == common.ErrorTypeClient {
 		return common.ClientError("old password is invalid")
+	} else if cerr.Type != common.ErrorTypeNone {
+		return cerr
 	}
 
 	//validate new password meets critera

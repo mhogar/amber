@@ -17,7 +17,7 @@ type PostUserBody struct {
 	Password string `json:"password"`
 }
 
-func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
@@ -27,24 +27,24 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 	}
 
 	//create the user
-	_, rerr := h.Controllers.CreateUser(tx, body.Username, body.Password)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	_, cerr := h.Controllers.CreateUser(CRUD, body.Username, body.Password)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
 	return common.NewSuccessResponse()
 }
 
-func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//delete the user
-	rerr := h.Controllers.DeleteUser(tx, token.User.Username)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.DeleteUser(CRUD, session.Username)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
@@ -57,7 +57,7 @@ type PatchUserPasswordBody struct {
 	NewPassword string `json:"newPassword"`
 }
 
-func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody
 	err := parseJSONBody(req.Body, &body)
@@ -67,20 +67,20 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	//update the password
-	rerr := h.Controllers.UpdateUserPassword(tx, token.User, body.OldPassword, body.NewPassword)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	cerr := h.Controllers.UpdateUserPassword(CRUD, session.Username, body.OldPassword, body.NewPassword)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 
-	//delete all other user access tokens
-	rerr = h.Controllers.DeleteAllOtherUserTokens(tx, token)
-	if rerr.Type == common.ErrorTypeClient {
-		return common.NewBadRequestResponse(rerr.Error())
+	//delete all other user sessions
+	cerr = h.Controllers.DeleteAllOtherUserSessions(CRUD, session.Username, session.Token)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
 	}
-	if rerr.Type == common.ErrorTypeInternal {
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
 

@@ -52,7 +52,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_Returns
 func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 	//arrange
 	client := models.CreateNewClient("name")
-	suite.CreateClient(client)
+	suite.SaveClient(client)
 
 	client.Name = "new name"
 
@@ -81,7 +81,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_Returns
 func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	//arrange
 	client := models.CreateNewClient("name")
-	suite.CreateClient(client)
+	suite.SaveClient(client)
 
 	//act
 	res, err := suite.Tx.DeleteClient(client.UID)
@@ -107,7 +107,7 @@ func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_Returns
 func (suite *ClientCRUDTestSuite) TestGetClientByUId_GetsTheClientWithUId() {
 	//arrange
 	client := models.CreateNewClient("name")
-	suite.CreateClient(client)
+	suite.SaveClient(client)
 
 	//act
 	resultClient, err := suite.Tx.GetClientByUID(client.UID)

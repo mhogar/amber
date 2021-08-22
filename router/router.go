@@ -37,28 +37,28 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true))
 	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true))
 
-	//token routes
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
-	r.DELETE("/token", rf.createHandler(rf.Handlers.DeleteToken, true))
+	//session routes
+	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false))
+	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true))
 
 	return r
 }
 
-type handlerFunc func(*http.Request, httprouter.Params, *models.AccessToken, data.Transaction) (int, interface{})
+type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
-		var token *models.AccessToken
-		var rerr common.CustomError
+		var session *models.Session
+		var cerr common.CustomError
 
 		err := rf.CoreScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
-				token, rerr = rf.getAccessToken(exec, req)
-				if rerr.Type == common.ErrorTypeClient {
-					sendErrorResponse(w, http.StatusUnauthorized, rerr.Error())
+				session, cerr = rf.getSession(exec, req)
+				if cerr.Type == common.ErrorTypeClient {
+					sendErrorResponse(w, http.StatusUnauthorized, cerr.Error())
 					return nil
-				} else if rerr.Type == common.ErrorTypeInternal {
+				} else if cerr.Type == common.ErrorTypeInternal {
 					sendInternalErrorResponse(w)
 					return nil
 				}
@@ -66,7 +66,7 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 
 			//handle route in transaction scope
 			return rf.CoreScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
-				status, body := handler(req, params, token, tx)
+				status, body := handler(req, params, session, tx)
 				sendResponse(w, status, body)
 
 				return status == http.StatusOK, nil
@@ -80,31 +80,31 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 	}
 }
 
-func (rf CoreRouterFactory) getAccessToken(CRUD models.AccessTokenCRUD, req *http.Request) (*models.AccessToken, common.CustomError) {
+func (rf CoreRouterFactory) getSession(CRUD models.SessionCRUD, req *http.Request) (*models.Session, common.CustomError) {
 	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {
 		return nil, common.ClientError("no bearer token provided")
 	}
 
-	//parse the token
-	tokenID, err := uuid.Parse(splitTokens[1])
+	//parse the session token
+	token, err := uuid.Parse(splitTokens[1])
 	if err != nil {
-		log.Println(common.ChainError("error parsing access token id", err))
-		return nil, common.ClientError("bearer token was in an invalid format")
+		log.Println(common.ChainError("error parsing token", err))
+		return nil, common.ClientError("bearer session was in an invalid format")
 	}
 
-	//fetch the token
-	token, err := CRUD.GetAccessTokenByID(tokenID)
+	//fetch the session
+	session, err := CRUD.GetSessionByToken(token)
 	if err != nil {
-		log.Println(common.ChainError("error getting access token by id", err))
+		log.Println(common.ChainError("error getting session by token", err))
 		return nil, common.InternalError()
 	}
 
-	//no token found
-	if token == nil {
+	//no session found
+	if session == nil {
 		return nil, common.ClientError("bearer token invalid or expired")
 	}
 
-	return token, common.NoError()
+	return session, common.NoError()
 }
