@@ -47,7 +47,7 @@ func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *mo
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with uid %s not found", client.UID))
+		return common.ClientError(fmt.Sprintf("client with id %s not found", client.UID))
 	}
 
 	return common.NoError()
@@ -63,7 +63,7 @@ func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, uid uuid.U
 
 	//verify client was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("client with uid %s not found", uid.String()))
+		return common.ClientError(fmt.Sprintf("client with id %s not found", uid.String()))
 	}
 
 	return common.NoError()

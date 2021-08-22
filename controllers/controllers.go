@@ -13,6 +13,7 @@ type Controllers interface {
 	ClientController
 	AuthController
 	SessionController
+	TokenController
 }
 
 type CoreControllers struct {
@@ -20,6 +21,7 @@ type CoreControllers struct {
 	ClientController
 	AuthController
 	SessionController
+	TokenController
 }
 
 // UserControllerCRUD encapsulates the CRUD operations required by the UserController.
@@ -84,4 +86,16 @@ type SessionController interface {
 
 	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
 	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError
+}
+
+// TokenControllerCRUD encapsulates the CRUD operations required by the TokenController.
+type TokenControllerCRUD interface {
+	models.UserCRUD
+	models.ClientCRUD
+}
+
+type TokenController interface {
+	// CreateToken authenticates using the username and password and creates a new JWT.
+	// Returns any errors.
+	CreateToken(CRUD TokenControllerCRUD, username string, password string) common.CustomError
 }

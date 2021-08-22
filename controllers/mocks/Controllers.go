@@ -87,6 +87,20 @@ func (_m *Controllers) CreateSession(CRUD controllers.SessionControllerCRUD, use
 	return r0, r1
 }
 
+// CreateToken provides a mock function with given fields: CRUD, username, password
+func (_m *Controllers) CreateToken(CRUD controllers.TokenControllerCRUD, username string, password string) common.CustomError {
+	ret := _m.Called(CRUD, username, password)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, string, string) common.CustomError); ok {
+		r0 = rf(CRUD, username, password)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
 // CreateUser provides a mock function with given fields: CRUD, username, password
 func (_m *Controllers) CreateUser(CRUD controllers.UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
 	ret := _m.Called(CRUD, username, password)

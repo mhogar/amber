@@ -165,7 +165,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdating
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "client with uid", client.UID.String(), "not found")
+	helpers.AssertClientError(&suite.Suite, cerr, "client with id", client.UID.String(), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoError() {
@@ -201,7 +201,7 @@ func (suite *ClientControllerTestSuite) TestDeleteClient_WithFalseResultDeleting
 	cerr := suite.ClientController.DeleteClient(&suite.CRUDMock, uid)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "client with uid", uid.String(), "not found")
+	helpers.AssertClientError(&suite.Suite, cerr, "client with id", uid.String(), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithNoErrors_ReturnsNoError() {

@@ -323,3 +323,11 @@ func TestDeleteSessionTestSuite(t *testing.T) {
 		},
 	})
 }
+
+func TestPostTokenTestSuite(t *testing.T) {
+	suite.Run(t, &RouterTestSuite{
+		Method:  "POST",
+		Route:   "/token",
+		Handler: "PostToken",
+	})
+}

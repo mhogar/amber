@@ -41,6 +41,9 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false))
 	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true))
 
+	//token routes
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
+
 	return r
 }
 
