@@ -57,7 +57,7 @@ type PatchUserPasswordBody struct {
 	NewPassword string `json:"newPassword"`
 }
 
-func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.Session, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, session *models.Session, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody
 	err := parseJSONBody(req.Body, &body)
@@ -67,7 +67,7 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	//update the password
-	cerr := h.Controllers.UpdateUserPassword(tx, token.User, body.OldPassword, body.NewPassword)
+	cerr := h.Controllers.UpdateUserPassword(tx, session.User, body.OldPassword, body.NewPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -75,8 +75,8 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 		return common.NewInternalServerErrorResponse()
 	}
 
-	//delete all other user access tokens
-	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, token)
+	//delete all other user access sessions
+	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, session.User.Username, session.ID)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

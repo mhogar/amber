@@ -46,11 +46,12 @@ func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
 	suite.EqualValues(session, resultSession)
 }
 
-func (suite *SessionCRUDTestSuite) TestDeleteSession_WithNoSessionToDelete_ReturnsNilError() {
+func (suite *SessionCRUDTestSuite) TestDeleteSession_WhereSessionIsNotFound_ReturnsFalseResult() {
 	//act
-	err := suite.Tx.DeleteSession(models.CreateNewSession(nil))
+	res, err := suite.Tx.DeleteSession(uuid.New())
 
 	//assert
+	suite.False(res)
 	suite.NoError(err)
 }
 
@@ -62,12 +63,13 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	suite.SaveSessionAndFields(session)
 
 	//act
-	err := suite.Tx.DeleteSession(session)
-
-	//assert
+	res, err := suite.Tx.DeleteSession(session.ID)
 	suite.Require().NoError(err)
 
+	//assert
 	resultSession, err := suite.Tx.GetSessionByID(session.ID)
+
+	suite.True(res)
 	suite.NoError(err)
 	suite.Nil(resultSession)
 }
@@ -79,7 +81,7 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessions
 	)
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session)
+	err := suite.Tx.DeleteAllOtherUserSessions(session.User.Username, session.ID)
 
 	//assert
 	suite.NoError(err)
@@ -96,7 +98,7 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOthe
 	suite.Tx.SaveSession(session2)
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session1)
+	err := suite.Tx.DeleteAllOtherUserSessions(session1.User.Username, session1.ID)
 
 	//assert
 	suite.Require().NoError(err)

@@ -110,13 +110,13 @@ func (_m *Controllers) CreateUser(CRUD controllers.UserControllerCRUD, username 
 	return r0, r1
 }
 
-// DeleteAllOtherUserSessions provides a mock function with given fields: CRUD, session
-func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionControllerCRUD, session *models.Session) common.CustomError {
-	ret := _m.Called(CRUD, session)
+// DeleteAllOtherUserSessions provides a mock function with given fields: CRUD, username, id
+func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionControllerCRUD, username string, id uuid.UUID) common.CustomError {
+	ret := _m.Called(CRUD, username, id)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, *models.Session) common.CustomError); ok {
-		r0 = rf(CRUD, session)
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, string, uuid.UUID) common.CustomError); ok {
+		r0 = rf(CRUD, username, id)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}
@@ -138,13 +138,13 @@ func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, uid u
 	return r0
 }
 
-// DeleteSession provides a mock function with given fields: CRUD, session
-func (_m *Controllers) DeleteSession(CRUD controllers.SessionControllerCRUD, session *models.Session) common.CustomError {
-	ret := _m.Called(CRUD, session)
+// DeleteSession provides a mock function with given fields: CRUD, id
+func (_m *Controllers) DeleteSession(CRUD controllers.SessionControllerCRUD, id uuid.UUID) common.CustomError {
+	ret := _m.Called(CRUD, id)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, *models.Session) common.CustomError); ok {
-		r0 = rf(CRUD, session)
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, uuid.UUID) common.CustomError); ok {
+		r0 = rf(CRUD, id)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

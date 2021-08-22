@@ -9,6 +9,7 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 
 	"github.com/stretchr/testify/suite"
@@ -84,37 +85,51 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithNoErrors_ReturnsN
 
 func (suite *SessionControllerTestSuite) TestDeleteSession_WithErrorDeletingSession_ReturnsInternalError() {
 	//arrange
-	session := &models.Session{}
-	suite.CRUDMock.On("DeleteSession", mock.Anything).Return(errors.New(""))
+	id := uuid.New()
+	suite.CRUDMock.On("DeleteSession", mock.Anything).Return(false, errors.New(""))
 
 	//act
-	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, session)
+	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, id)
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
-func (suite *SessionControllerTestSuite) TestDeleteSession_WithNoErrors_ReturnsNoError() {
+func (suite *SessionControllerTestSuite) TestDeleteSession_WithFalseResultDeletingSession_ReturnsClientError() {
 	//arrange
-	session := &models.Session{}
-	suite.CRUDMock.On("DeleteSession", mock.Anything).Return(nil)
+	id := uuid.New()
+	suite.CRUDMock.On("DeleteSession", mock.Anything).Return(false, nil)
 
 	//act
-	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, session)
+	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, id)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "DeleteSession", session)
+	helpers.AssertClientError(&suite.Suite, cerr, "session with id", id.String(), "not found")
+}
+
+func (suite *SessionControllerTestSuite) TestDeleteSession_WithNoErrors_ReturnsNoError() {
+	//arrange
+	id := uuid.New()
+	suite.CRUDMock.On("DeleteSession", mock.Anything).Return(true, nil)
+
+	//act
+	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, id)
+
+	//assert
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteSession", id)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithErrorDeletingSessions_ReturnsInternalError() {
 	//arrange
-	session := &models.Session{}
-	suite.CRUDMock.On("DeleteAllOtherUserSessions", mock.Anything).Return(errors.New(""))
+	id := uuid.New()
+	username := "username"
+
+	suite.CRUDMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	//act
-	cerr := suite.SessionController.DeleteAllOtherUserSessions(&suite.CRUDMock, session)
+	cerr := suite.SessionController.DeleteAllOtherUserSessions(&suite.CRUDMock, username, id)
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
@@ -122,14 +137,16 @@ func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithErro
 
 func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithNoErrors_ReturnsNoError() {
 	//arrange
-	session := &models.Session{}
-	suite.CRUDMock.On("DeleteAllOtherUserSessions", mock.Anything).Return(nil)
+	id := uuid.New()
+	username := "username"
+
+	suite.CRUDMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything).Return(nil)
 
 	//act
-	cerr := suite.SessionController.DeleteAllOtherUserSessions(&suite.CRUDMock, session)
+	cerr := suite.SessionController.DeleteAllOtherUserSessions(&suite.CRUDMock, username, id)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", session)
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", username, id)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 }

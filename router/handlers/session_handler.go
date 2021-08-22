@@ -45,7 +45,7 @@ func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *mod
 
 func (h CoreHandlers) DeleteSession(_ *http.Request, _ httprouter.Params, session *models.Session, tx data.Transaction) (int, interface{}) {
 	//delete the session
-	cerr := h.Controllers.DeleteSession(tx, session)
+	cerr := h.Controllers.DeleteSession(tx, session.ID)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

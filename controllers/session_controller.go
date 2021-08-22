@@ -3,7 +3,10 @@ package controllers
 import (
 	"authserver/common"
 	"authserver/models"
+	"fmt"
 	"log"
+
+	"github.com/google/uuid"
 )
 
 type CoreSessionController struct {
@@ -30,20 +33,25 @@ func (c CoreSessionController) CreateSession(CRUD SessionControllerCRUD, usernam
 	return session, common.NoError()
 }
 
-func (c CoreSessionController) DeleteSession(CRUD SessionControllerCRUD, session *models.Session) common.CustomError {
+func (c CoreSessionController) DeleteSession(CRUD SessionControllerCRUD, id uuid.UUID) common.CustomError {
 	//delete the session
-	err := CRUD.DeleteSession(session)
+	res, err := CRUD.DeleteSession(id)
 	if err != nil {
 		log.Println(common.ChainError("error deleting session", err))
 		return common.InternalError()
 	}
 
+	//verify sesion was actually found
+	if !res {
+		return common.ClientError(fmt.Sprintf("session with id %s not found", id.String()))
+	}
+
 	return common.NoError()
 }
 
-func (c CoreSessionController) DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, session *models.Session) common.CustomError {
+func (c CoreSessionController) DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError {
 	//delete the session
-	err := CRUD.DeleteAllOtherUserSessions(session)
+	err := CRUD.DeleteAllOtherUserSessions(username, id)
 	if err != nil {
 		log.Println(common.ChainError("error deleting all other user sessions", err))
 		return common.InternalError()

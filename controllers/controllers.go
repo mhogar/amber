@@ -79,9 +79,9 @@ type SessionController interface {
 	// CreateSession creates a new session by authorizing the user with a password.
 	CreateSession(CRUD SessionControllerCRUD, username string, password string) (*models.Session, common.CustomError)
 
-	// DeleteSession deletes the session.
-	DeleteSession(CRUD SessionControllerCRUD, session *models.Session) common.CustomError
+	// DeleteSession deletes the session with the given id.
+	DeleteSession(CRUD SessionControllerCRUD, id uuid.UUID) common.CustomError
 
-	// DeleteSession deletes all of the user's sessions accept for the provided one.
-	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, session *models.Session) common.CustomError
+	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
+	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError
 }

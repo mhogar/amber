@@ -40,14 +40,14 @@ func (crud *SQLCRUD) DropSessionTable() error {
 
 // SaveSession validates the session model is valid and inserts a new row into the session table.
 // Returns any errors.
-func (crud *SQLCRUD) SaveSession(token *models.Session) error {
-	verr := token.Validate()
+func (crud *SQLCRUD) SaveSession(session *models.Session) error {
+	verr := session.Validate()
 	if verr != models.ValidateSessionValid {
 		return errors.New(fmt.Sprint("error validating session model:", verr))
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveSessionScript(), token.ID, token.User.Username)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.SaveSessionScript(), session.ID, session.User.Username)
 	cancel()
 
 	if err != nil {
@@ -73,24 +73,25 @@ func (crud *SQLCRUD) GetSessionByID(ID uuid.UUID) (*models.Session, error) {
 }
 
 // DeleteSession deletes the row in the session table with the matching id.
-// Returns any errors.
-func (crud *SQLCRUD) DeleteSession(token *models.Session) error {
+// Returns result of whether the client was found, and any errors.
+func (crud *SQLCRUD) DeleteSession(id uuid.UUID) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteSessionScript(), token.ID)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteSessionScript(), id)
 	cancel()
 
 	if err != nil {
-		return common.ChainError("error executing delete session statement", err)
+		return false, common.ChainError("error executing delete session statement", err)
 	}
 
-	return nil
+	count, _ := res.RowsAffected()
+	return count > 0, nil
 }
 
-// DeleteAllOtherUserSessions deletes all the rows in the session table with the matching user id, and not the token id.
+// DeleteAllOtherUserSessions deletes all the rows in the session table with the matching user id, and not the session id.
 // Returns any errors.
-func (crud *SQLCRUD) DeleteAllOtherUserSessions(token *models.Session) error {
+func (crud *SQLCRUD) DeleteAllOtherUserSessions(username string, id uuid.UUID) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserSessionsScript(), token.ID, token.User.Username)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserSessionsScript(), id, username)
 	cancel()
 
 	if err != nil {
@@ -112,18 +113,18 @@ func readSessionData(rows *sql.Rows) (*models.Session, error) {
 		return nil, nil
 	}
 
-	token := &models.Session{
+	session := &models.Session{
 		User: &models.User{},
 	}
 
 	//get the result
 	err := rows.Scan(
-		&token.ID,
-		&token.User.Username, &token.User.PasswordHash,
+		&session.ID,
+		&session.User.Username, &session.User.PasswordHash,
 	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}
 
-	return token, nil
+	return session, nil
 }

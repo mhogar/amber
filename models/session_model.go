@@ -20,14 +20,17 @@ type SessionCRUD interface {
 	SaveSession(session *Session) error
 
 	// GetSessionByID fetches the session associated with the id.
-	// If no sessions are found, returns nil session. Also returns any errors.
+	// If no sessions are found, returns nil session.
+	// Also returns any errors.
 	GetSessionByID(ID uuid.UUID) (*Session, error)
 
-	// DeleteSession deletes the session and returns any errors.
-	DeleteSession(session *Session) error
+	// DeleteSession deletes the session with the given id.
+	// Returns result of whether the session was found, and any errors.
+	DeleteSession(ID uuid.UUID) (bool, error)
 
-	// DeleteAllOtherUserSessions deletes all of the user's sessions expect for the provided one and returns any errors.
-	DeleteAllOtherUserSessions(session *Session) error
+	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
+	// Returns any errors.
+	DeleteAllOtherUserSessions(username string, ID uuid.UUID) error
 }
 
 func CreateSession(id uuid.UUID, user *User) *Session {

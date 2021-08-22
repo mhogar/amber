@@ -71,13 +71,13 @@ func (_m *Transaction) CreateUser(user *models.User) error {
 	return r0
 }
 
-// DeleteAllOtherUserSessions provides a mock function with given fields: session
-func (_m *Transaction) DeleteAllOtherUserSessions(session *models.Session) error {
-	ret := _m.Called(session)
+// DeleteAllOtherUserSessions provides a mock function with given fields: username, ID
+func (_m *Transaction) DeleteAllOtherUserSessions(username string, ID uuid.UUID) error {
+	ret := _m.Called(username, ID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Session) error); ok {
-		r0 = rf(session)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) error); ok {
+		r0 = rf(username, ID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -120,18 +120,25 @@ func (_m *Transaction) DeleteMigrationByTimestamp(timestamp string) error {
 	return r0
 }
 
-// DeleteSession provides a mock function with given fields: session
-func (_m *Transaction) DeleteSession(session *models.Session) error {
-	ret := _m.Called(session)
+// DeleteSession provides a mock function with given fields: ID
+func (_m *Transaction) DeleteSession(ID uuid.UUID) (bool, error) {
+	ret := _m.Called(ID)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Session) error); ok {
-		r0 = rf(session)
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
+		r0 = rf(ID)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(bool)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // DeleteUser provides a mock function with given fields: username
