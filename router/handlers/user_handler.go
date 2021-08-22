@@ -17,7 +17,7 @@ type PostUserBody struct {
 	Password string `json:"password"`
 }
 
-func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
@@ -38,9 +38,9 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 	return common.NewSuccessResponse()
 }
 
-func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, session *models.Session, tx data.Transaction) (int, interface{}) {
 	//delete the user
-	cerr := h.Controllers.DeleteUser(tx, token.User.Username)
+	cerr := h.Controllers.DeleteUser(tx, session.User.Username)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -57,7 +57,7 @@ type PatchUserPasswordBody struct {
 	NewPassword string `json:"newPassword"`
 }
 
-func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, token *models.Session, tx data.Transaction) (int, interface{}) {
 	//parse the body
 	var body PatchUserPasswordBody
 	err := parseJSONBody(req.Body, &body)
@@ -76,7 +76,7 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	//delete all other user access tokens
-	cerr = h.Controllers.DeleteAllOtherUserTokens(tx, token)
+	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, token)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

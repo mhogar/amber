@@ -20,7 +20,7 @@ type PostClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
 	var body PostClientBody
 
 	//parse the body
@@ -46,7 +46,7 @@ type PutClientBody struct {
 	Name string `json:"name"`
 }
 
-func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
 	var body PutClientBody
 
 	//parse the id
@@ -78,7 +78,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	return newClientDataResponse(client)
 }
 
-func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.AccessToken, tx data.Transaction) (int, interface{}) {
+func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, tx data.Transaction) (int, interface{}) {
 	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {

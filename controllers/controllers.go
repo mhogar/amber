@@ -16,10 +16,10 @@ type Controllers interface {
 }
 
 type CoreControllers struct {
-	CoreUserController
-	CoreClientController
-	CoreAuthController
-	CoreSessionController
+	UserController
+	ClientController
+	AuthController
+	SessionController
 }
 
 // UserControllerCRUD encapsulates the CRUD operations required by the UserController.
