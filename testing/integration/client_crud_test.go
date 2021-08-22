@@ -15,7 +15,7 @@ type ClientCRUDTestSuite struct {
 
 func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsError() {
 	//arrange
-	client := models.CreateNewClient("")
+	client := models.CreateNewClient("", "")
 
 	//act
 	err := suite.Tx.CreateClient(client)
@@ -27,7 +27,7 @@ func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsErro
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_WithInvalidClient_ReturnsError() {
 	//arrange
-	client := models.CreateNewClient("")
+	client := models.CreateNewClient("", "")
 
 	//act
 	_, err := suite.Tx.UpdateClient(client)
@@ -39,7 +39,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WithInvalidClient_ReturnsErro
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_ReturnsFalseResult() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 
 	//act
 	res, err := suite.Tx.UpdateClient(client)
@@ -51,7 +51,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.SaveClient(client)
 
 	client.Name = "new name"
@@ -80,7 +80,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.SaveClient(client)
 
 	//act
@@ -106,7 +106,7 @@ func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestGetClientByUId_GetsTheClientWithUId() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.SaveClient(client)
 
 	//act

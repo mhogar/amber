@@ -12,12 +12,14 @@ import (
 )
 
 type ClientDataResponse struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID          string `json:"id"`
+	Name        string `json:"name"`
+	RedirectUrl string `json:"redirect_url"`
 }
 
 type PostClientBody struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	RedirectUrl string `json:"redirect_url"`
 }
 
 func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -31,7 +33,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	}
 
 	//create the client
-	client, cerr := h.Controllers.CreateClient(CRUD, body.Name)
+	client, cerr := h.Controllers.CreateClient(CRUD, body.Name, body.RedirectUrl)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -43,7 +45,8 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 }
 
 type PutClientBody struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	RedirectUrl string `json:"redirect_url"`
 }
 
 func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -64,7 +67,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	}
 
 	//create the client model
-	client := models.CreateClient(id, body.Name)
+	client := models.CreateClient(id, body.Name, body.RedirectUrl)
 
 	//update the client
 	cerr := h.Controllers.UpdateClient(CRUD, client)
@@ -100,7 +103,8 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 
 func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(ClientDataResponse{
-		ID:   client.UID.String(),
-		Name: client.Name,
+		ID:          client.UID.String(),
+		Name:        client.Name,
+		RedirectUrl: client.RedirectUrl,
 	})
 }

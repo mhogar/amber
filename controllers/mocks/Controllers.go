@@ -41,13 +41,13 @@ func (_m *Controllers) AuthenticateUserWithPassword(CRUD controllers.AuthControl
 	return r0, r1
 }
 
-// CreateClient provides a mock function with given fields: CRUD, name
-func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string) (*models.Client, common.CustomError) {
-	ret := _m.Called(CRUD, name)
+// CreateClient provides a mock function with given fields: CRUD, name, redirectUrl
+func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string, redirectUrl string) (*models.Client, common.CustomError) {
+	ret := _m.Called(CRUD, name, redirectUrl)
 
 	var r0 *models.Client
-	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string) *models.Client); ok {
-		r0 = rf(CRUD, name)
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string, string) *models.Client); ok {
+		r0 = rf(CRUD, name, redirectUrl)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Client)
@@ -55,8 +55,8 @@ func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name 
 	}
 
 	var r1 common.CustomError
-	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string) common.CustomError); ok {
-		r1 = rf(CRUD, name)
+	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string, string) common.CustomError); ok {
+		r1 = rf(CRUD, name, redirectUrl)
 	} else {
 		r1 = ret.Get(1).(common.CustomError)
 	}

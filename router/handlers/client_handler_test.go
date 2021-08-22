@@ -33,12 +33,13 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsB
 func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClient_ReturnsBadRequest() {
 	//arrange
 	body := handlers.PostClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	message := "create client error"
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
@@ -51,11 +52,12 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingClient_ReturnsInternalServerError() {
 	//arrange
 	body := handlers.PostClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(nil, common.InternalError())
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
@@ -68,12 +70,13 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientData() {
 	//arrange
 	body := handlers.PostClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	client := models.CreateNewClient("name")
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(client, common.NoError())
+	client := models.CreateNewClient(body.Name, body.RedirectUrl)
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything).Return(client, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
@@ -81,11 +84,12 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
-		ID:   client.UID.String(),
-		Name: client.Name,
+		ID:          client.UID.String(),
+		Name:        client.Name,
+		RedirectUrl: client.RedirectUrl,
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.DataCRUDMock, body.Name)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.DataCRUDMock, body.Name, body.RedirectUrl)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBadRequest() {
@@ -127,7 +131,8 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBa
 func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient_ReturnsBadRequest() {
 	//arrange
 	body := handlers.PutClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
@@ -152,7 +157,8 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClient_ReturnsInternalServerError() {
 	//arrange
 	body := handlers.PutClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
@@ -176,7 +182,8 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientData() {
 	//arrange
 	body := handlers.PutClientBody{
-		Name: "name",
+		Name:        "name",
+		RedirectUrl: "redirect.com",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
@@ -196,12 +203,13 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
-		ID:   uid.String(),
-		Name: body.Name,
+		ID:          uid.String(),
+		Name:        body.Name,
+		RedirectUrl: body.RedirectUrl,
 	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.DataCRUDMock, mock.MatchedBy(func(client *models.Client) bool {
-		return client.UID == uid && client.Name == body.Name
+		return client.UID == uid && client.Name == body.Name && client.RedirectUrl == body.RedirectUrl
 	}))
 }
 

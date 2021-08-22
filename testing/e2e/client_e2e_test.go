@@ -19,14 +19,16 @@ func (suite *ClientE2ETestSuite) TestLogin_CreateClient_UpdateClient_DeleteClien
 
 	//create client
 	postClientBody := handlers.PostClientBody{
-		Name: "Name",
+		Name:        "Name",
+		RedirectUrl: "redirect.com",
 	}
 	res := suite.SendRequest(http.MethodPost, "/client", token, postClientBody)
 	id := helpers.ParseDataResponseOK(&suite.Suite, res)["id"].(string)
 
 	//update client
 	putClientBody := handlers.PutClientBody{
-		Name: "New Name",
+		Name:        "New Name",
+		RedirectUrl: "redirect2.com",
 	}
 	res = suite.SendRequest(http.MethodPut, "/client/"+id, token, putClientBody)
 	helpers.ParseDataResponseOK(&suite.Suite, res)

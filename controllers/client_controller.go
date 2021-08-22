@@ -11,9 +11,9 @@ import (
 
 type CoreClientController struct{}
 
-func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name string) (*models.Client, common.CustomError) {
+func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string) (*models.Client, common.CustomError) {
 	//create the client model
-	client := models.CreateNewClient(name)
+	client := models.CreateNewClient(name, redirectUrl)
 
 	//validate the client
 	verr := validateClient(client)
@@ -75,6 +75,10 @@ func validateClient(client *models.Client) common.CustomError {
 		return common.ClientError("client name cannot be empty")
 	} else if verr&models.ValidateClientNameTooLong != 0 {
 		return common.ClientError(fmt.Sprint("client name cannot be longer than ", models.ClientNameMaxLength, " characters"))
+	} else if verr&models.ValidateClientEmptyRedirectUrl != 0 {
+		return common.ClientError("client redirect url cannot be empty")
+	} else if verr&models.ValidateClientRedirectUrlTooLong != 0 {
+		return common.ClientError(fmt.Sprint("client redirect url cannot be longer than ", models.ClientRedirectUrlMaxLength, " characters"))
 	}
 
 	return common.NoError()

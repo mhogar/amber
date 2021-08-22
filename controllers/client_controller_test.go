@@ -23,7 +23,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithEmptyName_ReturnsCl
 	name := ""
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name, "")
 
 	//assert
 	suite.Nil(client)
@@ -32,23 +32,49 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithEmptyName_ReturnsCl
 
 func (suite *ClientControllerTestSuite) TestCreateClient_WithNameGreaterThanMax_ReturnsClientError() {
 	//arrange
-	name := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //31 chars
+	name := helpers.CreateStringOfLength(31)
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name, "")
 
 	//assert
 	suite.Nil(client)
 	helpers.AssertClientError(&suite.Suite, cerr, "client name", "cannot be longer", fmt.Sprint(models.ClientNameMaxLength))
 }
 
+func (suite *ClientControllerTestSuite) TestCreateClient_WithEmptyRedirectUrl_ReturnsClientError() {
+	//arrange
+	url := ""
+
+	//act
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, "name", url)
+
+	//assert
+	suite.Nil(client)
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be empty")
+}
+
+func (suite *ClientControllerTestSuite) TestCreateClient_WithRedirectUrlGreaterThanMax_ReturnsClientError() {
+	//arrange
+	url := helpers.CreateStringOfLength(101)
+
+	//act
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, "name", url)
+
+	//assert
+	suite.Nil(client)
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
+}
+
 func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_ReturnsInternalError() {
 	//arrange
 	name := "name"
+	url := "redirect.com"
+
 	suite.CRUDMock.On("CreateClient", mock.Anything).Return(errors.New(""))
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name, url)
 
 	//assert
 	suite.Nil(client)
@@ -58,14 +84,17 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_R
 func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoError() {
 	//arrange
 	name := "name"
+	url := "redirect.com"
+
 	suite.CRUDMock.On("CreateClient", mock.Anything).Return(nil)
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name)
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name, url)
 
 	//assert
 	suite.Require().NotNil(client)
 	suite.Equal(name, client.Name)
+	suite.Equal(url, client.RedirectUrl)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
@@ -73,7 +102,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoE
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithEmptyName_ReturnsClientError() {
 	//arrange
-	client := models.CreateNewClient("")
+	client := models.CreateNewClient("", "")
 
 	//act
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
@@ -84,7 +113,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithEmptyName_ReturnsCl
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithNameGreaterThanMax_ReturnsClientError() {
 	//arrange
-	client := models.CreateNewClient("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	client := models.CreateNewClient(helpers.CreateStringOfLength(31), "")
 
 	//act
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
@@ -93,9 +122,31 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithNameGreaterThanMax_
 	helpers.AssertClientError(&suite.Suite, cerr, "client name", "cannot be longer", fmt.Sprint(models.ClientNameMaxLength))
 }
 
+func (suite *ClientControllerTestSuite) TestUpdateClient_WithEmptyRedirectUrl_ReturnsClientError() {
+	//arrange
+	client := models.CreateNewClient("name", "")
+
+	//act
+	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be empty")
+}
+
+func (suite *ClientControllerTestSuite) TestUpdateClient_WithRedirectUrlGreaterThanMax_ReturnsClientError() {
+	//arrange
+	client := models.CreateNewClient("name", helpers.CreateStringOfLength(101))
+
+	//act
+	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
+}
+
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithErrorUpdatingClient_ReturnsInternalError() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.CRUDMock.On("UpdateClient", mock.Anything).Return(false, errors.New(""))
 
 	//act
@@ -107,7 +158,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithErrorUpdatingClient
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdatingClient_ReturnsClientError() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.CRUDMock.On("UpdateClient", mock.Anything).Return(false, nil)
 
 	//act
@@ -119,7 +170,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdating
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoError() {
 	//arrange
-	client := models.CreateNewClient("name")
+	client := models.CreateNewClient("name", "redirect.com")
 	suite.CRUDMock.On("UpdateClient", mock.Anything).Return(true, nil)
 
 	//act

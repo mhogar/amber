@@ -1,9 +1,9 @@
 package models_test
 
 import (
-	"testing"
-
 	"authserver/models"
+	"authserver/testing/helpers"
+	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -15,18 +15,20 @@ type ClientTestSuite struct {
 }
 
 func (suite *ClientTestSuite) SetupTest() {
-	suite.Client = models.CreateNewClient("name")
+	suite.Client = models.CreateNewClient("name", "redirect.com")
 }
 
 func (suite *ClientTestSuite) TestCreateNewClient_CreatesClientWithSuppliedFields() {
 	//act
 	name := "Client Name"
-	client := models.CreateNewClient(name)
+	url := "Redirect URL"
+	client := models.CreateNewClient(name, url)
 
 	//assert
 	suite.Require().NotNil(client)
 	suite.NotEqual(uuid.Nil, client.UID)
 	suite.Equal(name, client.Name)
+	suite.Equal(url, client.RedirectUrl)
 }
 
 func (suite *ClientTestSuite) TestValidate_WithValidClient_ReturnsValid() {
@@ -74,12 +76,47 @@ func (suite *ClientTestSuite) TestValidate_ClientNameMaxLengthTestCases() {
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	name = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //30 chars
+	name = helpers.CreateStringOfLength(30)
 	expectedValidateError = models.ValidateClientValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 
 	name += "a"
 	expectedValidateError = models.ValidateClientNameTooLong
+	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
+}
+
+func (suite *ClientTestSuite) TestValidate_WithEmptyRedirectUrl_ReturnsClientEmptyRedirectUrl() {
+	//arrange
+	suite.Client.RedirectUrl = ""
+
+	//act
+	verr := suite.Client.Validate()
+
+	//assert
+	suite.Equal(models.ValidateClientEmptyRedirectUrl, verr)
+}
+
+func (suite *ClientTestSuite) TestValidate_ClientRedirectUrlMaxLengthTestCases() {
+	var url string
+	var expectedValidateError int
+
+	testCase := func() {
+		//arrange
+		suite.Client.RedirectUrl = url
+
+		//act
+		verr := suite.Client.Validate()
+
+		//assert
+		suite.Equal(expectedValidateError, verr)
+	}
+
+	url = helpers.CreateStringOfLength(100)
+	expectedValidateError = models.ValidateClientValid
+	suite.Run("ExactlyMaxLengthIsValid", testCase)
+
+	url += "a"
+	expectedValidateError = models.ValidateClientRedirectUrlTooLong
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 

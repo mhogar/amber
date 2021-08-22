@@ -8,8 +8,8 @@ type ScriptRepository struct {}
 // CreateClientScript gets the CreateClient script.
 func (ScriptRepository) CreateClientScript() string {
 	return `
-INSERT INTO "client" ("uid", "name")
-	VALUES ($1, $2)
+INSERT INTO "client" ("uid", "name", "redirect_url")
+	VALUES ($1, $2, $3)
 `
 }
 
@@ -20,6 +20,7 @@ CREATE TABLE "public"."client" (
 	"key" SMALLSERIAL,
 	"uid" UUID NOT NULL,
 	"name" VARCHAR(30) NOT NULL,
+	"redirect_url" VARCHAR(100) NOT NULL,
 	CONSTRAINT "client_pk" PRIMARY KEY ("key"),
 	CONSTRAINT "client_uid_un" UNIQUE ("uid")
 );
@@ -44,7 +45,7 @@ DROP TABLE "public"."client"
 // GetClientByUIDScript gets the GetClientByUID script.
 func (ScriptRepository) GetClientByUIDScript() string {
 	return `
-SELECT c."uid", c."name"
+SELECT c."uid", c."name", c."redirect_url"
 	FROM "client" c
 WHERE c."uid" = $1
 `
@@ -54,7 +55,8 @@ WHERE c."uid" = $1
 func (ScriptRepository) UpdateClientScript() string {
 	return `
 UPDATE "client" SET
-    "name" = $2
+    "name" = $2,
+    "redirect_url" = $3
 WHERE "uid" = $1
 `
 }

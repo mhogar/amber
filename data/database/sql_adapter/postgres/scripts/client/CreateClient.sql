@@ -1,2 +1,2 @@
-INSERT INTO "client" ("uid", "name")
-	VALUES ($1, $2)
+INSERT INTO "client" ("uid", "name", "redirect_url")
+	VALUES ($1, $2, $3)
