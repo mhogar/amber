@@ -1,6 +1,6 @@
 SELECT
-    s."id",
-    u."username", u."password_hash"
+    s."token",
+    u."username"
 FROM "session" s
     INNER JOIN "user" u ON u."key" = s."user_key"
-WHERE s."id" = $1
+WHERE s."token" = $1

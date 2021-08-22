@@ -81,29 +81,29 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 }
 
 func (rf CoreRouterFactory) getSession(CRUD models.SessionCRUD, req *http.Request) (*models.Session, common.CustomError) {
-	//extract the session string from the authorization header
+	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {
-		return nil, common.ClientError("no bearer session provided")
+		return nil, common.ClientError("no bearer token provided")
 	}
 
-	//parse the session
-	sessionID, err := uuid.Parse(splitTokens[1])
+	//parse the session token
+	token, err := uuid.Parse(splitTokens[1])
 	if err != nil {
-		log.Println(common.ChainError("error parsing session id", err))
+		log.Println(common.ChainError("error parsing token", err))
 		return nil, common.ClientError("bearer session was in an invalid format")
 	}
 
 	//fetch the session
-	session, err := CRUD.GetSessionByID(sessionID)
+	session, err := CRUD.GetSessionByToken(token)
 	if err != nil {
-		log.Println(common.ChainError("error getting session by id", err))
+		log.Println(common.ChainError("error getting session by token", err))
 		return nil, common.InternalError()
 	}
 
 	//no session found
 	if session == nil {
-		return nil, common.ClientError("bearer session invalid or expired")
+		return nil, common.ClientError("bearer token invalid or expired")
 	}
 
 	return session, common.NoError()

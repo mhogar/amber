@@ -1,2 +1,2 @@
 DELETE FROM "session" s
-    WHERE s."id" = $1
+    WHERE s."token" = $1

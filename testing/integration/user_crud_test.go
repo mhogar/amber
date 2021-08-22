@@ -33,7 +33,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
 	//arrange
 	user := models.CreateUser("username", []byte("password"))
-	suite.CreateUser(user)
+	suite.SaveUser(user)
 
 	//act
 	resultUser, err := suite.Tx.GetUserByUsername(user.Username)
@@ -66,7 +66,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 	newPassword := []byte("new_password")
 
 	user := models.CreateUser("username", []byte("password"))
-	suite.CreateUser(user)
+	suite.SaveUser(user)
 
 	//act
 	user.PasswordHash = newPassword
@@ -93,7 +93,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_WhereUserIsNotFound_ReturnsFalseR
 func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	//arrange
 	user := models.CreateUser("username", []byte("password"))
-	suite.CreateUser(user)
+	suite.SaveUser(user)
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -110,8 +110,10 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
 	user := models.CreateUser("username", []byte("password"))
-	token := models.CreateNewSession(user)
-	suite.SaveSessionAndFields(token)
+	suite.SaveUser(user)
+
+	session := models.CreateNewSession(user.Username)
+	suite.SaveSession(session)
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -120,7 +122,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultSession, err := suite.Tx.GetSessionByID(token.ID)
+	resultSession, err := suite.Tx.GetSessionByToken(session.Token)
 	suite.NoError(err)
 	suite.Nil(resultSession)
 }

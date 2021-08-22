@@ -15,22 +15,20 @@ type SessionTestSuite struct {
 }
 
 func (suite *SessionTestSuite) SetupTest() {
-	suite.Session = models.CreateNewSession(
-		models.CreateUser("username", []byte("password")),
-	)
+	suite.Session = models.CreateNewSession("username")
 }
 
 func (suite *SessionTestSuite) TestCreateNewSession_CreatesSessionWithSuppliedFields() {
 	//arrange
-	user := models.CreateUser("", nil)
+	username := "username"
 
 	//act
-	session := models.CreateNewSession(user)
+	session := models.CreateNewSession(username)
 
 	//assert
 	suite.Require().NotNil(session)
-	suite.NotEqual(session.ID, uuid.Nil)
-	suite.Equal(session.User, user)
+	suite.NotEqual(session.Token, uuid.Nil)
+	suite.Equal(session.Username, username)
 }
 
 func (suite *SessionTestSuite) TestValidate_WithValidSession_ReturnsValid() {
@@ -41,37 +39,26 @@ func (suite *SessionTestSuite) TestValidate_WithValidSession_ReturnsValid() {
 	suite.Equal(models.ValidateSessionValid, verr)
 }
 
-func (suite *SessionTestSuite) TestValidate_WithNilID_ReturnsSessionInvalidID() {
+func (suite *SessionTestSuite) TestValidate_WithNilID_ReturnsSessionNilToken() {
 	//arrange
-	suite.Session.ID = uuid.Nil
+	suite.Session.Token = uuid.Nil
 
 	//act
 	verr := suite.Session.Validate()
 
 	//assert
-	suite.Equal(models.ValidateSessionNilID, verr)
+	suite.Equal(models.ValidateSessionNilToken, verr)
 }
 
-func (suite *SessionTestSuite) TestValidate_WithNilUser_ReturnsSessionNilUser() {
+func (suite *SessionTestSuite) TestValidate_WithEmptyUsername_ReturnsSessionEmptyUsername() {
 	//arrange
-	suite.Session.User = nil
+	suite.Session.Username = ""
 
 	//act
 	verr := suite.Session.Validate()
 
 	//assert
-	suite.Equal(models.ValidateSessionNilUser, verr)
-}
-
-func (suite *SessionTestSuite) TestValidate_WithInvalidUser_ReturnsSessionInvalidUser() {
-	//arrange
-	suite.Session.User = models.CreateUser("", nil)
-
-	//act
-	verr := suite.Session.Validate()
-
-	//assert
-	suite.Equal(models.ValidateSessionInvalidUser, verr)
+	suite.Equal(models.ValidateSessionEmptyUsername, verr)
 }
 
 func TestSessionTestSuite(t *testing.T) {

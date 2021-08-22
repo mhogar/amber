@@ -73,9 +73,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession(
-		models.CreateUser(body.Username, []byte(body.Password)),
-	)
+	session := models.CreateNewSession(body.Username)
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(session, common.NoError())
 
 	//act
@@ -84,7 +82,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.SessionDataResponse{
-		Token:    session.ID.String(),
+		Token:    session.Token.String(),
 		Username: body.Username,
 	})
 
@@ -133,7 +131,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithNoErrors_ReturnsSucc
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteSession", &suite.TransactionMock, session)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteSession", &suite.TransactionMock, session.Token)
 }
 
 func TestSessionHandlerTestSuite(t *testing.T) {

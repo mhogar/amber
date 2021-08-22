@@ -15,7 +15,7 @@ type SessionCRUDTestSuite struct {
 
 func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsError() {
 	//act
-	err := suite.Tx.SaveSession(models.CreateNewSession(nil))
+	err := suite.Tx.SaveSession(models.CreateSession(uuid.Nil, ""))
 
 	//assert
 	suite.Require().Error(err)
@@ -24,7 +24,7 @@ func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsErr
 
 func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_ReturnsNilSession() {
 	//act
-	session, err := suite.Tx.GetSessionByID(uuid.New())
+	session, err := suite.Tx.GetSessionByToken(uuid.New())
 
 	//assert
 	suite.NoError(err)
@@ -33,13 +33,14 @@ func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_Retur
 
 func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
 	//arrange
-	session := models.CreateNewSession(
-		models.CreateUser("username", []byte("password")),
-	)
-	suite.SaveSessionAndFields(session)
+	user := models.CreateUser("username", []byte("password"))
+	suite.SaveUser(user)
+
+	session := models.CreateNewSession(user.Username)
+	suite.SaveSession(session)
 
 	//act
-	resultSession, err := suite.Tx.GetSessionByID(session.ID)
+	resultSession, err := suite.Tx.GetSessionByToken(session.Token)
 
 	//assert
 	suite.NoError(err)
@@ -57,17 +58,18 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_WhereSessionIsNotFound_Retu
 
 func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	//arrange
-	session := models.CreateNewSession(
-		models.CreateUser("username", []byte("password")),
-	)
-	suite.SaveSessionAndFields(session)
+	user := models.CreateUser("username", []byte("password"))
+	suite.SaveUser(user)
+
+	session := models.CreateNewSession(user.Username)
+	suite.SaveSession(session)
 
 	//act
-	res, err := suite.Tx.DeleteSession(session.ID)
+	res, err := suite.Tx.DeleteSession(session.Token)
 	suite.Require().NoError(err)
 
 	//assert
-	resultSession, err := suite.Tx.GetSessionByID(session.ID)
+	resultSession, err := suite.Tx.GetSessionByToken(session.Token)
 
 	suite.True(res)
 	suite.NoError(err)
@@ -76,12 +78,14 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
 	//arrange
-	session := models.CreateNewSession(
-		models.CreateUser("", nil),
-	)
+	user := models.CreateUser("username", []byte("password"))
+	suite.SaveUser(user)
+
+	session := models.CreateNewSession(user.Username)
+	suite.SaveSession(session)
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session.User.Username, session.ID)
+	err := suite.Tx.DeleteAllOtherUserSessions(session.Username, session.Token)
 
 	//assert
 	suite.NoError(err)
@@ -89,27 +93,28 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessions
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
 	//arrange
-	session1 := models.CreateNewSession(
-		models.CreateUser("username", []byte("password")),
-	)
-	suite.SaveSessionAndFields(session1)
+	user := models.CreateUser("username", []byte("password"))
+	suite.SaveUser(user)
 
-	session2 := models.CreateNewSession(session1.User)
+	session1 := models.CreateNewSession(user.Username)
+	suite.SaveSession(session1)
+
+	session2 := models.CreateNewSession(session1.Username)
 	suite.Tx.SaveSession(session2)
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session1.User.Username, session1.ID)
+	err := suite.Tx.DeleteAllOtherUserSessions(session1.Username, session1.Token)
 
 	//assert
 	suite.Require().NoError(err)
 
 	//can still find session1
-	resultSession, err := suite.Tx.GetSessionByID(session1.ID)
+	resultSession, err := suite.Tx.GetSessionByToken(session1.Token)
 	suite.NoError(err)
 	suite.EqualValues(session1, resultSession)
 
 	//session2 was deleted
-	resultSession, err = suite.Tx.GetSessionByID(session2.ID)
+	resultSession, err = suite.Tx.GetSessionByToken(session2.Token)
 	suite.NoError(err)
 	suite.Nil(resultSession)
 }

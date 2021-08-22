@@ -107,9 +107,9 @@ INSERT INTO "migration" ("timestamp")
 func (ScriptRepository) CreateSessionTableScript() string {
 	return `
 CREATE TABLE "public"."session" (
-	"id" UUID NOT NULL,
+	"token" UUID NOT NULL,
 	"user_key" INTEGER NOT NULL,
-	CONSTRAINT "session_pk" PRIMARY KEY ("id"),
+	CONSTRAINT "session_pk" PRIMARY KEY ("token"),
 	CONSTRAINT "session_user_fk" FOREIGN KEY ("user_key") REFERENCES "user"("key") ON DELETE CASCADE
 );
 `
@@ -119,7 +119,7 @@ CREATE TABLE "public"."session" (
 func (ScriptRepository) DeleteAllOtherUserSessionsScript() string {
 	return `
 DELETE FROM "session" s
-    WHERE s."id" != $1 AND
+    WHERE s."token" != $1 AND
         s."user_key" IN (
             SELECT u."key" FROM "user" u WHERE u."username" = $2
         )
@@ -130,7 +130,7 @@ DELETE FROM "session" s
 func (ScriptRepository) DeleteSessionScript() string {
 	return `
 DELETE FROM "session" s
-    WHERE s."id" = $1
+    WHERE s."token" = $1
 `
 }
 
@@ -141,22 +141,22 @@ DROP TABLE "public"."session"
 `
 }
 
-// GetSessionByIdScript gets the GetSessionById script.
-func (ScriptRepository) GetSessionByIdScript() string {
+// GetSessionByTokenScript gets the GetSessionByToken script.
+func (ScriptRepository) GetSessionByTokenScript() string {
 	return `
 SELECT
-    s."id",
-    u."username", u."password_hash"
+    s."token",
+    u."username"
 FROM "session" s
     INNER JOIN "user" u ON u."key" = s."user_key"
-WHERE s."id" = $1
+WHERE s."token" = $1
 `
 }
 
 // SaveSessionScript gets the SaveSession script.
 func (ScriptRepository) SaveSessionScript() string {
 	return `
-INSERT INTO "session" ("id", "user_key")
+INSERT INTO "session" ("token", "user_key")
 	WITH
 		t1 AS (SELECT u."key" FROM "user" u WHERE u."username" = $2)
 	SELECT $1, t1."key"

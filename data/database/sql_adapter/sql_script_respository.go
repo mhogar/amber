@@ -13,7 +13,7 @@ type SessionScriptRepository interface {
 	CreateSessionTableScript() string
 	DropSessionTableScript() string
 	SaveSessionScript() string
-	GetSessionByIdScript() string
+	GetSessionByTokenScript() string
 	DeleteSessionScript() string
 	DeleteAllOtherUserSessionsScript() string
 }

@@ -40,7 +40,7 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 
 func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, session *models.Session, tx data.Transaction) (int, interface{}) {
 	//delete the user
-	cerr := h.Controllers.DeleteUser(tx, session.User.Username)
+	cerr := h.Controllers.DeleteUser(tx, session.Username)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -66,8 +66,15 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
+	//get the user model
+	user, err := tx.GetUserByUsername(session.Username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return common.NewInternalServerErrorResponse()
+	}
+
 	//update the password
-	cerr := h.Controllers.UpdateUserPassword(tx, session.User, body.OldPassword, body.NewPassword)
+	cerr := h.Controllers.UpdateUserPassword(tx, user, body.OldPassword, body.NewPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -75,8 +82,8 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 		return common.NewInternalServerErrorResponse()
 	}
 
-	//delete all other user access sessions
-	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, session.User.Username, session.ID)
+	//delete all other user sessions
+	cerr = h.Controllers.DeleteAllOtherUserSessions(tx, user.Username, session.Token)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

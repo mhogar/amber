@@ -81,13 +81,13 @@ func (_m *DataExecutor) CreateUser(user *models.User) error {
 	return r0
 }
 
-// DeleteAllOtherUserSessions provides a mock function with given fields: username, ID
-func (_m *DataExecutor) DeleteAllOtherUserSessions(username string, ID uuid.UUID) error {
-	ret := _m.Called(username, ID)
+// DeleteAllOtherUserSessions provides a mock function with given fields: username, tokem
+func (_m *DataExecutor) DeleteAllOtherUserSessions(username string, tokem uuid.UUID) error {
+	ret := _m.Called(username, tokem)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(string, uuid.UUID) error); ok {
-		r0 = rf(username, ID)
+		r0 = rf(username, tokem)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -130,20 +130,20 @@ func (_m *DataExecutor) DeleteMigrationByTimestamp(timestamp string) error {
 	return r0
 }
 
-// DeleteSession provides a mock function with given fields: ID
-func (_m *DataExecutor) DeleteSession(ID uuid.UUID) (bool, error) {
-	ret := _m.Called(ID)
+// DeleteSession provides a mock function with given fields: token
+func (_m *DataExecutor) DeleteSession(token uuid.UUID) (bool, error) {
+	ret := _m.Called(token)
 
 	var r0 bool
 	if rf, ok := ret.Get(0).(func(uuid.UUID) bool); ok {
-		r0 = rf(ID)
+		r0 = rf(token)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(ID)
+		r1 = rf(token)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -246,13 +246,13 @@ func (_m *DataExecutor) GetMigrationByTimestamp(timestamp string) (*models.Migra
 	return r0, r1
 }
 
-// GetSessionByID provides a mock function with given fields: ID
-func (_m *DataExecutor) GetSessionByID(ID uuid.UUID) (*models.Session, error) {
-	ret := _m.Called(ID)
+// GetSessionByToken provides a mock function with given fields: token
+func (_m *DataExecutor) GetSessionByToken(token uuid.UUID) (*models.Session, error) {
+	ret := _m.Called(token)
 
 	var r0 *models.Session
 	if rf, ok := ret.Get(0).(func(uuid.UUID) *models.Session); ok {
-		r0 = rf(ID)
+		r0 = rf(token)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Session)
@@ -261,7 +261,7 @@ func (_m *DataExecutor) GetSessionByID(ID uuid.UUID) (*models.Session, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(ID)
+		r1 = rf(token)
 	} else {
 		r1 = ret.Error(1)
 	}

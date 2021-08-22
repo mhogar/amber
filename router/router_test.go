@@ -71,7 +71,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErr
 		suite.Require().Error(err)
 		suite.Contains(err.Error(), message)
 	})
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(errors.New(message))
 
 	//act
@@ -87,7 +87,7 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
 		suite.False(result)
 		suite.NoError(err)
@@ -116,7 +116,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
 		suite.True(result)
 		suite.NoError(err)
@@ -142,7 +142,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
 
 	suite.HandlersMock.On(suite.Handler, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(0, nil).Run(func(_ mock.Arguments) {
@@ -218,7 +218,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsI
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(nil, errors.New(""))
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, errors.New(""))
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
 
 	//act
@@ -237,7 +237,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByID", mock.Anything).Return(nil, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
 
 	//act

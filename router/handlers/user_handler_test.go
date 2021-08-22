@@ -5,6 +5,7 @@ import (
 	"authserver/models"
 	"authserver/router/handlers"
 	"authserver/testing/helpers"
+	"errors"
 	"net/http"
 	"testing"
 
@@ -87,7 +88,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
 	//arrange
-	session := &models.Session{User: &models.User{}}
+	session := models.CreateNewSession("username")
 
 	message := "delete user error"
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -102,7 +103,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_Re
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
 	//arrange
-	session := &models.Session{User: &models.User{}}
+	session := models.CreateNewSession("username")
 
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.InternalError())
 
@@ -116,7 +117,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
-	session := &models.Session{User: &models.User{}}
+	session := models.CreateNewSession("username")
 
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.NoError())
 
@@ -127,14 +128,14 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() 
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.TransactionMock, session.User.Username)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.TransactionMock, session.Username)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
-	session := &models.Session{User: &models.User{}}
+	session := models.CreateNewSession("username")
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.TransactionMock)
@@ -142,6 +143,26 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+}
+
+func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithErrorGettingUserByUsername_ReturnsInternalServerError() {
+	//arrange
+	body := handlers.PatchUserPasswordBody{
+		OldPassword: "old password",
+		NewPassword: "new password",
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	session := models.CreateNewSession("username")
+
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
+
+	//act
+	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.TransactionMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatingUserPassword_ReturnsBadRequest() {
@@ -152,7 +173,10 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := &models.Session{User: &models.User{}}
+	user := models.CreateUser("username", []byte(body.OldPassword))
+	session := models.CreateNewSession(user.Username)
+
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 
 	message := "update user password error"
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -173,8 +197,10 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := &models.Session{User: &models.User{}}
+	user := models.CreateUser("username", []byte(body.OldPassword))
+	session := models.CreateNewSession(user.Username)
 
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
@@ -193,11 +219,14 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := &models.Session{User: &models.User{}}
+	user := models.CreateUser("username", []byte(body.OldPassword))
+	session := models.CreateNewSession(user.Username)
+
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
 	message := "update user password error"
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
-	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything).Return(common.ClientError(message))
+	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.TransactionMock)
@@ -215,10 +244,12 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := &models.Session{User: &models.User{}}
+	user := models.CreateUser("username", []byte(body.OldPassword))
+	session := models.CreateNewSession(user.Username)
 
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
-	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything).Return(common.InternalError())
+	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.TransactionMock)
@@ -236,10 +267,12 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := &models.Session{User: &models.User{}}
+	user := models.CreateUser("username", []byte(body.OldPassword))
+	session := models.CreateNewSession(user.Username)
 
+	suite.TransactionMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
-	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything).Return(common.NoError())
+	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.TransactionMock)
@@ -248,8 +281,9 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.TransactionMock, session.User, body.OldPassword, body.NewPassword)
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", &suite.TransactionMock, session)
+	suite.TransactionMock.AssertCalled(suite.T(), "GetUserByUsername", session.Username)
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.TransactionMock, user, body.OldPassword, body.NewPassword)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", &suite.TransactionMock, session.Username, session.Token)
 }
 
 func TestUserHandlerTestSuite(t *testing.T) {

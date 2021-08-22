@@ -3,45 +3,44 @@ package models
 import "github.com/google/uuid"
 
 const (
-	ValidateSessionValid       = 0x0
-	ValidateSessionNilID       = 0x1
-	ValidateSessionNilUser     = 0x2
-	ValidateSessionInvalidUser = 0x4
+	ValidateSessionValid         = 0x0
+	ValidateSessionNilToken      = 0x1
+	ValidateSessionEmptyUsername = 0x2
 )
 
 // Session represents the session model.
 type Session struct {
-	ID   uuid.UUID
-	User *User
+	Token    uuid.UUID
+	Username string
 }
 
 type SessionCRUD interface {
 	// SaveSession saves the session and returns any errors.
 	SaveSession(session *Session) error
 
-	// GetSessionByID fetches the session associated with the id.
+	// GetSessionByToken fetches the session with the given token.
 	// If no sessions are found, returns nil session.
 	// Also returns any errors.
-	GetSessionByID(ID uuid.UUID) (*Session, error)
+	GetSessionByToken(token uuid.UUID) (*Session, error)
 
-	// DeleteSession deletes the session with the given id.
+	// DeleteSession deletes the session with the given token.
 	// Returns result of whether the session was found, and any errors.
-	DeleteSession(ID uuid.UUID) (bool, error)
+	DeleteSession(token uuid.UUID) (bool, error)
 
-	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
+	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given token.
 	// Returns any errors.
-	DeleteAllOtherUserSessions(username string, ID uuid.UUID) error
+	DeleteAllOtherUserSessions(username string, tokem uuid.UUID) error
 }
 
-func CreateSession(id uuid.UUID, user *User) *Session {
+func CreateSession(token uuid.UUID, username string) *Session {
 	return &Session{
-		ID:   id,
-		User: user,
+		Token:    token,
+		Username: username,
 	}
 }
 
-func CreateNewSession(user *User) *Session {
-	return CreateSession(uuid.New(), user)
+func CreateNewSession(username string) *Session {
+	return CreateSession(uuid.New(), username)
 }
 
 // Validate validates the access token model has valid fields.
@@ -49,17 +48,12 @@ func CreateNewSession(user *User) *Session {
 func (tk *Session) Validate() int {
 	code := ValidateSessionValid
 
-	if tk.ID == uuid.Nil {
-		code |= ValidateSessionNilID
+	if tk.Token == uuid.Nil {
+		code |= ValidateSessionNilToken
 	}
 
-	if tk.User == nil {
-		code |= ValidateSessionNilUser
-	} else {
-		verr := tk.User.Validate()
-		if verr != ValidateUserValid {
-			code |= ValidateSessionInvalidUser
-		}
+	if tk.Username == "" {
+		code |= ValidateSessionEmptyUsername
 	}
 
 	return code
