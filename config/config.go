@@ -81,3 +81,8 @@ func InitConfig(dir string) error {
 func GetAppId() uuid.UUID {
 	return uuid.MustParse(viper.Get("app_id").(string))
 }
+
+// GetAppRoot gets the app root directory for the application.
+func GetAppRoot() string {
+	return viper.GetString("root_dir")
+}

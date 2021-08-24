@@ -1,6 +1,8 @@
 package models
 
 import (
+	"net/url"
+
 	"github.com/google/uuid"
 )
 
@@ -11,6 +13,7 @@ const (
 	ValidateClientNameTooLong        = 0x4
 	ValidateClientEmptyRedirectUrl   = 0x8
 	ValidateClientRedirectUrlTooLong = 0x10
+	ValidateClientInvalidRedirectUrl = 0x20
 )
 
 // ClientNameMaxLength is the max length a client's name can be.
@@ -74,6 +77,11 @@ func (c *Client) Validate() int {
 		code |= ValidateClientEmptyRedirectUrl
 	} else if len(c.RedirectUrl) > ClientRedirectUrlMaxLength {
 		code |= ValidateClientRedirectUrlTooLong
+	} else {
+		_, err := url.Parse(c.RedirectUrl)
+		if err != nil {
+			code |= ValidateClientInvalidRedirectUrl
+		}
 	}
 
 	return code

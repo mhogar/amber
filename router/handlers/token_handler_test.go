@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -27,16 +28,17 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInvalidJSONBody_ReturnsBad
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingToken_ReturnsBadRequest() {
+func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRedirectURL_ReturnsBadRequest() {
 	//arrange
 	body := handlers.PostTokenBody{
+		ClientId: uuid.New(),
 		Username: "username",
 		Password: "password",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	message := "create token error"
-	suite.ControllersMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
+	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.ClientError(message))
 
 	//act
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
@@ -46,15 +48,16 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingToken_R
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken_ReturnsInternalServerError() {
+func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingTokenRedirectURL_ReturnsInternalServerError() {
 	//arrange
 	body := handlers.PostTokenBody{
+		ClientId: uuid.New(),
 		Username: "username",
 		Password: "password",
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
+	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.InternalError())
 
 	//act
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)

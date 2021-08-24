@@ -95,7 +95,8 @@ type TokenControllerCRUD interface {
 }
 
 type TokenController interface {
-	// CreateToken authenticates using the username and password and creates a new JWT.
-	// Returns any errors.
-	CreateToken(CRUD TokenControllerCRUD, username string, password string) common.CustomError
+	// CreateTokenRedirectURL first authenticates using the username and password, then creates a signed JWT for the specified client.
+	// The base-64 encoded token string is then appended to the client's redirect url.
+	// Returns the url and any errors.
+	CreateTokenRedirectURL(CRUD TokenControllerCRUD, clientId uuid.UUID, username string, password string) (string, common.CustomError)
 }

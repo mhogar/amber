@@ -23,6 +23,10 @@ func ResolveControllers() controllerspkg.Controllers {
 			SessionController: controllerspkg.CoreSessionController{
 				AuthController: ResolveAuthController(),
 			},
+			TokenController: controllerspkg.CoreTokenController{
+				AuthController: ResolveAuthController(),
+				TokenFactory:   ResolveTokenFactory(),
+			},
 		}
 	})
 	return controllers

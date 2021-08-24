@@ -66,6 +66,18 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithRedirectUrlGreaterT
 	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
 }
 
+func (suite *ClientControllerTestSuite) TestCreateClient_WithInvalidRedirectUrl_ReturnsClientError() {
+	//arrange
+	url := "invalid_\n_url"
+
+	//act
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, "name", url)
+
+	//assert
+	suite.Nil(client)
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "invalid url")
+}
+
 func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_ReturnsInternalError() {
 	//arrange
 	name := "name"
@@ -142,6 +154,18 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithRedirectUrlGreaterT
 
 	//assert
 	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
+}
+
+func (suite *ClientControllerTestSuite) TestUpdateClient_WithInvalidRedirectUrl_ReturnsClientError() {
+	//arrange
+	url := "invalid_\n_url"
+
+	//act
+	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, "name", url)
+
+	//assert
+	suite.Nil(client)
+	helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "invalid url")
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithErrorUpdatingClient_ReturnsInternalError() {

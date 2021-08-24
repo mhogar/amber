@@ -7,12 +7,14 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
 )
 
 type PostTokenBody struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	ClientId uuid.UUID `json:"client_id"`
+	Username string    `json:"username"`
+	Password string    `json:"password"`
 }
 
 func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -25,8 +27,8 @@ func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *model
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
-	//create the token
-	cerr := h.Controllers.CreateToken(CRUD, body.Username, body.Password)
+	//create the token redirect url
+	_, cerr := h.Controllers.CreateTokenRedirectURL(CRUD, body.ClientId, body.Username, body.Password)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

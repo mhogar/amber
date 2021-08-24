@@ -120,6 +120,17 @@ func (suite *ClientTestSuite) TestValidate_ClientRedirectUrlMaxLengthTestCases()
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 
+func (suite *ClientTestSuite) TestValidate_WithInvalidRedirectUrl_ReturnsClientInvalidRedirectUrl() {
+	//arrange
+	suite.Client.RedirectUrl = "invalid_\n_url"
+
+	//act
+	verr := suite.Client.Validate()
+
+	//assert
+	suite.Equal(models.ValidateClientInvalidRedirectUrl, verr)
+}
+
 func TestClientTestSuite(t *testing.T) {
 	suite.Run(t, &ClientTestSuite{})
 }

@@ -1,8 +1,10 @@
 .vscode/
 config.local.yml
 
+static/keys/*
+!static/keys/.keep
+
 authserver
 tools/migration_runner/migration_runner
 tools/admin_creator/admin_creator
-
 tools/config_generator/config_generator

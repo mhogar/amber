@@ -8,8 +8,6 @@ import (
 	"path"
 	"strings"
 	"text/template"
-
-	"github.com/spf13/viper"
 )
 
 type tmplData struct {
@@ -23,10 +21,10 @@ func main() {
 		log.Fatal(err)
 	}
 
-	inDir := path.Join(viper.GetString("root_dir"), "data/database/sql_adapter/postgres/scripts")
+	inDir := path.Join(config.GetAppRoot(), "data/database/sql_adapter/postgres/scripts")
 
 	//load the template
-	tmpl := template.Must(template.ParseFiles(path.Join(viper.GetString("root_dir"), "data/database/sql_adapter/script_compiler/script_repository.go.tmpl")))
+	tmpl := template.Must(template.ParseFiles(path.Join(config.GetAppRoot(), "data/database/sql_adapter/script_compiler/script_repository.go.tmpl")))
 
 	var data []tmplData
 	createDataObjects(inDir, &data)

@@ -79,6 +79,8 @@ func validateClient(client *models.Client) common.CustomError {
 		return common.ClientError("client redirect url cannot be empty")
 	} else if verr&models.ValidateClientRedirectUrlTooLong != 0 {
 		return common.ClientError(fmt.Sprint("client redirect url cannot be longer than ", models.ClientRedirectUrlMaxLength, " characters"))
+	} else if verr&models.ValidateClientInvalidRedirectUrl != 0 {
+		return common.ClientError("client redirect url is an invalid url")
 	}
 
 	return common.NoError()

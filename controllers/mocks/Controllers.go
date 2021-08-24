@@ -87,18 +87,25 @@ func (_m *Controllers) CreateSession(CRUD controllers.SessionControllerCRUD, use
 	return r0, r1
 }
 
-// CreateToken provides a mock function with given fields: CRUD, username, password
-func (_m *Controllers) CreateToken(CRUD controllers.TokenControllerCRUD, username string, password string) common.CustomError {
-	ret := _m.Called(CRUD, username, password)
+// CreateTokenRedirectURL provides a mock function with given fields: CRUD, clientId, username, password
+func (_m *Controllers) CreateTokenRedirectURL(CRUD controllers.TokenControllerCRUD, clientId uuid.UUID, username string, password string) (string, common.CustomError) {
+	ret := _m.Called(CRUD, clientId, username, password)
 
-	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, string, string) common.CustomError); ok {
-		r0 = rf(CRUD, username, password)
+	var r0 string
+	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, uuid.UUID, string, string) string); ok {
+		r0 = rf(CRUD, clientId, username, password)
 	} else {
-		r0 = ret.Get(0).(common.CustomError)
+		r0 = ret.Get(0).(string)
 	}
 
-	return r0
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.TokenControllerCRUD, uuid.UUID, string, string) common.CustomError); ok {
+		r1 = rf(CRUD, clientId, username, password)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
 }
 
 // CreateUser provides a mock function with given fields: CRUD, username, password
