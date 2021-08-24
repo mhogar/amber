@@ -16,8 +16,9 @@ type CoreTokenController struct {
 }
 
 func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, clientUID uuid.UUID, username string, password string) (string, common.CustomError) {
-	//TODO: add token type to client model
+	//TODO: add token type and key uri to client model
 	tokenType := jwthelpers.TokenTypeFirebase
+	keyUri := "keys/mhogar-dev-firebase.json"
 
 	//get the requested client
 	client, err := CRUD.GetClientByUID(clientUID)
@@ -45,7 +46,7 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	}
 
 	//create the token
-	token, err := tf.CreateToken(username)
+	token, err := tf.CreateToken(keyUri, username)
 	if err != nil {
 		log.Println(common.ChainError("error creating token", err))
 		return "", common.InternalError()

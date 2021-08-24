@@ -12,7 +12,10 @@ var tokenFactorySelector jwthelpers.TokenFactorySelector
 // Only the first call to this function will create a new TokenFactorySelector, after which it will be retrieved from memory.
 func ResolveTokenFactorySelector() jwthelpers.TokenFactorySelector {
 	createTokenFactorySelectorOnce.Do(func() {
-		tokenFactorySelector = jwthelpers.CoreTokenFactorySelector{}
+		tokenFactorySelector = jwthelpers.CoreTokenFactorySelector{
+			JSONLoader:  ResolveJSONLoader(),
+			TokenSigner: ResolveTokenSigner(),
+		}
 	})
 	return tokenFactorySelector
 }
