@@ -28,7 +28,7 @@ func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *model
 	}
 
 	//create the token redirect url
-	_, cerr := h.Controllers.CreateTokenRedirectURL(CRUD, body.ClientId, body.Username, body.Password)
+	redirectUrl, cerr := h.Controllers.CreateTokenRedirectURL(CRUD, body.ClientId, body.Username, body.Password)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -36,5 +36,6 @@ func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *model
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	//send redirect response
+	return http.StatusSeeOther, redirectUrl
 }

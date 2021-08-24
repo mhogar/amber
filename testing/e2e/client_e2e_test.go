@@ -35,7 +35,7 @@ func (suite *ClientE2ETestSuite) TestLogin_CreateClient_UpdateClient_DeleteClien
 
 	//delete client
 	res = suite.SendRequest(http.MethodDelete, "/client/"+id, token, nil)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 
 	//logout
 	suite.Logout(token)

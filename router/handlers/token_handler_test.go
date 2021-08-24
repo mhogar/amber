@@ -67,6 +67,26 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
+func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect() {
+	//arrange
+	body := handlers.PostTokenBody{
+		ClientId: uuid.New(),
+		Username: "username",
+		Password: "password",
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	redirectUrl := "redirect.com"
+	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(redirectUrl, common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Equal(http.StatusSeeOther, status)
+	suite.Equal(redirectUrl, res)
+}
+
 func TestTokenHandlerTestSuite(t *testing.T) {
 	suite.Run(t, &TokenHandlerTestSuite{})
 }

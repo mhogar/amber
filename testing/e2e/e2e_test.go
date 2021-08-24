@@ -64,5 +64,5 @@ func (suite *E2ETestSuite) LoginAsMaxAdmin() string {
 
 func (suite *E2ETestSuite) Logout(token string) {
 	res := suite.SendRequest(http.MethodDelete, "/session", token, nil)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }

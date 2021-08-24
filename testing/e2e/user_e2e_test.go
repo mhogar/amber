@@ -23,7 +23,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 		Password: password,
 	}
 	res := suite.SendRequest(http.MethodPost, "/user", "", postUserBody)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 
 	//login
 	token := suite.Login(username, password)
@@ -34,11 +34,11 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 		NewPassword: "NewPassword123!",
 	}
 	res = suite.SendRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 
 	//delete user
 	res = suite.SendRequest(http.MethodDelete, "/user", token, nil)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
 func TestUserE2ETestSuite(t *testing.T) {
