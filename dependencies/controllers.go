@@ -24,8 +24,8 @@ func ResolveControllers() controllerspkg.Controllers {
 				AuthController: ResolveAuthController(),
 			},
 			TokenController: controllerspkg.CoreTokenController{
-				AuthController: ResolveAuthController(),
-				TokenFactory:   ResolveTokenFactory(),
+				AuthController:       ResolveAuthController(),
+				TokenFactorySelector: ResolveTokenFactorySelector(),
 			},
 		}
 	})

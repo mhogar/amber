@@ -18,19 +18,22 @@ import (
 
 type TokenControllerTestSuite struct {
 	ControllerTestSuite
-	ControllerMock   mocks.Controllers
-	TokenFactoryMock jwtmocks.TokenFactory
-	TokenController  controllers.CoreTokenController
+	ControllerMock           mocks.Controllers
+	TokenFactorySelectorMock jwtmocks.TokenFactorySelector
+	TokenFactoryMock         jwtmocks.TokenFactory
+	TokenController          controllers.CoreTokenController
 }
 
 func (suite *TokenControllerTestSuite) SetupTest() {
 	suite.ControllerTestSuite.SetupTest()
 
 	suite.ControllerMock = mocks.Controllers{}
+	suite.TokenFactorySelectorMock = jwtmocks.TokenFactorySelector{}
 	suite.TokenFactoryMock = jwtmocks.TokenFactory{}
+
 	suite.TokenController = controllers.CoreTokenController{
-		AuthController: &suite.ControllerMock,
-		TokenFactory:   &suite.TokenFactoryMock,
+		AuthController:       &suite.ControllerMock,
+		TokenFactorySelector: &suite.TokenFactorySelectorMock,
 	}
 }
 
@@ -85,6 +88,24 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorAuthe
 	helpers.AssertClientError(&suite.Suite, cerr, message)
 }
 
+func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
+	//arrange
+	client := models.CreateNewClient("name", "redirect.com")
+	username := "username"
+	password := "password"
+
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
+	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(nil)
+
+	//act
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+
+	//assert
+	suite.Empty(tokenURL)
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreatingToken_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com")
@@ -93,6 +114,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return("", errors.New(""))
 
 	//act
@@ -111,6 +133,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return("", nil)
 
 	//act
@@ -130,6 +153,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return(token, nil)
 
 	//act
@@ -142,6 +166,11 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 	url, err := url.Parse(tokenURL)
 	suite.Require().NoError(err)
 	suite.Equal(token, url.Query().Get("token"))
+
+	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", client.UID)
+	suite.ControllerMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, username, password)
+	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", mock.Anything)
+	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", username)
 }
 
 func TestTokenControllerTestSuite(t *testing.T) {
