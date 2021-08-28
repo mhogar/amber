@@ -4,6 +4,7 @@ import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/controllers/jwt_helpers/mocks"
 	loadermocks "authserver/loaders/mocks"
+	"crypto/rsa"
 	"errors"
 	"testing"
 
@@ -14,17 +15,20 @@ import (
 
 type FirebaseTokenFactoryTestSuite struct {
 	suite.Suite
-	JSONLoaderMock  loadermocks.JSONLoader
-	TokenSignerMock mocks.TokenSigner
-	TokenFactory    jwthelpers.FirebaseTokenFactory
+	JSONLoaderMock   loadermocks.JSONLoader
+	RSAKeyLoaderMock loadermocks.RSAKeyLoader
+	TokenSignerMock  mocks.TokenSigner
+	TokenFactory     jwthelpers.FirebaseTokenFactory
 }
 
 func (suite *FirebaseTokenFactoryTestSuite) SetupTest() {
 	suite.JSONLoaderMock = loadermocks.JSONLoader{}
+	suite.RSAKeyLoaderMock = loadermocks.RSAKeyLoader{}
 	suite.TokenSignerMock = mocks.TokenSigner{}
 
 	suite.TokenFactory = jwthelpers.FirebaseTokenFactory{
 		JSONLoader:  &suite.JSONLoaderMock,
+		KeyLoader:   &suite.RSAKeyLoaderMock,
 		TokenSigner: &suite.TokenSignerMock,
 	}
 }
@@ -46,12 +50,33 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingJSON
 	suite.Contains(err.Error(), message)
 }
 
-func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken_ReturnsError() {
+func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingPrivateKey_ReturnsError() {
 	//arrange
 	uri := "key.json"
 	username := "username"
 
 	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(nil)
+
+	message := "load private key error"
+	suite.RSAKeyLoaderMock.On("LoadPrivateKeyFromBytes", mock.Anything).Return(nil, errors.New(message))
+
+	//act
+	token, err := suite.TokenFactory.CreateToken(uri, username)
+
+	//assert
+	suite.Empty(token)
+	suite.Require().Error(err)
+	suite.Contains(err.Error(), message)
+}
+
+func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken_ReturnsError() {
+	//arrange
+	uri := "key.json"
+	username := "username"
+	key := &rsa.PrivateKey{}
+
+	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(nil)
+	suite.RSAKeyLoaderMock.On("LoadPrivateKeyFromBytes", mock.Anything).Return(key, nil)
 
 	message := "sign token error"
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return("", errors.New(message))
@@ -69,6 +94,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_Returns
 	//arrange
 	uri := "key.json"
 	username := "username"
+	key := &rsa.PrivateKey{}
 	token := "this_is_a_signed_token"
 
 	serviceJSON := jwthelpers.FirebaseServiceJSON{
@@ -79,6 +105,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_Returns
 	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(nil).Run(func(args mock.Arguments) {
 		*args.Get(1).(*jwthelpers.FirebaseServiceJSON) = serviceJSON
 	})
+	suite.RSAKeyLoaderMock.On("LoadPrivateKeyFromBytes", mock.Anything).Return(key, nil)
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return(token, nil)
 
 	//act
@@ -89,13 +116,14 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_Returns
 	suite.Equal(token, resultToken)
 
 	suite.JSONLoaderMock.AssertCalled(suite.T(), "Load", uri, mock.Anything)
+	suite.RSAKeyLoaderMock.AssertCalled(suite.T(), "LoadPrivateKeyFromBytes", []byte(serviceJSON.PrivateKey))
 	suite.TokenSignerMock.AssertCalled(suite.T(), "SignToken", mock.MatchedBy(func(tk *jwt.Token) bool {
 		claims := tk.Claims.(jwthelpers.FirebaseClaims)
 		return claims.UID == username &&
 			claims.Issuer == serviceJSON.ClientEmail &&
 			claims.Subject == serviceJSON.ClientEmail &&
 			claims.ExpiresAt-claims.IssuedAt == 60
-	}), serviceJSON.PrivateKey)
+	}), key)
 }
 
 func TestFirebaseTokenFactoryTestSuite(t *testing.T) {

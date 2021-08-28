@@ -14,6 +14,7 @@ func ResolveTokenFactorySelector() jwthelpers.TokenFactorySelector {
 	createTokenFactorySelectorOnce.Do(func() {
 		tokenFactorySelector = jwthelpers.CoreTokenFactorySelector{
 			JSONLoader:  ResolveJSONLoader(),
+			KeyLoader:   ResolveRSAKeyLoader(),
 			TokenSigner: ResolveTokenSigner(),
 		}
 	})

@@ -10,8 +10,8 @@ import (
 
 type StaticJSONLoader struct{}
 
-//Load loads the json from the static directory in the project.
-//Returns any errors.
+// Load loads the json from the static directory in the project.
+// Returns any errors.
 func (StaticJSONLoader) Load(uri string, v interface{}) error {
 	//open the json file
 	file, err := os.Open(path.Join(config.GetAppRoot(), "static", uri))

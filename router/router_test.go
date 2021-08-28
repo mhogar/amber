@@ -123,7 +123,7 @@ func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedir
 	})
 
 	status := http.StatusSeeOther
-	redirectUrl := "http://www.google.ca"
+	redirectUrl := "https://mhogar.dev"
 	suite.HandlersMock.On(suite.Handler, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(status, redirectUrl)
 
 	//act
