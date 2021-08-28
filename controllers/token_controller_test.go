@@ -115,7 +115,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
-	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return("", errors.New(""))
+	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything).Return("", errors.New(""))
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
@@ -134,7 +134,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
-	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return("", nil)
+	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything).Return("", nil)
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
@@ -154,7 +154,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
-	suite.TokenFactoryMock.On("CreateToken", mock.Anything).Return(token, nil)
+	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything).Return(token, nil)
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
@@ -170,7 +170,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", client.UID)
 	suite.ControllerMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, username, password)
 	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", mock.Anything)
-	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", username)
+	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", mock.Anything, client.UID, username)
 }
 
 func TestTokenControllerTestSuite(t *testing.T) {

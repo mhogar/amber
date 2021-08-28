@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -38,7 +39,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingJSON
 	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, username)
+	token, err := suite.TokenFactory.CreateToken(uri, uuid.Nil, username)
 
 	//assert
 	suite.Empty(token)
@@ -57,7 +58,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToke
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return("", errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, username)
+	token, err := suite.TokenFactory.CreateToken(uri, uuid.Nil, username)
 
 	//assert
 	suite.Empty(token)
@@ -82,7 +83,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_Returns
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return(token, nil)
 
 	//act
-	resultToken, err := suite.TokenFactory.CreateToken(uri, username)
+	resultToken, err := suite.TokenFactory.CreateToken(uri, uuid.Nil, username)
 
 	//assert
 	suite.NoError(err)

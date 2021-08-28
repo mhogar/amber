@@ -3,6 +3,7 @@ package jwthelpers
 import "authserver/loaders"
 
 const (
+	TokenTypeDefault  = iota
 	TokenTypeFirebase = iota
 )
 
@@ -14,10 +15,20 @@ type TokenFactorySelector interface {
 
 type CoreTokenFactorySelector struct {
 	JSONLoader  loaders.JSONLoader
+	DataLoader  loaders.RawDataLoader
 	TokenSigner TokenSigner
 }
 
 func (tfs CoreTokenFactorySelector) Select(tokenType int) TokenFactory {
+	//default token type
+	if tokenType == TokenTypeDefault {
+		return &DefaultTokenFactory{
+			DataLoader:  tfs.DataLoader,
+			TokenSigner: tfs.TokenSigner,
+		}
+	}
+
+	//firebase token type
 	if tokenType == TokenTypeFirebase {
 		return &FirebaseTokenFactory{
 			JSONLoader:  tfs.JSONLoader,
@@ -25,5 +36,6 @@ func (tfs CoreTokenFactorySelector) Select(tokenType int) TokenFactory {
 		}
 	}
 
+	//unknown token type
 	return nil
 }

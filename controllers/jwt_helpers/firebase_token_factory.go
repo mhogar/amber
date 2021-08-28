@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 )
 
 type FirebaseServiceJSON struct {
@@ -24,7 +25,7 @@ type FirebaseTokenFactory struct {
 	TokenSigner TokenSigner
 }
 
-func (tf FirebaseTokenFactory) CreateToken(keyUri string, username string) (string, error) {
+func (tf FirebaseTokenFactory) CreateToken(keyUri string, _ uuid.UUID, username string) (string, error) {
 	var serviceJSON FirebaseServiceJSON
 
 	//load the service json
@@ -43,7 +44,7 @@ func (tf FirebaseTokenFactory) CreateToken(keyUri string, username string) (stri
 			Subject:   serviceJSON.ClientEmail,
 			Audience:  "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
 			IssuedAt:  now,
-			ExpiresAt: now + 60, //expires in one minute
+			ExpiresAt: now + 60, //expires in one minute (TODO: add to config)
 		},
 		Algorithm: "RS256",
 		UID:       username,

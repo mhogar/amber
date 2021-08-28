@@ -32,6 +32,10 @@ func (suite *TokenFactorySelectorTestSuite) TestSelect_ChoosesCorrectTokeFactory
 	expectedTokenFactory = nil
 	suite.Run("UnknownTokenType_ReturnsNil", testCase)
 
+	tokenType = jwthelpers.TokenTypeDefault
+	expectedTokenFactory = &jwthelpers.DefaultTokenFactory{}
+	suite.Run("FirbaseTokenType_ReturnsDefaultTokenFactory", testCase)
+
 	tokenType = jwthelpers.TokenTypeFirebase
 	expectedTokenFactory = &jwthelpers.FirebaseTokenFactory{}
 	suite.Run("FirbaseTokenType_ReturnsFirebaseTokenFactory", testCase)

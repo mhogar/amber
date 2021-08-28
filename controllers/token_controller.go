@@ -46,7 +46,7 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	}
 
 	//create the token
-	token, err := tf.CreateToken(keyUri, username)
+	token, err := tf.CreateToken(keyUri, clientUID, username)
 	if err != nil {
 		log.Println(common.ChainError("error creating token", err))
 		return "", common.InternalError()
