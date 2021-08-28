@@ -21,7 +21,6 @@ type FirebaseClaims struct {
 
 type FirebaseTokenFactory struct {
 	JSONLoader  loaders.JSONLoader
-	KeyLoader   loaders.RSAKeyLoader
 	TokenSigner TokenSigner
 }
 
@@ -53,14 +52,8 @@ func (tf FirebaseTokenFactory) CreateToken(keyUri string, username string) (stri
 	//create the token
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
 
-	//load the private key
-	key, err := tf.KeyLoader.LoadPrivateKeyFromBytes([]byte(serviceJSON.PrivateKey))
-	if err != nil {
-		return "", common.ChainError("error loading private key", err)
-	}
-
 	//sign the token
-	signedToken, err := tf.TokenSigner.SignToken(token, key)
+	signedToken, err := tf.TokenSigner.SignToken(token, []byte(serviceJSON.PrivateKey))
 	if err != nil {
 		return "", common.ChainError("error signing token", err)
 	}

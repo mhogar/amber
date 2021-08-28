@@ -13,31 +13,8 @@ type RSAKeyLoader struct {
 	mock.Mock
 }
 
-// LoadPrivateKeyFromBytes provides a mock function with given fields: key
-func (_m *RSAKeyLoader) LoadPrivateKeyFromBytes(key []byte) (*rsa.PrivateKey, error) {
-	ret := _m.Called(key)
-
-	var r0 *rsa.PrivateKey
-	if rf, ok := ret.Get(0).(func([]byte) *rsa.PrivateKey); ok {
-		r0 = rf(key)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*rsa.PrivateKey)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func([]byte) error); ok {
-		r1 = rf(key)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// LoadPrivateKeyFromURI provides a mock function with given fields: url
-func (_m *RSAKeyLoader) LoadPrivateKeyFromURI(url string) (*rsa.PrivateKey, error) {
+// LoadPrivateKey provides a mock function with given fields: url
+func (_m *RSAKeyLoader) LoadPrivateKey(url string) (*rsa.PrivateKey, error) {
 	ret := _m.Called(url)
 
 	var r0 *rsa.PrivateKey

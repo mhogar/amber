@@ -6,19 +6,19 @@ import (
 	"crypto/rsa"
 	"io/ioutil"
 	"path"
+
+	"github.com/golang-jwt/jwt"
 )
 
-type StaticRSAKeyLoader struct {
-	RSAKeyLoaderBase
-}
+type StaticRSAKeyLoader struct{}
 
-// LoadPrivateKeyFromURI loads the private key from the uri in the static directory in the project.
+// LoadPrivateKey loads the private key from the uri in the static directory in the project.
 // Returns any errors.
-func (l StaticRSAKeyLoader) LoadPrivateKeyFromURI(uri string) (*rsa.PrivateKey, error) {
+func (StaticRSAKeyLoader) LoadPrivateKey(uri string) (*rsa.PrivateKey, error) {
 	bytes, err := ioutil.ReadFile(path.Join(config.GetAppRoot(), "static", uri))
 	if err != nil {
 		return nil, common.ChainError("error reading key file", err)
 	}
 
-	return l.LoadPrivateKeyFromBytes(bytes)
+	return jwt.ParseRSAPrivateKeyFromPEM(bytes)
 }

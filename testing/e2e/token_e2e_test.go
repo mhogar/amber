@@ -46,7 +46,7 @@ func (suite *TokenE2ETestSuite) Test_CreateUser_Login_CreateClient_CreateToken_D
 	res = suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
 
-	_, claims := suite.parseFirebaseToken(res.Request.URL.Query().Get("token"))
+	claims := suite.parseFirebaseTokenClaims(res.Request.URL.Query().Get("token"))
 	suite.Equal(postUserBody.Username, claims.UID)
 
 	//delete client
@@ -62,27 +62,24 @@ func TestTokenE2ETestSuite(t *testing.T) {
 	suite.Run(t, &TokenE2ETestSuite{})
 }
 
-func (suite *TokenE2ETestSuite) parseFirebaseToken(tokenString string) (*jwt.Token, *jwthelpers.FirebaseClaims) {
+func (suite *TokenE2ETestSuite) parseFirebaseTokenClaims(tokenString string) jwthelpers.FirebaseClaims {
 	keyUri := "keys/firebase-test.json"
 
-	//resolve loaders
-	jsonLoader := dependencies.ResolveJSONLoader()
-	keyLoader := dependencies.ResolveRSAKeyLoader()
-
-	claims := &jwthelpers.FirebaseClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(_ *jwt.Token) (interface{}, error) {
-		//load the service json
+	var claims jwthelpers.FirebaseClaims
+	_, err := jwt.ParseWithClaims(tokenString, &claims, func(_ *jwt.Token) (interface{}, error) {
 		var serviceJSON jwthelpers.FirebaseServiceJSON
-		err := jsonLoader.Load(keyUri, &serviceJSON)
+
+		//load the service json
+		err := dependencies.ResolveJSONLoader().Load(keyUri, &serviceJSON)
 		suite.Require().NoError(err)
 
-		//load the private key
-		key, err := keyLoader.LoadPrivateKeyFromBytes([]byte(serviceJSON.PrivateKey))
+		//parse the private key
+		key, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(serviceJSON.PrivateKey))
 		suite.Require().NoError(err)
 
 		return &key.PublicKey, nil
 	})
-	suite.Require().NoError(err)
 
-	return token, claims
+	suite.Require().NoError(err)
+	return claims
 }

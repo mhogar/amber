@@ -14,7 +14,6 @@ type TokenFactorySelector interface {
 
 type CoreTokenFactorySelector struct {
 	JSONLoader  loaders.JSONLoader
-	KeyLoader   loaders.RSAKeyLoader
 	TokenSigner TokenSigner
 }
 
@@ -22,7 +21,6 @@ func (tfs CoreTokenFactorySelector) Select(tokenType int) TokenFactory {
 	if tokenType == TokenTypeFirebase {
 		return &FirebaseTokenFactory{
 			JSONLoader:  tfs.JSONLoader,
-			KeyLoader:   tfs.KeyLoader,
 			TokenSigner: tfs.TokenSigner,
 		}
 	}
