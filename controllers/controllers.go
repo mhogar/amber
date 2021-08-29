@@ -49,7 +49,7 @@ type ClientControllerCRUD interface {
 
 type ClientController interface {
 	// CreateClient creates a new client with the given name and redirect url.
-	CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string) (*models.Client, common.CustomError)
+	CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError)
 
 	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
