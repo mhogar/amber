@@ -2,6 +2,7 @@ package jwthelpers_test
 
 import (
 	jwthelpers "authserver/controllers/jwt_helpers"
+	"authserver/models"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -32,11 +33,11 @@ func (suite *TokenFactorySelectorTestSuite) TestSelect_ChoosesCorrectTokeFactory
 	expectedTokenFactory = nil
 	suite.Run("UnknownTokenType_ReturnsNil", testCase)
 
-	tokenType = jwthelpers.TokenTypeDefault
+	tokenType = models.ClientTokenTypeDefault
 	expectedTokenFactory = &jwthelpers.DefaultTokenFactory{}
 	suite.Run("FirbaseTokenType_ReturnsDefaultTokenFactory", testCase)
 
-	tokenType = jwthelpers.TokenTypeFirebase
+	tokenType = models.ClientTokenTypeFirebase
 	expectedTokenFactory = &jwthelpers.FirebaseTokenFactory{}
 	suite.Run("FirbaseTokenType_ReturnsFirebaseTokenFactory", testCase)
 }

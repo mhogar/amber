@@ -14,6 +14,14 @@ const (
 	ValidateClientEmptyRedirectUrl   = 0x8
 	ValidateClientRedirectUrlTooLong = 0x10
 	ValidateClientInvalidRedirectUrl = 0x20
+	ValidateClientInvalidTokenType   = 0x40
+	ValidateClientEmptyKeyUri        = 0x80
+	ValidateClientKeyUriTooLong      = 0x100
+)
+
+const (
+	ClientTokenTypeDefault  = iota
+	ClientTokenTypeFirebase = iota
 )
 
 // ClientNameMaxLength is the max length a client's name can be.
@@ -22,11 +30,16 @@ const ClientNameMaxLength = 30
 // ClientRedirectUrlMaxLength is the max length a client's redirect url can be.
 const ClientRedirectUrlMaxLength = 100
 
+// ClientKeyUriMaxLength is the max length a client's key uri can be.
+const ClientKeyUriMaxLength = 100
+
 // Client represents the client model.
 type Client struct {
 	UID         uuid.UUID
 	Name        string
 	RedirectUrl string
+	TokenType   int
+	KeyUri      string
 }
 
 type ClientCRUD interface {
@@ -46,16 +59,18 @@ type ClientCRUD interface {
 	DeleteClient(uid uuid.UUID) (bool, error)
 }
 
-func CreateClient(uid uuid.UUID, name string, redirectUrl string) *Client {
+func CreateClient(uid uuid.UUID, name string, redirectUrl string, tokenType int, keyUri string) *Client {
 	return &Client{
 		UID:         uid,
 		Name:        name,
 		RedirectUrl: redirectUrl,
+		TokenType:   tokenType,
+		KeyUri:      keyUri,
 	}
 }
 
-func CreateNewClient(name string, redirectUrl string) *Client {
-	return CreateClient(uuid.New(), name, redirectUrl)
+func CreateNewClient(name string, redirectUrl string, tokenType int, keyUri string) *Client {
+	return CreateClient(uuid.New(), name, redirectUrl, tokenType, keyUri)
 }
 
 // Validate validates the client model has valid fields.
@@ -82,6 +97,16 @@ func (c *Client) Validate() int {
 		if err != nil {
 			code |= ValidateClientInvalidRedirectUrl
 		}
+	}
+
+	if c.TokenType < ClientTokenTypeDefault || c.TokenType > ClientTokenTypeFirebase {
+		code |= ValidateClientInvalidTokenType
+	}
+
+	if c.KeyUri == "" {
+		code |= ValidateClientEmptyKeyUri
+	} else if len(c.KeyUri) > ClientKeyUriMaxLength {
+		code |= ValidateClientKeyUriTooLong
 	}
 
 	return code

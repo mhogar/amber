@@ -15,14 +15,18 @@ type ClientTestSuite struct {
 }
 
 func (suite *ClientTestSuite) SetupTest() {
-	suite.Client = models.CreateNewClient("name", "redirect.com")
+	suite.Client = models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 }
 
 func (suite *ClientTestSuite) TestCreateNewClient_CreatesClientWithSuppliedFields() {
-	//act
+	//arrange
 	name := "Client Name"
 	url := "Redirect URL"
-	client := models.CreateNewClient(name, url)
+	tokenType := 100
+	uri := "Some Key URI"
+
+	//act
+	client := models.CreateNewClient(name, url, tokenType, uri)
 
 	//assert
 	suite.Require().NotNil(client)
@@ -129,6 +133,62 @@ func (suite *ClientTestSuite) TestValidate_WithInvalidRedirectUrl_ReturnsClientI
 
 	//assert
 	suite.Equal(models.ValidateClientInvalidRedirectUrl, verr)
+}
+
+func (suite *ClientTestSuite) TestValidate_InvalidTokenTypeTestCases() {
+	var tokenType int
+
+	testCase := func() {
+		//arrange
+		suite.Client.TokenType = tokenType
+
+		//act
+		verr := suite.Client.Validate()
+
+		//assert
+		suite.Equal(models.ValidateClientInvalidTokenType, verr)
+	}
+
+	tokenType = -1
+	suite.Run("LessThanSmallestTokenTypeValue", testCase)
+
+	tokenType = 2
+	suite.Run("MoreThanLargestTokenTypeValue", testCase)
+}
+
+func (suite *ClientTestSuite) TestValidate_WithEmptyKeyUri_ReturnsClientEmptyKeyUri() {
+	//arrange
+	suite.Client.KeyUri = ""
+
+	//act
+	verr := suite.Client.Validate()
+
+	//assert
+	suite.Equal(models.ValidateClientEmptyKeyUri, verr)
+}
+
+func (suite *ClientTestSuite) TestValidate_KeyUriMaxLengthTestCases() {
+	var uri string
+	var expectedValidateError int
+
+	testCase := func() {
+		//arrange
+		suite.Client.KeyUri = uri
+
+		//act
+		verr := suite.Client.Validate()
+
+		//assert
+		suite.Equal(expectedValidateError, verr)
+	}
+
+	uri = helpers.CreateStringOfLength(100)
+	expectedValidateError = models.ValidateClientValid
+	suite.Run("ExactlyMaxLengthIsValid", testCase)
+
+	uri += "a"
+	expectedValidateError = models.ValidateClientKeyUriTooLong
+	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 
 func TestClientTestSuite(t *testing.T) {
