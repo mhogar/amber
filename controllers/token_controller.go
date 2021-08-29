@@ -16,10 +16,6 @@ type CoreTokenController struct {
 }
 
 func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, clientUID uuid.UUID, username string, password string) (string, common.CustomError) {
-	//TODO: add token type and key uri to client model
-	tokenType := jwthelpers.TokenTypeFirebase
-	keyUri := "keys/firebase-test.json"
-
 	//get the requested client
 	client, err := CRUD.GetClientByUID(clientUID)
 	if err != nil {
@@ -39,14 +35,14 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	}
 
 	//choose the token factory (in practice a factory should always be found since the client model validates the token type when saving)
-	tf := c.TokenFactorySelector.Select(tokenType)
+	tf := c.TokenFactorySelector.Select(client.TokenType)
 	if tf == nil {
-		log.Println(fmt.Sprintf("token factory for token type %d not found", tokenType))
+		log.Println(fmt.Sprintf("token factory for token type %d not found", client.TokenType))
 		return "", common.InternalError()
 	}
 
 	//create the token
-	token, err := tf.CreateToken(keyUri, clientUID, username)
+	token, err := tf.CreateToken(client.KeyUri, clientUID, username)
 	if err != nil {
 		log.Println(common.ChainError("error creating token", err))
 		return "", common.InternalError()

@@ -11,9 +11,9 @@ import (
 
 type CoreClientController struct{}
 
-func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string) (*models.Client, common.CustomError) {
+func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError) {
 	//create the client model
-	client := models.CreateNewClient(name, redirectUrl)
+	client := models.CreateNewClient(name, redirectUrl, tokenType, keyUri)
 
 	//validate the client
 	verr := validateClient(client)
@@ -81,6 +81,12 @@ func validateClient(client *models.Client) common.CustomError {
 		return common.ClientError(fmt.Sprint("client redirect url cannot be longer than ", models.ClientRedirectUrlMaxLength, " characters"))
 	} else if verr&models.ValidateClientInvalidRedirectUrl != 0 {
 		return common.ClientError("client redirect url is an invalid url")
+	} else if verr&models.ValidateClientInvalidTokenType != 0 {
+		return common.ClientError("client token type is invalid")
+	} else if verr&models.ValidateClientEmptyKeyUri != 0 {
+		return common.ClientError("client key uri cannot be empty")
+	} else if verr&models.ValidateClientKeyUriTooLong != 0 {
+		return common.ClientError(fmt.Sprint("client key uri cannot be longer than ", models.ClientKeyUriMaxLength, " characters"))
 	}
 
 	return common.NoError()

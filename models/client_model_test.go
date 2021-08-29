@@ -80,7 +80,7 @@ func (suite *ClientTestSuite) TestValidate_ClientNameMaxLengthTestCases() {
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	name = helpers.CreateStringOfLength(30)
+	name = helpers.CreateStringOfLength(models.ClientNameMaxLength)
 	expectedValidateError = models.ValidateClientValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 
@@ -115,7 +115,7 @@ func (suite *ClientTestSuite) TestValidate_ClientRedirectUrlMaxLengthTestCases()
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	url = helpers.CreateStringOfLength(100)
+	url = helpers.CreateStringOfLength(models.ClientRedirectUrlMaxLength)
 	expectedValidateError = models.ValidateClientValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 
@@ -182,7 +182,7 @@ func (suite *ClientTestSuite) TestValidate_KeyUriMaxLengthTestCases() {
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	uri = helpers.CreateStringOfLength(100)
+	uri = helpers.CreateStringOfLength(models.ClientKeyUriMaxLength)
 	expectedValidateError = models.ValidateClientValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 

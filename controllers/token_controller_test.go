@@ -71,7 +71,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNot
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorAuthenticatingUserWithPassword_ReturnsError() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com")
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	username := "username"
 	password := "password"
 
@@ -90,7 +90,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorAuthe
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com")
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	username := "username"
 	password := "password"
 
@@ -108,7 +108,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreatingToken_ReturnsInternalError() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com")
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	username := "username"
 	password := "password"
 
@@ -127,7 +127,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsingRedirectUrl_ReturnsInternalError() {
 	//arrange
-	client := models.CreateNewClient("name", "invalid_\n_url")
+	client := models.CreateNewClient("name", "invalid_\n_url", 0, "key.pem")
 	username := "username"
 	password := "password"
 
@@ -146,7 +146,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_ReturnsTokenRedirectURL() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com")
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	username := "username"
 	password := "password"
 	token := "this_is_the_token_value"
@@ -169,8 +169,8 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", client.UID)
 	suite.ControllerMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, username, password)
-	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", mock.Anything)
-	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", mock.Anything, client.UID, username)
+	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", client.TokenType)
+	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", client.KeyUri, client.UID, username)
 }
 
 func TestTokenControllerTestSuite(t *testing.T) {
