@@ -43,6 +43,10 @@ func Run(name string) error {
 	cfg := config.Config{
 		RootDir: rootDir,
 		AppID:   uuid.New().String(),
+		TokenConfig: config.TokenConfig{
+			DefaultIssuer: "amber",
+			Lifetime:      60,
+		},
 		DatabaseConfig: config.DatabaseConfig{
 			ConnectionStrings: map[string]string{
 				"core":        "",

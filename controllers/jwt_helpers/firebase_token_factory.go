@@ -2,6 +2,7 @@ package jwthelpers
 
 import (
 	"authserver/common"
+	"authserver/config"
 	"authserver/loaders"
 	"time"
 
@@ -44,7 +45,7 @@ func (tf FirebaseTokenFactory) CreateToken(keyUri string, _ uuid.UUID, username 
 			Subject:   serviceJSON.ClientEmail,
 			Audience:  "https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit",
 			IssuedAt:  now,
-			ExpiresAt: now + 60, //expires in one minute (TODO: add to config)
+			ExpiresAt: now + config.GetTokenConfig().Lifetime,
 		},
 		Algorithm: "RS256",
 		UID:       username,

@@ -1,6 +1,7 @@
 package jwthelpers_test
 
 import (
+	"authserver/config"
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/controllers/jwt_helpers/mocks"
 	loadermocks "authserver/loaders/mocks"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -49,6 +51,8 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingJSON
 
 func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken_ReturnsError() {
 	//arrange
+	viper.Set("token", config.TokenConfig{})
+
 	uri := "key.json"
 	username := "username"
 
@@ -68,6 +72,11 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToke
 
 func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsToken() {
 	//arrange
+	cfg := config.TokenConfig{
+		Lifetime: 60,
+	}
+	viper.Set("token", cfg)
+
 	uri := "key.json"
 	username := "username"
 	token := "this_is_a_signed_token"
@@ -95,7 +104,7 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithNoErrors_Returns
 		return claims.UID == username &&
 			claims.Issuer == serviceJSON.ClientEmail &&
 			claims.Subject == serviceJSON.ClientEmail &&
-			claims.ExpiresAt-claims.IssuedAt == 60
+			claims.ExpiresAt-claims.IssuedAt == cfg.Lifetime
 	}), []byte(serviceJSON.PrivateKey))
 }
 

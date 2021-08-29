@@ -1,5 +1,8 @@
 root_dir: .
 app_id: 5369602a-777c-48db-914d-2b1823a1b9af
+token:
+    default_issuer: "test"
+    lifetime: 60
 database:
     connection_strings:
         core: ""

@@ -1,6 +1,7 @@
 package jwthelpers_test
 
 import (
+	"authserver/config"
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/controllers/jwt_helpers/mocks"
 	loadermocks "authserver/loaders/mocks"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -50,6 +52,8 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingPriva
 
 func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken_ReturnsError() {
 	//arrange
+	viper.Set("token", config.TokenConfig{})
+
 	uri := "key.json"
 	username := "username"
 	clientUID := uuid.New()
@@ -70,6 +74,12 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken
 
 func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsToken() {
 	//arrange
+	cfg := config.TokenConfig{
+		DefaultIssuer: "issuer",
+		Lifetime:      60,
+	}
+	viper.Set("token", cfg)
+
 	uri := "key.json"
 	username := "username"
 	clientUID := uuid.New()
@@ -92,7 +102,8 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsT
 		claims := tk.Claims.(jwthelpers.DefaultClaims)
 		return claims.Username == username &&
 			claims.Audience == clientUID.String() &&
-			claims.ExpiresAt-claims.IssuedAt == 60
+			claims.Issuer == cfg.DefaultIssuer &&
+			claims.ExpiresAt-claims.IssuedAt == cfg.Lifetime
 	}), privateKey)
 }
 

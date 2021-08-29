@@ -2,6 +2,7 @@ package jwthelpers
 
 import (
 	"authserver/common"
+	"authserver/config"
 	"authserver/loaders"
 	"time"
 
@@ -20,21 +21,22 @@ type DefaultTokenFactory struct {
 }
 
 func (tf DefaultTokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, username string) (string, error) {
-	now := time.Now().Unix()
-
 	//load the private key
 	privateKey, err := tf.DataLoader.Load(keyUri)
 	if err != nil {
 		return "", common.ChainError("error loading private key", err)
 	}
 
+	now := time.Now().Unix()
+	cfg := config.GetTokenConfig()
+
 	//fill out the claims
 	claims := DefaultClaims{
 		StandardClaims: jwt.StandardClaims{
-			Issuer:    "", //TODO: add config item
+			Issuer:    cfg.DefaultIssuer,
 			Audience:  clientUID.String(),
 			IssuedAt:  now,
-			ExpiresAt: now + 60, //expires in one minute (TODO: add to config)
+			ExpiresAt: now + cfg.Lifetime,
 		},
 		Username: username,
 	}
