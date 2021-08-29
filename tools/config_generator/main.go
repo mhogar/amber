@@ -9,7 +9,6 @@ import (
 	"log"
 	"os"
 
-	"github.com/google/uuid"
 	"gopkg.in/yaml.v3"
 )
 
@@ -33,16 +32,8 @@ func Run(name string) error {
 		return errors.New("file already exists")
 	}
 
-	//get the working dir for the app root
-	rootDir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
 	//create the config struct
 	cfg := config.Config{
-		RootDir: rootDir,
-		AppID:   uuid.New().String(),
 		TokenConfig: config.TokenConfig{
 			DefaultIssuer: "amber",
 			Lifetime:      60,
