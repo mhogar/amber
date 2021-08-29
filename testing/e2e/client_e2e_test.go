@@ -15,30 +15,26 @@ type ClientE2ETestSuite struct {
 
 func (suite *ClientE2ETestSuite) TestLogin_CreateClient_UpdateClient_DeleteClient_Logout() {
 	//login
-	token := suite.LoginAsMaxAdmin()
+	suite.LoginAsMaxAdmin()
 
 	//create client
-	postClientBody := handlers.PostClientBody{
-		Name:        "Name",
-		RedirectUrl: "redirect.com",
-	}
-	res := suite.SendRequest(http.MethodPost, "/client", token, postClientBody)
-	id := helpers.ParseDataResponseOK(&suite.Suite, res)["id"].(string)
+	id := suite.CreateClient(0, "key.pem")
 
 	//update client
-	putClientBody := handlers.PutClientBody{
+	putClientBody := handlers.PostClientBody{
 		Name:        "New Name",
 		RedirectUrl: "redirect2.com",
+		TokenType:   0,
+		KeyUri:      "key.pem",
 	}
-	res = suite.SendRequest(http.MethodPut, "/client/"+id, token, putClientBody)
+	res := suite.SendRequest(http.MethodPut, "/client/"+id.String(), suite.Token, putClientBody)
 	helpers.ParseDataResponseOK(&suite.Suite, res)
 
 	//delete client
-	res = suite.SendRequest(http.MethodDelete, "/client/"+id, token, nil)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.DeleteClient(id)
 
 	//logout
-	suite.Logout(token)
+	suite.Logout()
 }
 
 func TestClientE2ETestSuite(t *testing.T) {

@@ -95,16 +95,15 @@ func saveKey(name string, overwrite bool, key interface{}, createPEMBlock create
 
 func savePrivateKey(name string, overwrite bool, key *rsa.PrivateKey) error {
 	return saveKey(name+".private", overwrite, key, func(key interface{}) (*pem.Block, error) {
-		//assert key type
-		privateKey, ok := key.(*rsa.PrivateKey)
-		if !ok {
-			return nil, errors.New("key must be an RSA Private Key")
+		bytes, err := x509.MarshalPKCS8PrivateKey(key)
+		if err != nil {
+			return nil, common.ChainError("error marshaling private key", err)
 		}
 
 		//create the pem block
 		block := &pem.Block{
 			Type:  "PRIVATE KEY",
-			Bytes: x509.MarshalPKCS1PrivateKey(privateKey),
+			Bytes: bytes,
 		}
 
 		return block, nil
@@ -113,16 +112,15 @@ func savePrivateKey(name string, overwrite bool, key *rsa.PrivateKey) error {
 
 func savePublicKey(name string, overwrite bool, key *rsa.PublicKey) error {
 	return saveKey(name+".public", overwrite, key, func(key interface{}) (*pem.Block, error) {
-		//assert key type
-		publicKey, ok := key.(*rsa.PublicKey)
-		if !ok {
-			return nil, errors.New("key must be an RSA Public Key")
+		bytes, err := x509.MarshalPKIXPublicKey(key)
+		if err != nil {
+			return nil, common.ChainError("error marshaling public key", err)
 		}
 
 		//create the pem block
 		block := &pem.Block{
 			Type:  "PUBLIC KEY",
-			Bytes: x509.MarshalPKCS1PublicKey(publicKey),
+			Bytes: bytes,
 		}
 
 		return block, nil

@@ -2,7 +2,9 @@
 config.local.yml
 
 static/keys/*
-!static/keys/.keep
+!static/keys/test.private.pem
+!static/keys/test.public.pem
+!static/keys/firebase-test.json
 
 authserver
 tools/migration_runner/migration_runner

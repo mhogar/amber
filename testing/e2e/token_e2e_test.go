@@ -3,68 +3,95 @@ package e2e_test
 import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/dependencies"
+	"authserver/models"
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
 type TokenE2ETestSuite struct {
 	E2ETestSuite
+	Username string
+	Password string
 }
 
-func (suite *TokenE2ETestSuite) Test_CreateUser_Login_CreateClient_CreateToken_DeleteClient_DeleteUser() {
-	//create user
-	postUserBody := handlers.PostUserBody{
-		Username: "username",
-		Password: "Password123!",
-	}
-	res := suite.SendRequest(http.MethodPost, "/user", "", postUserBody)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+func (suite *TokenE2ETestSuite) SetupTest() {
+	suite.Username = "username"
+	suite.Password = "Password123!"
 
-	//login
-	token := suite.Login(postUserBody.Username, postUserBody.Password)
+	//create new user and login
+	suite.CreateUser(suite.Username, suite.Password)
+	suite.Login(suite.Username, suite.Password)
+}
 
+func (suite *TokenE2ETestSuite) TearDownTest() {
+	suite.DeleteUser()
+}
+
+func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_CreateToken_DeleteClient() {
 	//create client
-	postClientBody := handlers.PostClientBody{
-		Name:        "Name",
-		RedirectUrl: "https://mhogar.dev",
-	}
-	res = suite.SendRequest(http.MethodPost, "/client", token, postClientBody)
-	id := helpers.ParseDataResponseOK(&suite.Suite, res)["id"].(string)
+	clientId := suite.CreateClient(models.ClientTokenTypeDefault, "keys/test.private.pem")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
-		ClientId: uuid.MustParse(id),
-		Username: postUserBody.Username,
-		Password: postUserBody.Password,
+		ClientId: clientId,
+		Username: suite.Username,
+		Password: suite.Password,
 	}
-	res = suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
 
-	claims := suite.parseFirebaseTokenClaims(res.Request.URL.Query().Get("token"))
-	suite.Equal(postUserBody.Username, claims.UID)
+	claims := suite.parseDefaultTokenClaims("keys/test.public.pem", res.Request.URL.Query().Get("token"))
+	suite.Equal(postTokenBody.Username, claims.Username)
 
 	//delete client
-	res = suite.SendRequest(http.MethodDelete, "/client/"+id, token, nil)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
-
-	//delete user
-	res = suite.SendRequest(http.MethodDelete, "/user", token, nil)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.DeleteClient(clientId)
 }
 
-func TestTokenE2ETestSuite(t *testing.T) {
-	suite.Run(t, &TokenE2ETestSuite{})
+func (suite *TokenE2ETestSuite) parseDefaultTokenClaims(keyUri string, tokenString string) jwthelpers.DefaultClaims {
+	var claims jwthelpers.DefaultClaims
+	_, err := jwt.ParseWithClaims(tokenString, &claims, func(_ *jwt.Token) (interface{}, error) {
+		//load the public key
+		bytes, err := dependencies.ResolveRawDataLoader().Load(keyUri)
+		suite.Require().NoError(err)
+
+		//parse the public key
+		key, err := jwt.ParseRSAPublicKeyFromPEM(bytes)
+		suite.Require().NoError(err)
+
+		return key, nil
+	})
+
+	suite.Require().NoError(err)
+	return claims
 }
 
-func (suite *TokenE2ETestSuite) parseFirebaseTokenClaims(tokenString string) jwthelpers.FirebaseClaims {
+func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_CreateToken_DeleteClient() {
 	keyUri := "keys/firebase-test.json"
 
+	//create client
+	clientId := suite.CreateClient(models.ClientTokenTypeFirebase, keyUri)
+
+	//create token
+	postTokenBody := handlers.PostTokenBody{
+		ClientId: clientId,
+		Username: suite.Username,
+		Password: suite.Password,
+	}
+	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+	suite.Require().Equal(http.StatusOK, res.StatusCode)
+
+	claims := suite.parseFirebaseTokenClaims(keyUri, res.Request.URL.Query().Get("token"))
+	suite.Equal(suite.Username, claims.UID)
+
+	//delete client
+	suite.DeleteClient(clientId)
+}
+
+func (suite *TokenE2ETestSuite) parseFirebaseTokenClaims(keyUri string, tokenString string) jwthelpers.FirebaseClaims {
 	var claims jwthelpers.FirebaseClaims
 	_, err := jwt.ParseWithClaims(tokenString, &claims, func(_ *jwt.Token) (interface{}, error) {
 		var serviceJSON jwthelpers.FirebaseServiceJSON
@@ -82,4 +109,8 @@ func (suite *TokenE2ETestSuite) parseFirebaseTokenClaims(tokenString string) jwt
 
 	suite.Require().NoError(err)
 	return claims
+}
+
+func TestTokenE2ETestSuite(t *testing.T) {
+	suite.Run(t, &TokenE2ETestSuite{})
 }
