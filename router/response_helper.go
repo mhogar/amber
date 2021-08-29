@@ -12,8 +12,10 @@ func sendResponse(w http.ResponseWriter, status int, res interface{}) {
 	w.WriteHeader(status)
 
 	//write the response
-	encoder := json.NewEncoder(w)
-	encoder.Encode(res)
+	if res != nil {
+		encoder := json.NewEncoder(w)
+		encoder.Encode(res)
+	}
 }
 
 func sendErrorResponse(w http.ResponseWriter, status int, messsage string) {

@@ -2,10 +2,8 @@ package migrations
 
 import (
 	"authserver/common"
-	"authserver/config"
 	"authserver/data"
 	sqladapter "authserver/data/database/sql_adapter"
-	"authserver/models"
 
 	"github.com/mhogar/migrationrunner"
 )
@@ -34,12 +32,6 @@ func (m migrator002) Up() error {
 		err := sqlTx.CreateClientTable()
 		if err != nil {
 			return false, common.ChainError("error creating client table", err)
-		}
-
-		//add this app as a client
-		err = sqlTx.CreateClient(models.CreateClient(config.GetAppId(), "AuthServer"))
-		if err != nil {
-			return false, common.ChainError("error saving app client", err)
 		}
 
 		return true, nil

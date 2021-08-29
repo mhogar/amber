@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"authserver/models"
+	"authserver/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )
@@ -65,7 +66,7 @@ func (suite *UserTestSuite) TestValidate_UsernameMaxLengthTestCases() {
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	username = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //30 chars
+	username = helpers.CreateStringOfLength(30)
 	expectedValidateError = models.ValidateUserValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 

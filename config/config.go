@@ -4,20 +4,27 @@ import (
 	"authserver/common"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path"
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/google/uuid"
 	"github.com/spf13/viper"
 )
 
 // Config is a struct with fields needed for configuring the application.
 type Config struct {
-	RootDir                string                 `yaml:"root_dir"`
-	AppID                  string                 `yaml:"app_id"`
+	TokenConfig            TokenConfig            `yaml:"token"`
 	DatabaseConfig         DatabaseConfig         `yaml:"database"`
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
+}
+
+type TokenConfig struct {
+	// DefaultIssuer is the the value that will go in the "issuer" field for default tokens.
+	DefaultIssuer string `yaml:"default_issuer"`
+
+	// Lifetime is the length of time a token will be valid for.
+	Lifetime int64 `yaml:"lifetime"`
 }
 
 type DatabaseConfig struct {
@@ -55,8 +62,15 @@ func InitConfig(dir string) error {
 	viper.SetEnvPrefix("cfg")
 	viper.BindEnv("env")
 
+	//calc the root dir using the provided path and the current working directory
+	wd, err := os.Getwd()
+	if err != nil {
+		return common.ChainError("error getting working directory", err)
+	}
+	rootDir := path.Join(wd, dir)
+
 	//read the config file
-	data, err := ioutil.ReadFile(path.Join(dir, fmt.Sprint("config.", viper.Get("env"), ".yml")))
+	data, err := ioutil.ReadFile(path.Join(rootDir, fmt.Sprint("config.", viper.Get("env"), ".yml")))
 	if err != nil {
 		return common.ChainError("error loading config file", err)
 	}
@@ -69,15 +83,19 @@ func InitConfig(dir string) error {
 	}
 
 	//set the config
-	viper.Set("root_dir", cfg.RootDir)
-	viper.Set("app_id", cfg.AppID)
-	viper.Set("password_criteria", cfg.PasswordCriteriaConfig)
+	viper.Set("root_dir", rootDir)
+	viper.Set("token", cfg.TokenConfig)
 	viper.Set("database", cfg.DatabaseConfig)
+	viper.Set("password_criteria", cfg.PasswordCriteriaConfig)
 
 	return nil
 }
 
-// GetAppId gets the app id for the application.
-func GetAppId() uuid.UUID {
-	return uuid.MustParse(viper.Get("app_id").(string))
+// GetAppRoot gets the app root directory for the application.
+func GetAppRoot() string {
+	return viper.GetString("root_dir")
+}
+
+func GetTokenConfig() TokenConfig {
+	return viper.Get("token").(TokenConfig)
 }

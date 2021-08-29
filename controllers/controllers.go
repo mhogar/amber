@@ -13,6 +13,7 @@ type Controllers interface {
 	ClientController
 	AuthController
 	SessionController
+	TokenController
 }
 
 type CoreControllers struct {
@@ -20,6 +21,7 @@ type CoreControllers struct {
 	ClientController
 	AuthController
 	SessionController
+	TokenController
 }
 
 // UserControllerCRUD encapsulates the CRUD operations required by the UserController.
@@ -46,8 +48,8 @@ type ClientControllerCRUD interface {
 }
 
 type ClientController interface {
-	// CreateClient creates a new client with the given name.
-	CreateClient(CRUD ClientControllerCRUD, name string) (*models.Client, common.CustomError)
+	// CreateClient creates a new client with the given name and redirect url.
+	CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError)
 
 	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
@@ -84,4 +86,17 @@ type SessionController interface {
 
 	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
 	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError
+}
+
+// TokenControllerCRUD encapsulates the CRUD operations required by the TokenController.
+type TokenControllerCRUD interface {
+	models.UserCRUD
+	models.ClientCRUD
+}
+
+type TokenController interface {
+	// CreateTokenRedirectURL first authenticates using the username and password, then creates a signed JWT for the specified client.
+	// The base-64 encoded token string is then appended to the client's redirect url.
+	// Returns the url and any errors.
+	CreateTokenRedirectURL(CRUD TokenControllerCRUD, clientId uuid.UUID, username string, password string) (string, common.CustomError)
 }

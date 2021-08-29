@@ -12,12 +12,15 @@ import (
 )
 
 type ClientDataResponse struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID string `json:"id"`
+	PostClientBody
 }
 
 type PostClientBody struct {
-	Name string `json:"name"`
+	Name        string `json:"name"`
+	RedirectUrl string `json:"redirect_url"`
+	TokenType   int    `json:"token_type"`
+	KeyUri      string `json:"key_uri"`
 }
 
 func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -31,7 +34,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	}
 
 	//create the client
-	client, cerr := h.Controllers.CreateClient(CRUD, body.Name)
+	client, cerr := h.Controllers.CreateClient(CRUD, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -42,12 +45,8 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	return newClientDataResponse(client)
 }
 
-type PutClientBody struct {
-	Name string `json:"name"`
-}
-
 func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
-	var body PutClientBody
+	var body PostClientBody
 
 	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
@@ -64,7 +63,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	}
 
 	//create the client model
-	client := models.CreateClient(id, body.Name)
+	client := models.CreateClient(id, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
 
 	//update the client
 	cerr := h.Controllers.UpdateClient(CRUD, client)
@@ -100,7 +99,12 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 
 func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(ClientDataResponse{
-		ID:   client.UID.String(),
-		Name: client.Name,
+		ID: client.UID.String(),
+		PostClientBody: PostClientBody{
+			Name:        client.Name,
+			RedirectUrl: client.RedirectUrl,
+			TokenType:   client.TokenType,
+			KeyUri:      client.KeyUri,
+		},
 	})
 }

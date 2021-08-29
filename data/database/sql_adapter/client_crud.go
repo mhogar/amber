@@ -47,7 +47,8 @@ func (crud *SQLCRUD) CreateClient(client *models.Client) error {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateClientScript(), client.UID, client.Name)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateClientScript(),
+		client.UID, client.Name, client.RedirectUrl, client.TokenType, client.KeyUri)
 	cancel()
 
 	if err != nil {
@@ -81,7 +82,8 @@ func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(), client.UID, client.Name)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateClientScript(),
+		client.UID, client.Name, client.RedirectUrl, client.TokenType, client.KeyUri)
 	cancel()
 
 	if err != nil {
@@ -121,7 +123,7 @@ func readClientData(rows *sql.Rows) (*models.Client, error) {
 
 	//get the result
 	client := &models.Client{}
-	err := rows.Scan(&client.UID, &client.Name)
+	err := rows.Scan(&client.UID, &client.Name, &client.RedirectUrl, &client.TokenType, &client.KeyUri)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

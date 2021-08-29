@@ -41,6 +41,9 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false))
 	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true))
 
+	//token routes
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
+
 	return r
 }
 
@@ -66,9 +69,16 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 
 			//handle route in transaction scope
 			return rf.CoreScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
-				status, body := handler(req, params, session, tx)
-				sendResponse(w, status, body)
+				status, data := handler(req, params, session, tx)
 
+				//handle special redirect case
+				if status == http.StatusSeeOther {
+					w.Header().Set("Location", data.(string))
+					sendResponse(w, status, nil)
+					return true, nil
+				}
+
+				sendResponse(w, status, data)
 				return status == http.StatusOK, nil
 			})
 		})

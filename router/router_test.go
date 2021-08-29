@@ -108,6 +108,33 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
+func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedirectResponseAndReturnsSuccessToTransactionScope() {
+	//arrange
+	server := httptest.NewServer(suite.Router)
+	defer server.Close()
+
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
+		suite.True(result)
+		suite.NoError(err)
+	})
+
+	status := http.StatusSeeOther
+	redirectUrl := "https://mhogar.dev"
+	suite.HandlersMock.On(suite.Handler, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(status, redirectUrl)
+
+	//act
+	res, err := http.DefaultClient.Do(req)
+	suite.Require().NoError(err)
+
+	//assert
+	suite.Equal(redirectUrl, res.Request.URL.String())
+	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
+}
+
 func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAndReturnsSuccessToTransactionScope() {
 	//arrange
 	server := httptest.NewServer(suite.Router)
@@ -130,7 +157,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
@@ -321,5 +348,13 @@ func TestDeleteSessionTestSuite(t *testing.T) {
 			Route:   "/session",
 			Handler: "DeleteSession",
 		},
+	})
+}
+
+func TestPostTokenTestSuite(t *testing.T) {
+	suite.Run(t, &RouterTestSuite{
+		Method:  "POST",
+		Route:   "/token",
+		Handler: "PostToken",
 	})
 }

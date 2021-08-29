@@ -41,13 +41,13 @@ func (_m *Controllers) AuthenticateUserWithPassword(CRUD controllers.AuthControl
 	return r0, r1
 }
 
-// CreateClient provides a mock function with given fields: CRUD, name
-func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string) (*models.Client, common.CustomError) {
-	ret := _m.Called(CRUD, name)
+// CreateClient provides a mock function with given fields: CRUD, name, redirectUrl, tokenType, keyUri
+func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError) {
+	ret := _m.Called(CRUD, name, redirectUrl, tokenType, keyUri)
 
 	var r0 *models.Client
-	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string) *models.Client); ok {
-		r0 = rf(CRUD, name)
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string, string, int, string) *models.Client); ok {
+		r0 = rf(CRUD, name, redirectUrl, tokenType, keyUri)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Client)
@@ -55,8 +55,8 @@ func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name 
 	}
 
 	var r1 common.CustomError
-	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string) common.CustomError); ok {
-		r1 = rf(CRUD, name)
+	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string, string, int, string) common.CustomError); ok {
+		r1 = rf(CRUD, name, redirectUrl, tokenType, keyUri)
 	} else {
 		r1 = ret.Get(1).(common.CustomError)
 	}
@@ -80,6 +80,27 @@ func (_m *Controllers) CreateSession(CRUD controllers.SessionControllerCRUD, use
 	var r1 common.CustomError
 	if rf, ok := ret.Get(1).(func(controllers.SessionControllerCRUD, string, string) common.CustomError); ok {
 		r1 = rf(CRUD, username, password)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
+// CreateTokenRedirectURL provides a mock function with given fields: CRUD, clientId, username, password
+func (_m *Controllers) CreateTokenRedirectURL(CRUD controllers.TokenControllerCRUD, clientId uuid.UUID, username string, password string) (string, common.CustomError) {
+	ret := _m.Called(CRUD, clientId, username, password)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(controllers.TokenControllerCRUD, uuid.UUID, string, string) string); ok {
+		r0 = rf(CRUD, clientId, username, password)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.TokenControllerCRUD, uuid.UUID, string, string) common.CustomError); ok {
+		r1 = rf(CRUD, clientId, username, password)
 	} else {
 		r1 = ret.Get(1).(common.CustomError)
 	}

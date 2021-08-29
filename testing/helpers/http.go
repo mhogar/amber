@@ -51,12 +51,17 @@ func AssertSuccessResponse(suite *suite.Suite, res interface{}) {
 	suite.True(basicRes.Success)
 }
 
-// ParseAndAssertSuccessResponse parses the response and asserts it is a success response.
-func ParseAndAssertSuccessResponse(suite *suite.Suite, res *http.Response) {
+// ParseAndAssertSuccessResponse parses the response and asserts it has the expected http status and a success body.
+func ParseAndAssertSuccessResponse(suite *suite.Suite, expectedStatus int, res *http.Response) {
 	var basicRes common.BasicResponse
-	ParseResponse(suite, res, http.StatusOK, &basicRes)
+	ParseResponse(suite, res, expectedStatus, &basicRes)
 
 	AssertSuccessResponse(suite, basicRes)
+}
+
+// ParseAndAssertOKSuccessResponse parses the response and asserts it has an OK http status and a success body.
+func ParseAndAssertOKSuccessResponse(suite *suite.Suite, res *http.Response) {
+	ParseAndAssertSuccessResponse(suite, http.StatusOK, res)
 }
 
 // AssertErrorResponse asserts the response is an error reponse with the expected status and error sub strings.

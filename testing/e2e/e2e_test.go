@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 
+	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 )
@@ -16,6 +17,7 @@ import (
 type E2ETestSuite struct {
 	suite.Suite
 	Server *httptest.Server
+	Token  string
 }
 
 func (suite *E2ETestSuite) SetupSuite() {
@@ -48,21 +50,55 @@ func (suite *E2ETestSuite) SendRequest(method string, endpoint string, bearerTok
 	return res
 }
 
-func (suite *E2ETestSuite) Login(username string, password string) string {
+func (suite *E2ETestSuite) Login(username string, password string) {
 	body := handlers.PostSessionBody{
 		Username: username,
 		Password: password,
 	}
 	res := suite.SendRequest(http.MethodPost, "/session", "", body)
 
-	return helpers.ParseDataResponseOK(&suite.Suite, res)["token"].(string)
+	suite.Token = helpers.ParseDataResponseOK(&suite.Suite, res)["token"].(string)
 }
 
-func (suite *E2ETestSuite) LoginAsMaxAdmin() string {
-	return suite.Login("admin", "Admin123!")
+func (suite *E2ETestSuite) LoginAsMaxAdmin() {
+	suite.Login("admin", "Admin123!")
 }
 
-func (suite *E2ETestSuite) Logout(token string) {
-	res := suite.SendRequest(http.MethodDelete, "/session", token, nil)
-	helpers.ParseAndAssertSuccessResponse(&suite.Suite, res)
+func (suite *E2ETestSuite) Logout() {
+	res := suite.SendRequest(http.MethodDelete, "/session", suite.Token, nil)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
+
+func (suite *E2ETestSuite) CreateUser(username string, password string) {
+	postUserBody := handlers.PostUserBody{
+		Username: username,
+		Password: password,
+	}
+	res := suite.SendRequest(http.MethodPost, "/user", "", postUserBody)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
+
+func (suite *E2ETestSuite) DeleteUser() {
+	res := suite.SendRequest(http.MethodDelete, "/user", suite.Token, nil)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
+
+func (suite *E2ETestSuite) CreateClient(tokenType int, keyUri string) uuid.UUID {
+	postClientBody := handlers.PostClientBody{
+		Name:        "Test Client",
+		RedirectUrl: "https://mhogar.dev",
+		TokenType:   tokenType,
+		KeyUri:      keyUri,
+	}
+	res := suite.SendRequest(http.MethodPost, "/client", suite.Token, postClientBody)
+
+	id, err := uuid.Parse(helpers.ParseDataResponseOK(&suite.Suite, res)["id"].(string))
+	suite.Require().NoError(err)
+
+	return id
+}
+
+func (suite *E2ETestSuite) DeleteClient(id uuid.UUID) {
+	res := suite.SendRequest(http.MethodDelete, "/client/"+id.String(), suite.Token, nil)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
