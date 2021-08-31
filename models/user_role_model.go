@@ -21,14 +21,14 @@ type UserRole struct {
 
 type UserRoleCRUD interface {
 	// GetUserRolesForClient fetches all the user roles for the provided client uid.
-	// Returns the client and a slice of its user-roles if they exist, nil if not.
+	// Returns a slice of the cleint's user-roles if they exist, nil if not.
 	// Also returns any errors.
-	GetUserRolesForClient(clientUID uuid.UUID) (*Client, []*UserRole, error)
+	GetUserRolesForClient(clientUID uuid.UUID) ([]*UserRole, error)
 
 	// GetUserRoleForClientAndUser fetches the user roles for the provided client uid and username.
-	// Returns the client and the user-role if they exists, nil if not.
+	// Returns the user-role if it exists, nil if not.
 	// Also returns any errors.
-	GetUserRoleForClientAndUser(clientUID uuid.UUID, username string) (*Client, *UserRole)
+	GetUserRoleForClientAndUser(clientUID uuid.UUID, username string) (*UserRole, error)
 
 	// UpdateUserRoles updates the roles assoicated with the provided client uid.
 	// Returns result of whether the client was found and any errors.
