@@ -28,11 +28,11 @@ type UserRoleCRUD interface {
 	// GetUserRoleForClientAndUser fetches the user roles for the provided client uid and username.
 	// Returns the user-role if it exists, nil if not.
 	// Also returns any errors.
-	GetUserRoleForClientAndUser(clientUID uuid.UUID, username string) (*UserRole, error)
+	GetUserRoleForClient(clientUID uuid.UUID, username string) (*UserRole, error)
 
 	// UpdateUserRoles updates the roles assoicated with the provided client uid.
-	// Returns result of whether the client was found and any errors.
-	UpdateUserRoles(clientUID uuid.UUID, roles []*UserRole) (bool, error)
+	// Returns any errors.
+	UpdateUserRoles(clientUID uuid.UUID, roles []*UserRole) error
 }
 
 func CreateUserRole(username string, role string) *UserRole {

@@ -12,6 +12,7 @@ type DataCRUD interface {
 	models.UserCRUD
 	models.ClientCRUD
 	models.SessionCRUD
+	models.UserRoleCRUD
 }
 
 type Transaction interface {

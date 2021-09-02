@@ -224,6 +224,18 @@ WHERE "username" = $1
 `
 }
 
+// AddUserRoleForClientScript gets the AddUserRoleForClient script.
+func (ScriptRepository) AddUserRoleForClientScript() string {
+	return `
+INSERT INTO "user_role" ("client_key", "user_key", "role")
+    WITH
+        t1 AS (SELECT c."key" FROM "client" c WHERE c."uid" = $1),
+		t2 AS (SELECT u."key" FROM "user" u WHERE u."username" = $2)
+	SELECT t1."key", t2."key", $3
+		FROM t1, t2
+`
+}
+
 // CreateUserRoleTableScript gets the CreateUserRoleTable script.
 func (ScriptRepository) CreateUserRoleTableScript() string {
 	return `
@@ -235,6 +247,14 @@ CREATE TABLE "public"."user_role" (
 	CONSTRAINT "user_role_client_fk" FOREIGN KEY ("client_key") REFERENCES "client"("key") ON DELETE CASCADE,
 	CONSTRAINT "user_role_user_fk" FOREIGN KEY ("user_key") REFERENCES "user"("key") ON DELETE CASCADE
 );
+`
+}
+
+// DeleteUserRolesForClientScript gets the DeleteUserRolesForClient script.
+func (ScriptRepository) DeleteUserRolesForClientScript() string {
+	return `
+DELETE FROM "user_role" ur
+    INNER JOIN "client" c ON c."uid" = $1 AND c."key" = ur."client_key"
 `
 }
 
@@ -266,12 +286,5 @@ SELECT
 FROM "user_role" ur
     INNER JOIN "client" c on c."uid" = $1 AND c."key" = ur."client_key"
     INNER JOIN "user" u on u."key" = ur."user_key"
-`
-}
-
-// UpdateUserRolesScript gets the UpdateUserRoles script.
-func (ScriptRepository) UpdateUserRolesScript() string {
-	return `
-
 `
 }

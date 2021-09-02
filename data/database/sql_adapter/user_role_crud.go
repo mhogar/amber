@@ -4,6 +4,8 @@ import (
 	"authserver/common"
 	"authserver/models"
 	"database/sql"
+	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 )
@@ -74,6 +76,38 @@ func (crud *SQLCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) 
 	defer rows.Close()
 
 	return readUserRoleData(rows)
+}
+
+func (crud *SQLCRUD) UpdateUserRoles(clientUID uuid.UUID, roles []*models.UserRole) error {
+	//validate the models
+	for _, role := range roles {
+		verr := role.Validate()
+		if verr != models.ValidateUserRoleValid {
+			return errors.New(fmt.Sprint("error validating user-role model:", verr))
+		}
+	}
+
+	//-- delete all existing roles first --
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserRolesForClientScript(), clientUID)
+	cancel()
+
+	if err != nil {
+		return common.ChainError("error executing delete user roles for client statement", err)
+	}
+
+	//-- add new roles --
+	for _, role := range roles {
+		ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+		_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.AddUserRoleForClientScript(), clientUID, role.Username, role.Role)
+		cancel()
+
+		if err != nil {
+			return common.ChainError("error executing add user role for client statement", err)
+		}
+	}
+
+	return nil
 }
 
 func readUserRoleData(rows *sql.Rows) (*models.UserRole, error) {
