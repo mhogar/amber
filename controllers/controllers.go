@@ -10,8 +10,8 @@ import (
 // Controllers encapsulates all other controller interfaces.
 type Controllers interface {
 	UserController
-	UserRoleController
 	ClientController
+	UserRoleController
 	AuthController
 	SessionController
 	TokenController
@@ -19,8 +19,8 @@ type Controllers interface {
 
 type CoreControllers struct {
 	UserController
-	UserRoleController
 	ClientController
+	UserRoleController
 	AuthController
 	SessionController
 	TokenController
@@ -43,19 +43,6 @@ type UserController interface {
 	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError
 }
 
-// UserRoleControllerCRUD encapsulates the CRUD operations required by the UserRoleController.
-type UserRoleControllerCRUD interface {
-	models.UserRoleCRUD
-}
-
-type UserRoleController interface {
-	// GetUserRoleForClient gets the user's role for the provided client.
-	GetUserRoleForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, username string) (*models.UserRole, common.CustomError)
-
-	// UpdateUserRolesForClient updates the users' role for the provided client.
-	UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError
-}
-
 // ClientControllerCRUD encapsulates the CRUD operations required by the ClientController.
 type ClientControllerCRUD interface {
 	models.ClientCRUD
@@ -71,6 +58,16 @@ type ClientController interface {
 
 	// DeleteClient deletes the client with the given uid.
 	DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError
+}
+
+// UserRoleControllerCRUD encapsulates the CRUD operations required by the UserRoleController.
+type UserRoleControllerCRUD interface {
+	models.UserRoleCRUD
+}
+
+type UserRoleController interface {
+	// UpdateUserRolesForClient updates the users' role for the provided client.
+	UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError
 }
 
 // AuthControllerCRUD encapsulates the CRUD operations required by the AuthController.

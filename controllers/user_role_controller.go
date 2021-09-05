@@ -11,17 +11,6 @@ import (
 
 type CoreUserRoleController struct{}
 
-func (CoreUserRoleController) GetUserRoleForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, username string) (*models.UserRole, common.CustomError) {
-	//get the user's role
-	role, err := CRUD.GetUserRoleForClient(clientUID, username)
-	if err != nil {
-		log.Println(common.ChainError("error getting user role for client", err))
-		return nil, common.InternalError()
-	}
-
-	return role, common.NoError()
-}
-
 func (c CoreUserRoleController) UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError {
 	//validate the roles
 	for _, role := range roles {

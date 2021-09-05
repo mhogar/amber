@@ -37,6 +37,9 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true))
 	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true))
 
+	//user-role routes
+	r.PUT("/client/:id/roles", rf.createHandler(rf.Handlers.PutClientRoles, true))
+
 	//session routes
 	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false))
 	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true))
