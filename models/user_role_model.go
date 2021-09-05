@@ -30,9 +30,9 @@ type UserRoleCRUD interface {
 	// Also returns any errors.
 	GetUserRoleForClient(clientUID uuid.UUID, username string) (*UserRole, error)
 
-	// UpdateUserRoles updates the roles assoicated with the provided client uid.
+	// UpdateUserRolesForClient updates the roles for the provided client uid.
 	// Returns any errors.
-	UpdateUserRoles(clientUID uuid.UUID, roles []*UserRole) error
+	UpdateUserRolesForClient(clientUID uuid.UUID, roles []*UserRole) error
 }
 
 func CreateUserRole(username string, role string) *UserRole {

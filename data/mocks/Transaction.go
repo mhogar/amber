@@ -412,8 +412,8 @@ func (_m *Transaction) UpdateUser(user *models.User) (bool, error) {
 	return r0, r1
 }
 
-// UpdateUserRoles provides a mock function with given fields: clientUID, roles
-func (_m *Transaction) UpdateUserRoles(clientUID uuid.UUID, roles []*models.UserRole) error {
+// UpdateUserRolesForClient provides a mock function with given fields: clientUID, roles
+func (_m *Transaction) UpdateUserRolesForClient(clientUID uuid.UUID, roles []*models.UserRole) error {
 	ret := _m.Called(clientUID, roles)
 
 	var r0 error

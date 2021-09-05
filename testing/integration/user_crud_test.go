@@ -30,7 +30,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 	suite.Nil(user)
 }
 
-func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
+func (suite *UserCRUDTestSuite) TestGetUserByUsername_GetsTheUserWithUsername() {
 	//arrange
 	user := models.CreateUser("username", []byte("password"))
 	suite.SaveUser(user)

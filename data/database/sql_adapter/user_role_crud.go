@@ -67,7 +67,7 @@ func (crud *SQLCRUD) GetUserRolesForClient(clientUID uuid.UUID) ([]*models.UserR
 
 func (crud *SQLCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) (*models.UserRole, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRolesForClientScript(), clientUID, username)
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRoleForClientScript(), clientUID, username)
 	defer cancel()
 
 	if err != nil {
@@ -78,7 +78,7 @@ func (crud *SQLCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) 
 	return readUserRoleData(rows)
 }
 
-func (crud *SQLCRUD) UpdateUserRoles(clientUID uuid.UUID, roles []*models.UserRole) error {
+func (crud *SQLCRUD) UpdateUserRolesForClient(clientUID uuid.UUID, roles []*models.UserRole) error {
 	//validate the models
 	for _, role := range roles {
 		verr := role.Validate()
