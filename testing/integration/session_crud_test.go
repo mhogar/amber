@@ -33,11 +33,8 @@ func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_Retur
 
 func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
-
-	session := models.CreateNewSession(user.Username)
-	suite.SaveSession(session)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	session := suite.SaveSession(models.CreateNewSession(user.Username))
 
 	//act
 	resultSession, err := suite.Tx.GetSessionByToken(session.Token)
@@ -58,11 +55,8 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_WhereSessionIsNotFound_Retu
 
 func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
-
-	session := models.CreateNewSession(user.Username)
-	suite.SaveSession(session)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	session := suite.SaveSession(models.CreateNewSession(user.Username))
 
 	//act
 	res, err := suite.Tx.DeleteSession(session.Token)
@@ -78,11 +72,8 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
-
-	session := models.CreateNewSession(user.Username)
-	suite.SaveSession(session)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	session := suite.SaveSession(models.CreateNewSession(user.Username))
 
 	//act
 	err := suite.Tx.DeleteAllOtherUserSessions(session.Username, session.Token)
@@ -93,14 +84,9 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessions
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
-
-	session1 := models.CreateNewSession(user.Username)
-	suite.SaveSession(session1)
-
-	session2 := models.CreateNewSession(session1.Username)
-	suite.Tx.SaveSession(session2)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	session1 := suite.SaveSession(models.CreateNewSession(user.Username))
+	session2 := suite.SaveSession(models.CreateNewSession(session1.Username))
 
 	//act
 	err := suite.Tx.DeleteAllOtherUserSessions(session1.Username, session1.Token)

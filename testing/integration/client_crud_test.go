@@ -51,9 +51,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
-
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 	client.Name = "new name"
 
 	//act
@@ -80,8 +78,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 
 	//act
 	res, err := suite.Tx.DeleteClient(client.UID)
@@ -106,8 +103,7 @@ func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestGetClientByUId_GetsTheClientWithUId() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 
 	//act
 	resultClient, err := suite.Tx.GetClientByUID(client.UID)
