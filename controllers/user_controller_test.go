@@ -40,7 +40,7 @@ func (suite *UserControllerTestSuite) SetupTest() {
 func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func(user *models.User) common.CustomError) {
 	suite.Run("EmptyUsername_ReturnsClientError", func() {
 		//arrange
-		user := models.CreateUser("", []byte("password"), 0)
+		user := models.CreateUser("", 0, nil)
 
 		//act
 		cerr := validateFunc(user)
@@ -51,7 +51,7 @@ func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func
 
 	suite.Run("UsernameTooLong_ReturnsClientError", func() {
 		//arrange
-		user := models.CreateUser(helpers.CreateStringOfLength(models.UserUsernameMaxLength+1), []byte("password"), 0)
+		user := models.CreateUser(helpers.CreateStringOfLength(models.UserUsernameMaxLength+1), 0, nil)
 
 		//act
 		cerr := validateFunc(user)
@@ -62,7 +62,7 @@ func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func
 
 	suite.Run("InvalidRank_ReturnsClientError", func() {
 		//arrange
-		user := models.CreateUser("username", []byte("password"), -1)
+		user := models.CreateUser("username", -1, nil)
 
 		//act
 		cerr := validateFunc(user)
@@ -179,7 +179,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithErrorDeletingUser_ReturnsInternalError() {
 	//arrange
-	user := models.CreateUser("username", []byte("password hash"), 0)
+	user := models.CreateUser("username", 0, nil)
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(false, errors.New(""))
 
 	//act
@@ -203,7 +203,7 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError() {
 	//arrange
-	user := models.CreateUser("username", []byte("password hash"), 0)
+	user := models.CreateUser("username", 0, nil)
 	suite.CRUDMock.On("DeleteUser", mock.Anything).Return(true, nil)
 
 	//act
@@ -250,7 +250,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereNewPasswordDoe
 	oldPassword := "old password"
 	newPassword := "new password"
 
-	user := models.CreateUser("username", nil, 0)
+	user := models.CreateUser("username", 0, nil)
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaError(passwordhelpers.ValidatePasswordCriteriaTooShort, ""))
@@ -267,7 +267,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNew
 	oldPassword := "old password"
 	newPassword := "new password"
 
-	user := models.CreateUser("username", nil, 0)
+	user := models.CreateUser("username", 0, nil)
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
@@ -285,7 +285,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUs
 	oldPassword := "old password"
 	newPassword := "new password"
 
-	user := models.CreateUser("username", nil, 0)
+	user := models.CreateUser("username", 0, nil)
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
@@ -307,7 +307,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	oldPasswordHash := []byte("hashed old password")
 	newPasswordHash := []byte("hashed new password")
 
-	user := models.CreateUser("username", oldPasswordHash, 0)
+	user := models.CreateUser("username", 0, oldPasswordHash)
 
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())

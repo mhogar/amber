@@ -1,11 +1,10 @@
 package models
 
 const (
-	ValidateUserValid               = 0x0
-	ValidateUserEmptyUsername       = 0x1
-	ValidateUserUsernameTooLong     = 0x2
-	ValidateUserInvalidPasswordHash = 0x4
-	ValidateUserInvalidRank         = 0x8
+	ValidateUserValid           = 0x0
+	ValidateUserEmptyUsername   = 0x1
+	ValidateUserUsernameTooLong = 0x2
+	ValidateUserInvalidRank     = 0x8
 )
 
 // UserUsernameMaxLength is the max length a user's username can be.
@@ -14,8 +13,8 @@ const UserUsernameMaxLength = 30
 // User represents the user model.
 type User struct {
 	Username     string
-	PasswordHash []byte
 	Rank         int
+	PasswordHash []byte
 }
 
 type UserCRUD interface {
@@ -35,11 +34,11 @@ type UserCRUD interface {
 	DeleteUser(username string) (bool, error)
 }
 
-func CreateUser(username string, passwordHash []byte, rank int) *User {
+func CreateUser(username string, rank int, passwordHash []byte) *User {
 	return &User{
 		Username:     username,
-		PasswordHash: passwordHash,
 		Rank:         rank,
+		PasswordHash: passwordHash,
 	}
 }
 
@@ -52,10 +51,6 @@ func (u *User) Validate() int {
 		code |= ValidateUserEmptyUsername
 	} else if len(u.Username) > UserUsernameMaxLength {
 		code |= ValidateUserUsernameTooLong
-	}
-
-	if len(u.PasswordHash) == 0 {
-		code |= ValidateUserInvalidPasswordHash
 	}
 
 	if u.Rank < 0 {

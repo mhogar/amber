@@ -15,17 +15,17 @@ type UserTestSuite struct {
 }
 
 func (suite *UserTestSuite) SetupTest() {
-	suite.User = models.CreateUser("username", []byte("password"), 0)
+	suite.User = models.CreateUser("username", 0, []byte("password"))
 }
 
 func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
 	//arrange
 	username := "this is a test username"
-	hash := []byte("this is a password")
 	rank := 100
+	hash := []byte("this is a password")
 
 	//act
-	user := models.CreateUser(username, hash, rank)
+	user := models.CreateUser(username, rank, hash)
 
 	//assert
 	suite.Require().NotNil(user)
@@ -75,17 +75,6 @@ func (suite *UserTestSuite) TestValidate_UsernameMaxLengthTestCases() {
 	username += "a"
 	expectedValidateError = models.ValidateUserUsernameTooLong
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
-}
-
-func (suite *UserTestSuite) TestValidate_WithEmptyPasswordHash_ReturnsUserInvalidPasswordHash() {
-	//arrange
-	suite.User.PasswordHash = make([]byte, 0)
-
-	//act
-	verr := suite.User.Validate()
-
-	//assert
-	suite.Equal(models.ValidateUserInvalidPasswordHash, verr)
 }
 
 func (suite *UserTestSuite) TestValidate_WithNegativeRank_ReturnsUserInvalidRank() {

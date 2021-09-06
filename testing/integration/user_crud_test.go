@@ -14,7 +14,7 @@ type UserCRUDTestSuite struct {
 
 func (suite *UserCRUDTestSuite) TestCreateUser_WithInvalidUser_ReturnsError() {
 	//act
-	err := suite.Tx.CreateUser(models.CreateUser("", nil, -1))
+	err := suite.Tx.CreateUser(models.CreateUser("", -1, nil))
 
 	//assert
 	suite.Require().Error(err)
@@ -32,7 +32,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 
 func (suite *UserCRUDTestSuite) TestGetUserByUsername_GetsTheUserWithUsername() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 
 	//act
 	resultUser, err := suite.Tx.GetUserByUsername(user.Username)
@@ -44,7 +44,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_GetsTheUserWithUsername() 
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 	//act
-	_, err := suite.Tx.UpdateUser(models.CreateUser("", nil, -1))
+	_, err := suite.Tx.UpdateUser(models.CreateUser("", -1, nil))
 
 	//assert
 	suite.Require().Error(err)
@@ -53,7 +53,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.UpdateUser(models.CreateUser("username", []byte("password"), 0))
+	res, err := suite.Tx.UpdateUser(models.CreateUser("username", 0, []byte("password")))
 
 	//assert
 	suite.False(res)
@@ -63,7 +63,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseR
 func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 	//arrange
 	newPassword := []byte("new_password")
-	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 
 	//act
 	user.PasswordHash = newPassword
@@ -90,7 +90,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_WhereUserIsNotFound_ReturnsFalseR
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -106,7 +106,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
 
@@ -124,7 +124,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	session := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act

@@ -17,7 +17,7 @@ type CoreUserController struct {
 
 func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError) {
 	//create the user model
-	user := models.CreateUser(username, nil, rank)
+	user := models.CreateUser(username, rank, nil)
 
 	//validate the user
 	cerr := c.validateUser(user)
@@ -60,7 +60,7 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 }
 
 func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError) {
-	return models.CreateUser(username, nil, rank), common.NoError()
+	return models.CreateUser(username, rank, nil), common.NoError()
 }
 
 func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {

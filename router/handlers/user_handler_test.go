@@ -77,7 +77,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	user := models.CreateUser(body.Username, nil, body.Rank)
+	user := models.CreateUser(body.Username, body.Rank, nil)
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 
 	//act
@@ -189,7 +189,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsSuccess() {
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	user := models.CreateUser(params[0].Value, nil, body.Rank)
+	user := models.CreateUser(params[0].Value, body.Rank, nil)
 	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 
 	//act
