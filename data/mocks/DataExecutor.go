@@ -408,6 +408,27 @@ func (_m *DataExecutor) UpdateUser(user *models.User) (bool, error) {
 	return r0, r1
 }
 
+// UpdateUserPassword provides a mock function with given fields: username, hash
+func (_m *DataExecutor) UpdateUserPassword(username string, hash []byte) (bool, error) {
+	ret := _m.Called(username, hash)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string, []byte) bool); ok {
+		r0 = rf(username, hash)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, []byte) error); ok {
+		r1 = rf(username, hash)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // UpdateUserRolesForClient provides a mock function with given fields: clientUID, roles
 func (_m *DataExecutor) UpdateUserRolesForClient(clientUID uuid.UUID, roles []*models.UserRole) error {
 	ret := _m.Called(clientUID, roles)

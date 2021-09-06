@@ -25,9 +25,13 @@ type UserCRUD interface {
 	// If no users are found, returns nil user. Also returns any errors.
 	GetUserByUsername(username string) (*User, error)
 
-	// UpdateUser updates the user and returns any errors.
+	// UpdateUser updates the user.
 	// Returns result of whether the user was found, and any errors.
 	UpdateUser(user *User) (bool, error)
+
+	// UpdateUserPassword updates the user's password.
+	// Returns result of whether the user was found, and any errors.
+	UpdateUserPassword(username string, hash []byte) (bool, error)
 
 	// DeleteUser deletes the user with the given username.
 	// Returns result of whether the user was found, and any errors.

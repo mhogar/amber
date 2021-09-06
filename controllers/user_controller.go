@@ -60,12 +60,33 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 }
 
 func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError) {
-	return models.CreateUser(username, rank, nil), common.NoError()
+	//create the user model
+	user := models.CreateUser(username, rank, nil)
+
+	//validate the user
+	cerr := c.validateUser(user)
+	if cerr.Type != common.ErrorTypeNone {
+		return nil, cerr
+	}
+
+	//update the user
+	res, err := CRUD.UpdateUser(user)
+	if err != nil {
+		log.Println(common.ChainError("error updating user", err))
+		return nil, common.InternalError()
+	}
+
+	//verify user was actually found
+	if !res {
+		return nil, common.ClientError(fmt.Sprintf("user with username %s not found", username))
+	}
+
+	return user, common.NoError()
 }
 
 func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	//authenticate user first with their old password
-	user, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
+	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.ClientError("old password is invalid")
 	} else if cerr.Type != common.ErrorTypeNone {
@@ -87,10 +108,9 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username
 	}
 
 	//update the user (don't check result because we know the user already exists)
-	user.PasswordHash = hash
-	_, err = CRUD.UpdateUser(user)
+	_, err = CRUD.UpdateUserPassword(username, hash)
 	if err != nil {
-		log.Println(common.ChainError("error updating user", err))
+		log.Println(common.ChainError("error updating user password", err))
 		return common.InternalError()
 	}
 

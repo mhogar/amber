@@ -68,7 +68,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsUserData() {
 	//arrange
 	body := handlers.PostUserBody{
 		Username: "username",
@@ -175,7 +175,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 	//arrange
 	params := []httprouter.Param{
 		{
