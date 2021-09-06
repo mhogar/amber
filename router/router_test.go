@@ -276,19 +276,21 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 }
 
 func TestPostUserTestSuite(t *testing.T) {
-	suite.Run(t, &RouterTestSuite{
-		Method:  "POST",
-		Route:   "/user",
-		Handler: "PostUser",
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "POST",
+			Route:   "/user",
+			Handler: "PostUser",
+		},
 	})
 }
 
-func TestDeleteUserTestSuite(t *testing.T) {
+func TestPutUserTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite{
-			Method:  "DELETE",
-			Route:   "/user",
-			Handler: "DeleteUser",
+			Method:  "PUT",
+			Route:   "/user/username",
+			Handler: "PutUser",
 		},
 	})
 }
@@ -299,6 +301,16 @@ func TestPatchUserPasswordTestSuite(t *testing.T) {
 			Method:  "PATCH",
 			Route:   "/user/password",
 			Handler: "PatchUserPassword",
+		},
+	})
+}
+
+func TestDeleteUserTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "DELETE",
+			Route:   "/user/username",
+			Handler: "DeleteUser",
 		},
 	})
 }

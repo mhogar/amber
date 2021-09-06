@@ -36,6 +36,9 @@ type UserController interface {
 	// CreateUser creates a new user with the given username, password, and rank.
 	CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError)
 
+	// UpdateUser updates the fields of the user for the given username.
+	UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError)
+
 	// UpdateUserPassword updates the password for the given username.
 	UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError
 

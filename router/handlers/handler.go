@@ -13,11 +13,14 @@ type Handlers interface {
 	// PostUser handles POST requests to /user.
 	PostUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
-	// DeleteUser handles DELETE requests to /user.
-	DeleteUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+	// PutUser handles PUT requests to /user.
+	PutUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 	// PatchUserPassword handles PATCH requests to /user/password.
 	PatchUserPassword(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
+	// DeleteUser handles DELETE requests to /user.
+	DeleteUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 	// PostClient handles POST requests to /client.
 	PostClient(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})

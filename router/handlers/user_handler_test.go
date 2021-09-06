@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/julienschmidt/httprouter"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -76,61 +77,134 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	user := models.CreateUser(body.Username, nil, body.Rank)
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.DataCRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserDataResponse{
+		Username: user.Username,
+		PutUserBody: handlers.PutUserBody{
+			Rank: user.Rank,
+		},
+	})
 
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.DataCRUDMock, body.Username, body.Password, body.Rank)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithMissingUsername_ReturnsBadRequest() {
 	//arrange
-	session := models.CreateNewSession("username", 0)
-
-	message := "delete user error"
-	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.ClientError(message))
+	params := []httprouter.Param{}
 
 	//act
-	status, res := suite.CoreHandlers.DeleteUser(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutUser(nil, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+}
+
+func (suite *UserHandlerTestSuite) TestPutUser_WithInvalidJSONBody_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+
+	//act
+	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+}
+
+func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	body := handlers.PutUserBody{
+		Rank: 0,
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	message := "update user error"
+	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.DataCRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_ReturnsInternalServerError() {
 	//arrange
-	session := models.CreateNewSession("username", 0)
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
 
-	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.InternalError())
+	body := handlers.PutUserBody{
+		Rank: 0,
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteUser(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.DataCRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
-	session := models.CreateNewSession("username", 0)
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
 
-	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.NoError())
+	body := handlers.PutUserBody{
+		Rank: 0,
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	user := models.CreateUser(params[0].Value, nil, body.Rank)
+	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteUser(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.DataCRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserDataResponse{
+		Username: user.Username,
+		PutUserBody: handlers.PutUserBody{
+			Rank: user.Rank,
+		},
+	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.DataCRUDMock, session.Username)
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUser", &suite.DataCRUDMock, params[0].Value, user.Rank)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_ReturnsBadRequest() {
@@ -254,6 +328,78 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.DataCRUDMock, session.Username, body.OldPassword, body.NewPassword)
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", &suite.DataCRUDMock, session.Username, session.Token)
+}
+
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithMissingUsername_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{}
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+}
+
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	message := "delete user error"
+	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+}
+
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.DataCRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	helpers.AssertSuccessResponse(&suite.Suite, res)
+
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.DataCRUDMock, params[0].Value)
 }
 
 func TestUserHandlerTestSuite(t *testing.T) {

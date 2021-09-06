@@ -28,9 +28,10 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r.PanicHandler = panicHandler
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, false))
-	r.DELETE("/user", rf.createHandler(rf.Handlers.DeleteUser, true))
+	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true))
+	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true))
 	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true))
+	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true))
 
 	//client routes
 	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true))

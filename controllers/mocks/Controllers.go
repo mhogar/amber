@@ -201,6 +201,29 @@ func (_m *Controllers) UpdateClient(CRUD controllers.ClientControllerCRUD, clien
 	return r0
 }
 
+// UpdateUser provides a mock function with given fields: CRUD, username, rank
+func (_m *Controllers) UpdateUser(CRUD controllers.UserControllerCRUD, username string, rank int) (*models.User, common.CustomError) {
+	ret := _m.Called(CRUD, username, rank)
+
+	var r0 *models.User
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string, int) *models.User); ok {
+		r0 = rf(CRUD, username, rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.User)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.UserControllerCRUD, string, int) common.CustomError); ok {
+		r1 = rf(CRUD, username, rank)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // UpdateUserPassword provides a mock function with given fields: CRUD, username, oldPassword, newPassword
 func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	ret := _m.Called(CRUD, username, oldPassword, newPassword)
