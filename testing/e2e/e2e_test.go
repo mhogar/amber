@@ -3,11 +3,13 @@ package e2e_test
 import (
 	"authserver/config"
 	"authserver/dependencies"
+	"authserver/models"
 	"authserver/router/handlers"
 	"authserver/server"
 	"authserver/testing/helpers"
 	"net/http"
 	"net/http/httptest"
+	"path"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"
@@ -101,4 +103,19 @@ func (suite *E2ETestSuite) CreateClient(tokenType int, keyUri string) uuid.UUID 
 func (suite *E2ETestSuite) DeleteClient(id uuid.UUID) {
 	res := suite.SendRequest(http.MethodDelete, "/client/"+id.String(), suite.Token, nil)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
+
+func (suite *E2ETestSuite) UpdateUserRolesForClient(clientID uuid.UUID, roles ...*models.UserRole) []*models.UserRole {
+	rolesBody := make([]handlers.PutClientRolesBody, len(roles))
+	for index, role := range roles {
+		rolesBody[index] = handlers.PutClientRolesBody{
+			Username: role.Username,
+			Role:     role.Role,
+		}
+	}
+
+	res := suite.SendRequest(http.MethodPut, path.Join("/client", clientID.String(), "roles"), suite.Token, rolesBody)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+
+	return roles
 }

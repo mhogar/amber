@@ -31,9 +31,12 @@ func (suite *TokenE2ETestSuite) TearDownTest() {
 	suite.DeleteUser()
 }
 
-func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {
 	//create client
 	clientId := suite.CreateClient(models.ClientTokenTypeDefault, "keys/test.private.pem")
+
+	//update user role
+	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -46,6 +49,7 @@ func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_CreateToken_DeleteClien
 
 	claims := suite.parseDefaultTokenClaims("keys/test.public.pem", res.Request.URL.Query().Get("token"))
 	suite.Equal(postTokenBody.Username, claims.Username)
+	suite.Equal(roles[0].Role, claims.Role)
 
 	//delete client
 	suite.DeleteClient(clientId)
@@ -69,11 +73,14 @@ func (suite *TokenE2ETestSuite) parseDefaultTokenClaims(keyUri string, tokenStri
 	return claims
 }
 
-func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_UpdateUserRole_CreateToken_DeleteClient() {
 	keyUri := "keys/firebase-test.json"
 
 	//create client
 	clientId := suite.CreateClient(models.ClientTokenTypeFirebase, keyUri)
+
+	//update user role
+	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -86,6 +93,7 @@ func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_CreateToken_DeleteClie
 
 	claims := suite.parseFirebaseTokenClaims(keyUri, res.Request.URL.Query().Get("token"))
 	suite.Equal(suite.Username, claims.UID)
+	suite.Equal(roles[0].Role, claims.Claims["role"])
 
 	//delete client
 	suite.DeleteClient(clientId)

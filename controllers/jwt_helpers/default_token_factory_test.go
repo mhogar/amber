@@ -35,14 +35,15 @@ func (suite *DefaultTokenFactoryTestSuite) SetupTest() {
 func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingPrivateKey_ReturnsError() {
 	//arrange
 	uri := "key.json"
-	username := "username"
 	clientUID := uuid.New()
+	username := "username"
+	role := "role"
 
 	message := "load private key error"
 	suite.DataLoaderMock.On("Load", mock.Anything).Return(nil, errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username)
+	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username, role)
 
 	//assert
 	suite.Empty(token)
@@ -55,8 +56,9 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken
 	viper.Set("token", config.TokenConfig{})
 
 	uri := "key.json"
-	username := "username"
 	clientUID := uuid.New()
+	username := "username"
+	role := "role"
 
 	suite.DataLoaderMock.On("Load", mock.Anything).Return(nil, nil)
 
@@ -64,7 +66,7 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return("", errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username)
+	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username, role)
 
 	//assert
 	suite.Empty(token)
@@ -81,8 +83,9 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsT
 	viper.Set("token", cfg)
 
 	uri := "key.json"
-	username := "username"
 	clientUID := uuid.New()
+	username := "username"
+	role := "role"
 
 	privateKey := []byte("private key")
 	token := "this_is_a_signed_token"
@@ -91,7 +94,7 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsT
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return(token, nil)
 
 	//act
-	resultToken, err := suite.TokenFactory.CreateToken(uri, clientUID, username)
+	resultToken, err := suite.TokenFactory.CreateToken(uri, clientUID, username, role)
 
 	//assert
 	suite.NoError(err)
@@ -101,6 +104,7 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithNoErrors_ReturnsT
 	suite.TokenSignerMock.AssertCalled(suite.T(), "SignToken", mock.MatchedBy(func(tk *jwt.Token) bool {
 		claims := tk.Claims.(jwthelpers.DefaultClaims)
 		return claims.Username == username &&
+			claims.Role == role &&
 			claims.Audience == clientUID.String() &&
 			claims.Issuer == cfg.DefaultIssuer &&
 			claims.ExpiresAt-claims.IssuedAt == cfg.Lifetime

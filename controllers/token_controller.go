@@ -34,6 +34,18 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 		return "", cerr
 	}
 
+	//get the user's role for the client
+	role, err := CRUD.GetUserRoleForClient(clientUID, username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user role for client", err))
+		return "", common.InternalError()
+	}
+
+	//verify role exists
+	if role == nil {
+		return "", common.ClientError(fmt.Sprintf("role for user %s not found", username))
+	}
+
 	//choose the token factory (in practice a factory should always be found since the client model validates the token type when saving)
 	tf := c.TokenFactorySelector.Select(client.TokenType)
 	if tf == nil {
@@ -42,7 +54,7 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	}
 
 	//create the token
-	token, err := tf.CreateToken(client.KeyUri, clientUID, username)
+	token, err := tf.CreateToken(client.KeyUri, clientUID, username, role.Role)
 	if err != nil {
 		log.Println(common.ChainError("error creating token", err))
 		return "", common.InternalError()

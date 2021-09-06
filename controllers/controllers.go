@@ -104,6 +104,7 @@ type SessionController interface {
 type TokenControllerCRUD interface {
 	models.UserCRUD
 	models.ClientCRUD
+	models.UserRoleCRUD
 }
 
 type TokenController interface {
