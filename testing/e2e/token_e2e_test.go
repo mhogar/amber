@@ -21,14 +21,11 @@ type TokenE2ETestSuite struct {
 func (suite *TokenE2ETestSuite) SetupTest() {
 	suite.Username = "username"
 	suite.Password = "Password123!"
-
-	//create new user and login
 	suite.CreateUser(suite.Username, suite.Password, 0)
-	suite.Login(suite.Username, suite.Password)
 }
 
 func (suite *TokenE2ETestSuite) TearDownTest() {
-	suite.DeleteUser()
+	suite.DeleteUser(suite.Username)
 }
 
 func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {

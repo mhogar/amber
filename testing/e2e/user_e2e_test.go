@@ -13,7 +13,25 @@ type UserE2ETestSuite struct {
 	E2ETestSuite
 }
 
-func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUser() {
+func (suite *UserE2ETestSuite) TestCreateUser_UpdateUser_DeleteUser() {
+	username := "username"
+	password := "Password123!"
+
+	//create user
+	suite.CreateUser(username, password, 0)
+
+	//update user
+	putUserBody := handlers.PutUserBody{
+		Rank: 1,
+	}
+	res := suite.SendRequest(http.MethodPut, "/user/"+username, suite.AdminToken, putUserBody)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+
+	//delete user
+	suite.DeleteUser(username)
+}
+
+func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdatePassword_Logout_DeleteUser() {
 	username := "username"
 	password := "Password123!"
 
@@ -21,18 +39,21 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	suite.CreateUser(username, password, 0)
 
 	//login
-	suite.Login(username, password)
+	token := suite.Login(username, password)
 
 	//update user password
 	patchPasswordBody := handlers.PatchUserPasswordBody{
 		OldPassword: password,
 		NewPassword: "NewPassword123!",
 	}
-	res := suite.SendRequest(http.MethodPatch, "/user/password", suite.Token, patchPasswordBody)
+	res := suite.SendRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 
+	//logout
+	suite.Logout(token)
+
 	//delete user
-	suite.DeleteUser()
+	suite.DeleteUser(username)
 }
 
 func TestUserE2ETestSuite(t *testing.T) {
