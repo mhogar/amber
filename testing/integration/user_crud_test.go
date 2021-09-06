@@ -14,7 +14,7 @@ type UserCRUDTestSuite struct {
 
 func (suite *UserCRUDTestSuite) TestCreateUser_WithInvalidUser_ReturnsError() {
 	//act
-	err := suite.Tx.CreateUser(models.CreateUser("", nil, 0))
+	err := suite.Tx.CreateUser(models.CreateUser("", nil, -1))
 
 	//assert
 	suite.Require().Error(err)
@@ -44,7 +44,7 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_GetsTheUserWithUsername() 
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 	//act
-	_, err := suite.Tx.UpdateUser(models.CreateUser("", nil, 0))
+	_, err := suite.Tx.UpdateUser(models.CreateUser("", nil, -1))
 
 	//assert
 	suite.Require().Error(err)
@@ -67,6 +67,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 
 	//act
 	user.PasswordHash = newPassword
+	user.Rank = 10
 	res, err := suite.Tx.UpdateUser(user)
 
 	//assert

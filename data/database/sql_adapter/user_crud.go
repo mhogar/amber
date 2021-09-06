@@ -46,7 +46,7 @@ func (crud *SQLCRUD) CreateUser(user *models.User) error {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserScript(),
-		user.Username, user.PasswordHash)
+		user.Username, user.PasswordHash, user.Rank)
 	cancel()
 
 	if err != nil {
@@ -81,7 +81,7 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserScript(),
-		user.Username, user.PasswordHash)
+		user.Username, user.PasswordHash, user.Rank)
 	cancel()
 
 	if err != nil {
@@ -121,7 +121,9 @@ func readUserData(rows *sql.Rows) (*models.User, error) {
 
 	//get the result
 	user := &models.User{}
-	err := rows.Scan(&user.Username, &user.PasswordHash)
+	err := rows.Scan(
+		&user.Username, &user.PasswordHash, &user.Rank,
+	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

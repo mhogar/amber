@@ -1,2 +1,2 @@
-INSERT INTO "user" ("username", "password_hash")
-	VALUES ($1, $2)
+INSERT INTO "user" ("username", "password_hash", "rank")
+	VALUES ($1, $2, $3)

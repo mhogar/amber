@@ -15,7 +15,7 @@ type SessionCRUDTestSuite struct {
 
 func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsError() {
 	//act
-	err := suite.Tx.SaveSession(models.CreateSession(uuid.Nil, "", 0))
+	err := suite.Tx.SaveSession(models.CreateSession(uuid.Nil, "", -1))
 
 	//assert
 	suite.Require().Error(err)
