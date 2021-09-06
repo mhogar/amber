@@ -90,6 +90,11 @@ func ParseAndAssertInternalServerErrorResponse(suite *suite.Suite, res *http.Res
 	ParseAndAssertErrorResponse(suite, res, http.StatusInternalServerError, "internal error")
 }
 
+// ParseAndAssertInsufficientPermissionsErrorResponse parses the response and asserts it is an insufficient permissions error response.
+func ParseAndAssertInsufficientPermissionsErrorResponse(suite *suite.Suite, res *http.Response) {
+	ParseAndAssertErrorResponse(suite, res, http.StatusForbidden, "insufficient permissions")
+}
+
 // AssertSuccessDataResponse asserts the response's data field is equivalent to the expected data.
 func AssertSuccessDataResponse(suite *suite.Suite, res interface{}, expectedData interface{}) {
 	dataRes := res.(common.DataResponse)

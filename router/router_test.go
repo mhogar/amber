@@ -25,6 +25,8 @@ type RouterTestSuite struct {
 	Method  string
 	Route   string
 	Handler string
+
+	Session *models.Session
 	TokenId string
 }
 
@@ -32,6 +34,7 @@ func (suite *RouterTestSuite) SetupTest() {
 	suite.ScopeFactorySuite.SetupTest()
 	suite.HandlersMock = handlermocks.Handlers{}
 
+	suite.Session = nil
 	suite.TokenId = ""
 
 	rf := router.CoreRouterFactory{
@@ -71,7 +74,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErr
 		suite.Require().Error(err)
 		suite.Contains(err.Error(), message)
 	})
-	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(errors.New(message))
 
 	//act
@@ -87,7 +90,7 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
 		suite.False(result)
 		suite.NoError(err)
@@ -116,7 +119,7 @@ func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedir
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
 		suite.True(result)
 		suite.NoError(err)
@@ -143,7 +146,7 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
 		suite.True(result)
 		suite.NoError(err)
@@ -169,7 +172,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
-	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(&models.Session{}, nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
 
 	suite.HandlersMock.On(suite.Handler, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(0, nil).Run(func(_ mock.Arguments) {
@@ -186,11 +189,15 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 
 type RouterAuthTestSuite struct {
 	RouterTestSuite
+	MinRank int
 }
 
 func (suite *RouterAuthTestSuite) SetupTest() {
 	suite.RouterTestSuite.SetupTest()
-	suite.TokenId = uuid.New().String()
+
+	token := uuid.New()
+	suite.Session = models.CreateSession(token, "username", suite.MinRank)
+	suite.TokenId = token.String()
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorized() {
@@ -275,83 +282,111 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
 }
 
+func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_ReturnsForbidden() {
+	//arrange
+	server := httptest.NewServer(suite.Router)
+	defer server.Close()
+
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	session := models.CreateNewSession("username", suite.MinRank-1)
+
+	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
+	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(session, nil)
+	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
+
+	//act
+	res, err := http.DefaultClient.Do(req)
+	suite.Require().NoError(err)
+
+	//assert
+	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+}
+
 func TestPostUserTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "POST",
 			Route:   "/user",
 			Handler: "PostUser",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestPutUserTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "PUT",
 			Route:   "/user/username",
 			Handler: "PutUser",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestPatchUserPasswordTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "PATCH",
 			Route:   "/user/password",
 			Handler: "PatchUserPassword",
 		},
+		MinRank: 0,
 	})
 }
 
 func TestDeleteUserTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "DELETE",
 			Route:   "/user/username",
 			Handler: "DeleteUser",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestPostClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "POST",
 			Route:   "/client",
 			Handler: "PostClient",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestPutClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "PUT",
 			Route:   "/client/0",
 			Handler: "PutClient",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestDeleteClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "DELETE",
 			Route:   "/client/0",
 			Handler: "DeleteClient",
 		},
+		MinRank: 1,
 	})
 }
 
 func TestPutClientRolesTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "PUT",
 			Route:   "/client/0/roles",
 			Handler: "PutClientRoles",
 		},
+		MinRank: 1,
 	})
 }
 
@@ -365,11 +400,12 @@ func TestPostSessionTestSuite(t *testing.T) {
 
 func TestDeleteSessionTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
-		RouterTestSuite{
+		RouterTestSuite: RouterTestSuite{
 			Method:  "DELETE",
 			Route:   "/session",
 			Handler: "DeleteSession",
 		},
+		MinRank: 0,
 	})
 }
 

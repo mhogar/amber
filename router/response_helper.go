@@ -28,3 +28,7 @@ func sendErrorResponse(w http.ResponseWriter, status int, messsage string) {
 func sendInternalErrorResponse(w http.ResponseWriter) {
 	sendErrorResponse(w, http.StatusInternalServerError, "an internal error occurred")
 }
+
+func sendInsufficientPermissionsErrorResponse(w http.ResponseWriter) {
+	sendErrorResponse(w, http.StatusForbidden, "insufficient permissions to perform the requested action")
+}

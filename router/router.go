@@ -25,35 +25,38 @@ type CoreRouterFactory struct {
 
 func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r := httprouter.New()
-	r.PanicHandler = panicHandler
+	r.PanicHandler = func(w http.ResponseWriter, _ *http.Request, info interface{}) {
+		log.Println(info)
+		sendInternalErrorResponse(w)
+	}
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true))
-	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true))
-	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true))
-	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true))
+	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true, 1))
+	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true, 1))
+	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true, 0))
+	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true, 1))
 
 	//client routes
-	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true))
-	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true))
-	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true))
+	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true, 1))
+	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true, 1))
+	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true, 1))
 
 	//user-role routes
-	r.PUT("/client/:id/roles", rf.createHandler(rf.Handlers.PutClientRoles, true))
+	r.PUT("/client/:id/roles", rf.createHandler(rf.Handlers.PutClientRoles, true, 1))
 
 	//session routes
-	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false))
-	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true))
+	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false, 0))
+	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true, 0))
 
 	//token routes
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false))
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false, 0))
 
 	return r
 }
 
 type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
-func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool) httprouter.Handle {
+func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool, minRank int) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var session *models.Session
 		var cerr common.CustomError
@@ -67,6 +70,12 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 					return nil
 				} else if cerr.Type == common.ErrorTypeInternal {
 					sendInternalErrorResponse(w)
+					return nil
+				}
+
+				//verify the user has at least the min rank required to access the route
+				if session.Rank < minRank {
+					sendInsufficientPermissionsErrorResponse(w)
 					return nil
 				}
 			}
