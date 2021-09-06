@@ -103,6 +103,24 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	suite.Nil(resultUser)
 }
 
+func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
+
+	//act
+	res, err := suite.Tx.DeleteUser(user.Username)
+
+	//assert
+	suite.True(res)
+	suite.Require().NoError(err)
+
+	roles, err := suite.Tx.GetUserRoleForClient(client.UID, user.Username)
+	suite.NoError(err)
+	suite.Empty(roles)
+}
+
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
