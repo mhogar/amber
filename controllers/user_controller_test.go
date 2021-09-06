@@ -37,41 +37,56 @@ func (suite *UserControllerTestSuite) SetupTest() {
 	}
 }
 
-func (suite *UserControllerTestSuite) TestCreateUser_WithEmptyUsername_ReturnsClientError() {
-	//arrange
-	username := ""
-	password := "password"
+func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func(user *models.User) common.CustomError) {
+	suite.Run("EmptyUsername_ReturnsClientError", func() {
+		//arrange
+		user := models.CreateUser("", []byte("password"), 0)
 
-	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+		//act
+		cerr := validateFunc(user)
 
-	//assert
-	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "username cannot be empty")
+		//assert
+		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be empty")
+	})
+
+	suite.Run("UsernameTooLong_ReturnsClientError", func() {
+		//arrange
+		user := models.CreateUser(helpers.CreateStringOfLength(models.UserUsernameMaxLength+1), []byte("password"), 0)
+
+		//act
+		cerr := validateFunc(user)
+
+		//assert
+		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
+	})
+
+	suite.Run("InvalidRank_ReturnsClientError", func() {
+		//arrange
+		user := models.CreateUser("username", []byte("password"), -1)
+
+		//act
+		cerr := validateFunc(user)
+
+		//assert
+		helpers.AssertClientError(&suite.Suite, cerr, "rank", "invalid")
+	})
 }
 
-func (suite *UserControllerTestSuite) TestCreateUser_WithUsernameLongerThanMax_ReturnsClientError() {
-	//arrange
-	username := "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" //31 chars
-	password := "password"
+func (suite *UserControllerTestSuite) TestCreateUser_ValidateUserTestCases() {
+	suite.runValidateUserTestCases(func(user *models.User) common.CustomError {
+		resUser, cerr := suite.UserController.CreateUser(&suite.CRUDMock, user.Username, "password", user.Rank)
+		suite.Nil(resUser)
 
-	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
-
-	//assert
-	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "username cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
+		return cerr
+	})
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorGettingUserByUsername_ReturnsInternalError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, "username", "password", 0)
 
 	//assert
 	suite.Nil(user)
@@ -80,13 +95,10 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorGettingUserByUsern
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsClientError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, "username", "password", 0)
 
 	//assert
 	suite.Nil(user)
@@ -95,14 +107,11 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_Retur
 
 func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsClientError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaError(passwordhelpers.ValidatePasswordCriteriaTooShort, ""))
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, "username", "password", 0)
 
 	//assert
 	suite.Nil(user)
@@ -111,15 +120,12 @@ func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCri
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword_ReturnsInternalError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, "username", "password", 0)
 
 	//assert
 	suite.Nil(user)
@@ -128,16 +134,13 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorCreatingUser_ReturnsInternalError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, nil)
 	suite.CRUDMock.On("CreateUser", mock.Anything).Return(errors.New(""))
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, "username", "password", 0)
 
 	//assert
 	suite.Nil(user)
@@ -148,6 +151,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	//arrange
 	username := "username"
 	password := "password"
+	rank := 0
 
 	hash := []byte("password hash")
 
@@ -157,7 +161,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	suite.CRUDMock.On("CreateUser", mock.Anything).Return(nil)
 
 	//act
-	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password)
+	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password, rank)
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
@@ -168,6 +172,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	suite.Require().NotNil(user)
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
+	suite.Equal(rank, user.Rank)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 }

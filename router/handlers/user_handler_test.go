@@ -33,6 +33,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_Retu
 	body := handlers.PostUserBody{
 		Username: "username",
 		Password: "password",
+		Rank:     0,
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
@@ -52,6 +53,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 	body := handlers.PostUserBody{
 		Username: "username",
 		Password: "password",
+		Rank:     0,
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
@@ -70,10 +72,11 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	body := handlers.PostUserBody{
 		Username: "username",
 		Password: "password",
+		Rank:     0,
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.DataCRUDMock)
@@ -82,7 +85,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.DataCRUDMock, body.Username, body.Password)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.DataCRUDMock, body.Username, body.Password, body.Rank)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {

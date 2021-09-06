@@ -23,7 +23,7 @@ func (suite *TokenE2ETestSuite) SetupTest() {
 	suite.Password = "Password123!"
 
 	//create new user and login
-	suite.CreateUser(suite.Username, suite.Password)
+	suite.CreateUser(suite.Username, suite.Password, 0)
 	suite.Login(suite.Username, suite.Password)
 }
 

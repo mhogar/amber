@@ -71,10 +71,11 @@ func (suite *E2ETestSuite) Logout() {
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
-func (suite *E2ETestSuite) CreateUser(username string, password string) {
+func (suite *E2ETestSuite) CreateUser(username string, password string, rank int) {
 	postUserBody := handlers.PostUserBody{
 		Username: username,
 		Password: password,
+		Rank:     rank,
 	}
 	res := suite.SendRequest(http.MethodPost, "/user", "", postUserBody)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)

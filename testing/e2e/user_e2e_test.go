@@ -18,7 +18,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_Login_UpdateUserPassword_DeleteUse
 	password := "Password123!"
 
 	//create user
-	suite.CreateUser(username, password)
+	suite.CreateUser(username, password, 0)
 
 	//login
 	suite.Login(username, password)

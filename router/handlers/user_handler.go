@@ -15,6 +15,7 @@ import (
 type PostUserBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Rank     int    `json:"rank"`
 }
 
 func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -27,7 +28,7 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 	}
 
 	//create the user
-	_, cerr := h.Controllers.CreateUser(CRUD, body.Username, body.Password)
+	_, cerr := h.Controllers.CreateUser(CRUD, body.Username, body.Password, body.Rank)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

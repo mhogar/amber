@@ -15,13 +15,13 @@ type CoreSessionController struct {
 
 func (c CoreSessionController) CreateSession(CRUD SessionControllerCRUD, username string, password string) (*models.Session, common.CustomError) {
 	//authenticate the user
-	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, password)
+	user, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, password)
 	if cerr.Type != common.ErrorTypeNone {
 		return nil, cerr
 	}
 
 	//create a new session
-	session := models.CreateNewSession(username, 0)
+	session := models.CreateNewSession(username, user.Rank)
 
 	//save the session
 	err := CRUD.SaveSession(session)

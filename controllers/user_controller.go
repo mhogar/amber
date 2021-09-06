@@ -15,16 +15,14 @@ type CoreUserController struct {
 	AuthController            AuthController
 }
 
-func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
+func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError) {
 	//create the user model
-	user := models.CreateUser(username, nil, 0)
+	user := models.CreateUser(username, nil, rank)
 
-	//validate the username
-	verr := user.Validate()
-	if verr&models.ValidateUserEmptyUsername != 0 {
-		return nil, common.ClientError("username cannot be empty")
-	} else if verr&models.ValidateUserUsernameTooLong != 0 {
-		return nil, common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
+	//validate the user
+	cerr := c.validateUser(user)
+	if cerr.Type != common.ErrorTypeNone {
+		return nil, cerr
 	}
 
 	//validate username is unique
@@ -110,5 +108,19 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username
 	}
 
 	//return success
+	return common.NoError()
+}
+
+func (CoreUserController) validateUser(user *models.User) common.CustomError {
+	verr := user.Validate()
+
+	if verr&models.ValidateUserEmptyUsername != 0 {
+		return common.ClientError("username cannot be empty")
+	} else if verr&models.ValidateUserUsernameTooLong != 0 {
+		return common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
+	} else if verr&models.ValidateUserInvalidRank != 0 {
+		return common.ClientError("rank is invalid")
+	}
+
 	return common.NoError()
 }
