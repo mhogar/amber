@@ -47,17 +47,30 @@ func (suite *CRUDTestSuite) TearDownTest() {
 	suite.Require().NoError(err)
 }
 
-func (suite *CRUDTestSuite) SaveUser(user *models.User) {
+func (suite *CRUDTestSuite) SaveUser(user *models.User) *models.User {
 	err := suite.Tx.CreateUser(user)
 	suite.Require().NoError(err)
+
+	return user
 }
 
-func (suite *CRUDTestSuite) SaveClient(client *models.Client) {
+func (suite *CRUDTestSuite) SaveClient(client *models.Client) *models.Client {
 	err := suite.Tx.CreateClient(client)
 	suite.Require().NoError(err)
+
+	return client
 }
 
-func (suite *CRUDTestSuite) SaveSession(session *models.Session) {
+func (suite *CRUDTestSuite) UpdateUserRolesForClient(client *models.Client, roles ...*models.UserRole) []*models.UserRole {
+	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
+	suite.Require().NoError(err)
+
+	return roles
+}
+
+func (suite *CRUDTestSuite) SaveSession(session *models.Session) *models.Session {
 	err := suite.Tx.SaveSession(session)
 	suite.Require().NoError(err)
+
+	return session
 }

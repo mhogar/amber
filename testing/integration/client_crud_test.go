@@ -25,6 +25,27 @@ func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsErro
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
 }
 
+func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_ReturnsNilClient() {
+	//act
+	client, err := suite.Tx.GetClientByUID(uuid.New())
+
+	//assert
+	suite.NoError(err)
+	suite.Nil(client)
+}
+
+func (suite *ClientCRUDTestSuite) TestGetClientByUId_GetsTheClientWithUId() {
+	//arrange
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+
+	//act
+	resultClient, err := suite.Tx.GetClientByUID(client.UID)
+
+	//assert
+	suite.NoError(err)
+	suite.EqualValues(client, resultClient)
+}
+
 func (suite *ClientCRUDTestSuite) TestUpdateClient_WithInvalidClient_ReturnsError() {
 	//arrange
 	client := models.CreateNewClient("", "", 0, "")
@@ -51,9 +72,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_UpdatesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
-
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 	client.Name = "new name"
 
 	//act
@@ -80,8 +99,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_WhereClientIsNotFound_Returns
 
 func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
 
 	//act
 	res, err := suite.Tx.DeleteClient(client.UID)
@@ -95,26 +113,22 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	suite.Nil(resultClient)
 }
 
-func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_ReturnsNilClient() {
-	//act
-	client, err := suite.Tx.GetClientByUID(uuid.New())
-
-	//assert
-	suite.NoError(err)
-	suite.Nil(client)
-}
-
-func (suite *ClientCRUDTestSuite) TestGetClientByUId_GetsTheClientWithUId() {
+func (suite *UserCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient() {
 	//arrange
-	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	suite.SaveClient(client)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
 
 	//act
-	resultClient, err := suite.Tx.GetClientByUID(client.UID)
+	res, err := suite.Tx.DeleteClient(client.UID)
 
 	//assert
+	suite.True(res)
+	suite.Require().NoError(err)
+
+	roles, err := suite.Tx.GetUserRolesForClient(client.UID)
 	suite.NoError(err)
-	suite.EqualValues(client, resultClient)
+	suite.Empty(roles)
 }
 
 func TestClientCRUDTestSuite(t *testing.T) {

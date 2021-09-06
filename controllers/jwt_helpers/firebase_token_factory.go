@@ -17,8 +17,9 @@ type FirebaseServiceJSON struct {
 
 type FirebaseClaims struct {
 	jwt.StandardClaims
-	Algorithm string `json:"alg"`
-	UID       string `json:"uid"`
+	Algorithm string            `json:"alg"`
+	UID       string            `json:"uid"`
+	Claims    map[string]string `json:"claims"`
 }
 
 type FirebaseTokenFactory struct {
@@ -26,7 +27,7 @@ type FirebaseTokenFactory struct {
 	TokenSigner TokenSigner
 }
 
-func (tf FirebaseTokenFactory) CreateToken(keyUri string, _ uuid.UUID, username string) (string, error) {
+func (tf FirebaseTokenFactory) CreateToken(keyUri string, _ uuid.UUID, username string, role string) (string, error) {
 	var serviceJSON FirebaseServiceJSON
 
 	//load the service json
@@ -49,7 +50,9 @@ func (tf FirebaseTokenFactory) CreateToken(keyUri string, _ uuid.UUID, username 
 		},
 		Algorithm: "RS256",
 		UID:       username,
+		Claims:    make(map[string]string),
 	}
+	claims.Claims["role"] = role
 
 	//create the token
 	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)

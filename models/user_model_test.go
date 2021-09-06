@@ -40,7 +40,7 @@ func (suite *UserTestSuite) TestValidate_WithValidUser_ReturnsValid() {
 	suite.Equal(models.ValidateUserValid, verr)
 }
 
-func (suite *UserTestSuite) TestValidate_WithEmptyUsername_ReturnsUserInvalidUsername() {
+func (suite *UserTestSuite) TestValidate_WithEmptyUsername_ReturnsUserEmptyUsername() {
 	//arrange
 	suite.User.Username = ""
 
@@ -66,7 +66,7 @@ func (suite *UserTestSuite) TestValidate_UsernameMaxLengthTestCases() {
 		suite.Equal(expectedValidateError, verr)
 	}
 
-	username = helpers.CreateStringOfLength(30)
+	username = helpers.CreateStringOfLength(models.UserUsernameMaxLength)
 	expectedValidateError = models.ValidateUserValid
 	suite.Run("ExactlyMaxLengthIsValid", testCase)
 

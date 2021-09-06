@@ -12,7 +12,8 @@ import (
 
 type DefaultClaims struct {
 	jwt.StandardClaims
-	Username string
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
 
 type DefaultTokenFactory struct {
@@ -20,7 +21,7 @@ type DefaultTokenFactory struct {
 	TokenSigner TokenSigner
 }
 
-func (tf DefaultTokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, username string) (string, error) {
+func (tf DefaultTokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, username string, role string) (string, error) {
 	//load the private key
 	privateKey, err := tf.DataLoader.Load(keyUri)
 	if err != nil {
@@ -39,6 +40,7 @@ func (tf DefaultTokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, us
 			ExpiresAt: now + cfg.Lifetime,
 		},
 		Username: username,
+		Role:     role,
 	}
 
 	//create the token

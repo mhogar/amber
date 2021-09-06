@@ -30,10 +30,9 @@ func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsN
 	suite.Nil(user)
 }
 
-func (suite *UserCRUDTestSuite) TestGetUserByUsernameGetsTheUserWithUsername() {
+func (suite *UserCRUDTestSuite) TestGetUserByUsername_GetsTheUserWithUsername() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
 
 	//act
 	resultUser, err := suite.Tx.GetUserByUsername(user.Username)
@@ -64,9 +63,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseR
 func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithId() {
 	//arrange
 	newPassword := []byte("new_password")
-
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
 
 	//act
 	user.PasswordHash = newPassword
@@ -92,8 +89,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_WhereUserIsNotFound_ReturnsFalseR
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -107,13 +103,28 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_DeletesUserWithId() {
 	suite.Nil(resultUser)
 }
 
+func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
+
+	//act
+	res, err := suite.Tx.DeleteUser(user.Username)
+
+	//assert
+	suite.True(res)
+	suite.Require().NoError(err)
+
+	roles, err := suite.Tx.GetUserRoleForClient(client.UID, user.Username)
+	suite.NoError(err)
+	suite.Empty(roles)
+}
+
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {
 	//arrange
-	user := models.CreateUser("username", []byte("password"))
-	suite.SaveUser(user)
-
-	session := models.CreateNewSession(user.Username)
-	suite.SaveSession(session)
+	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
+	session := suite.SaveSession(models.CreateNewSession(user.Username))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)

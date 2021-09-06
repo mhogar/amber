@@ -333,6 +333,16 @@ func TestDeleteClientTestSuite(t *testing.T) {
 	})
 }
 
+func TestPutClientRolesTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite{
+			Method:  "PUT",
+			Route:   "/client/0/roles",
+			Handler: "PutClientRoles",
+		},
+	})
+}
+
 func TestPostSessionTestSuite(t *testing.T) {
 	suite.Run(t, &RouterTestSuite{
 		Method:  "POST",

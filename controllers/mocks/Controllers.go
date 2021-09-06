@@ -214,3 +214,17 @@ func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, u
 
 	return r0
 }
+
+// UpdateUserRolesForClient provides a mock function with given fields: CRUD, clientUID, roles
+func (_m *Controllers) UpdateUserRolesForClient(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError {
+	ret := _m.Called(CRUD, clientUID, roles)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID, []*models.UserRole) common.CustomError); ok {
+		r0 = rf(CRUD, clientUID, roles)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}

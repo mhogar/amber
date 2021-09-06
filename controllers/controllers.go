@@ -11,6 +11,7 @@ import (
 type Controllers interface {
 	UserController
 	ClientController
+	UserRoleController
 	AuthController
 	SessionController
 	TokenController
@@ -19,6 +20,7 @@ type Controllers interface {
 type CoreControllers struct {
 	UserController
 	ClientController
+	UserRoleController
 	AuthController
 	SessionController
 	TokenController
@@ -58,6 +60,16 @@ type ClientController interface {
 	DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError
 }
 
+// UserRoleControllerCRUD encapsulates the CRUD operations required by the UserRoleController.
+type UserRoleControllerCRUD interface {
+	models.UserRoleCRUD
+}
+
+type UserRoleController interface {
+	// UpdateUserRolesForClient updates the users' role for the provided client.
+	UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError
+}
+
 // AuthControllerCRUD encapsulates the CRUD operations required by the AuthController.
 type AuthControllerCRUD interface {
 	models.UserCRUD
@@ -92,6 +104,7 @@ type SessionController interface {
 type TokenControllerCRUD interface {
 	models.UserCRUD
 	models.ClientCRUD
+	models.UserRoleCRUD
 }
 
 type TokenController interface {

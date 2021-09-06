@@ -12,20 +12,20 @@ type TokenFactory struct {
 	mock.Mock
 }
 
-// CreateToken provides a mock function with given fields: keyUri, clientUID, username
-func (_m *TokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, username string) (string, error) {
-	ret := _m.Called(keyUri, clientUID, username)
+// CreateToken provides a mock function with given fields: keyUri, clientUID, username, role
+func (_m *TokenFactory) CreateToken(keyUri string, clientUID uuid.UUID, username string, role string) (string, error) {
+	ret := _m.Called(keyUri, clientUID, username, role)
 
 	var r0 string
-	if rf, ok := ret.Get(0).(func(string, uuid.UUID, string) string); ok {
-		r0 = rf(keyUri, clientUID, username)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID, string, string) string); ok {
+		r0 = rf(keyUri, clientUID, username, role)
 	} else {
 		r0 = ret.Get(0).(string)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID, string) error); ok {
-		r1 = rf(keyUri, clientUID, username)
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID, string, string) error); ok {
+		r1 = rf(keyUri, clientUID, username, role)
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -18,6 +18,7 @@ func (repo MigrationRepository) GetMigrations() []migrationrunner.Migration {
 		m001(repo.Executor, repo.ScopeFactory),
 		m002(repo.Executor, repo.ScopeFactory),
 		m003(repo.Executor, repo.ScopeFactory),
+		m004(repo.Executor, repo.ScopeFactory),
 	}
 }
 

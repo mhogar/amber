@@ -6,6 +6,7 @@ type SQLScriptRepository interface {
 	ClientScriptRepository
 	MigrationScriptRepository
 	UserScriptRepository
+	UserRoleScriptRepository
 }
 
 // SessionScriptRepository is an interface for fetching session sql scripts.
@@ -45,4 +46,14 @@ type UserScriptRepository interface {
 	GetUserByUsernameScript() string
 	UpdateUserScript() string
 	DeleteUserScript() string
+}
+
+// UserRoleScriptRepository is an interface for fetching user-role sql scripts.
+type UserRoleScriptRepository interface {
+	CreateUserRoleTableScript() string
+	DropUserRoleTableScript() string
+	GetUserRoleForClientScript() string
+	GetUserRolesForClientScript() string
+	DeleteUserRolesForClientScript() string
+	AddUserRoleForClientScript() string
 }
