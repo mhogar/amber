@@ -15,21 +15,23 @@ type UserTestSuite struct {
 }
 
 func (suite *UserTestSuite) SetupTest() {
-	suite.User = models.CreateUser("username", []byte("password"))
+	suite.User = models.CreateUser("username", []byte("password"), 0)
 }
 
 func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
 	//arrange
 	username := "this is a test username"
 	hash := []byte("this is a password")
+	rank := 100
 
 	//act
-	user := models.CreateUser(username, hash)
+	user := models.CreateUser(username, hash, rank)
 
 	//assert
 	suite.Require().NotNil(user)
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
+	suite.Equal(rank, user.Rank)
 }
 
 func (suite *UserTestSuite) TestValidate_WithValidUser_ReturnsValid() {
@@ -84,6 +86,17 @@ func (suite *UserTestSuite) TestValidate_WithEmptyPasswordHash_ReturnsUserInvali
 
 	//assert
 	suite.Equal(models.ValidateUserInvalidPasswordHash, verr)
+}
+
+func (suite *UserTestSuite) TestValidate_WithNegativeRank_ReturnsUserInvalidRank() {
+	//arrange
+	suite.User.Rank = -1
+
+	//act
+	verr := suite.User.Validate()
+
+	//assert
+	suite.Equal(models.ValidateUserInvalidRank, verr)
 }
 
 func TestUserTestSuite(t *testing.T) {

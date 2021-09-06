@@ -17,7 +17,7 @@ type CoreUserController struct {
 
 func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
 	//create the user model
-	user := models.CreateUser(username, nil)
+	user := models.CreateUser(username, nil, 0)
 
 	//validate the username
 	verr := user.Validate()

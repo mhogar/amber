@@ -15,7 +15,7 @@ type SessionCRUDTestSuite struct {
 
 func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsError() {
 	//act
-	err := suite.Tx.SaveSession(models.CreateSession(uuid.Nil, ""))
+	err := suite.Tx.SaveSession(models.CreateSession(uuid.Nil, "", 0))
 
 	//assert
 	suite.Require().Error(err)
@@ -33,8 +33,8 @@ func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_Retur
 
 func (suite *SessionCRUDTestSuite) TestGetSessionById_GetsTheSessionWithId() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
-	session := suite.SaveSession(models.CreateNewSession(user.Username))
+	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	session := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act
 	resultSession, err := suite.Tx.GetSessionByToken(session.Token)
@@ -55,8 +55,8 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_WhereSessionIsNotFound_Retu
 
 func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
-	session := suite.SaveSession(models.CreateNewSession(user.Username))
+	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	session := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act
 	res, err := suite.Tx.DeleteSession(session.Token)
@@ -72,8 +72,8 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
-	session := suite.SaveSession(models.CreateNewSession(user.Username))
+	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	session := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act
 	err := suite.Tx.DeleteAllOtherUserSessions(session.Username, session.Token)
@@ -84,9 +84,9 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessions
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", []byte("password")))
-	session1 := suite.SaveSession(models.CreateNewSession(user.Username))
-	session2 := suite.SaveSession(models.CreateNewSession(session1.Username))
+	user := suite.SaveUser(models.CreateUser("username", []byte("password"), 0))
+	session1 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
+	session2 := suite.SaveSession(models.CreateNewSession(session1.Username, 0))
 
 	//act
 	err := suite.Tx.DeleteAllOtherUserSessions(session1.Username, session1.Token)

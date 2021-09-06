@@ -87,7 +87,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsSuccess() {
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
 	//arrange
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	message := "delete user error"
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -102,7 +102,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_Re
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
 	//arrange
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.InternalError())
 
@@ -116,7 +116,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.NoError())
 
@@ -134,7 +134,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 	//arrange
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.DataCRUDMock)
@@ -152,7 +152,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	message := "update user password error"
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -173,7 +173,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
@@ -193,7 +193,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
@@ -216,7 +216,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
@@ -237,7 +237,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession("username")
+	session := models.CreateNewSession("username", 0)
 
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())

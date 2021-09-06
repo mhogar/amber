@@ -21,7 +21,7 @@ func (c CoreSessionController) CreateSession(CRUD SessionControllerCRUD, usernam
 	}
 
 	//create a new session
-	session := models.CreateNewSession(username)
+	session := models.CreateNewSession(username, 0)
 
 	//save the session
 	err := CRUD.SaveSession(session)

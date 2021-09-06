@@ -73,7 +73,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession(body.Username)
+	session := models.CreateNewSession(body.Username, 0)
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(session, common.NoError())
 
 	//act
