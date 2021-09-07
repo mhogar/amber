@@ -31,10 +31,10 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	}
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true, 1))
-	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true, 1))
+	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true, 0))
+	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true, 0))
 	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true, 0))
-	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true, 1))
+	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true, 0))
 
 	//client routes
 	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true, 1))

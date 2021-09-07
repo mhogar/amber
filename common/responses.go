@@ -34,6 +34,10 @@ func NewInternalServerErrorResponse() (int, ErrorResponse) {
 	return http.StatusInternalServerError, NewErrorResponse("an internal error occurred")
 }
 
+func NewInsufficientPermissionsErrorResponse() (int, ErrorResponse) {
+	return http.StatusForbidden, NewErrorResponse("insufficient permissions to perform the requested action")
+}
+
 // DataResponse represents a response with a true/false success field and generic data.
 type DataResponse struct {
 	Success bool        `json:"success"`

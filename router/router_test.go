@@ -309,7 +309,7 @@ func TestPostUserTestSuite(t *testing.T) {
 			Route:   "/user",
 			Handler: "PostUser",
 		},
-		MinRank: 1,
+		MinRank: 0,
 	})
 }
 
@@ -320,7 +320,7 @@ func TestPutUserTestSuite(t *testing.T) {
 			Route:   "/user/username",
 			Handler: "PutUser",
 		},
-		MinRank: 1,
+		MinRank: 0,
 	})
 }
 
@@ -342,7 +342,7 @@ func TestDeleteUserTestSuite(t *testing.T) {
 			Route:   "/user/username",
 			Handler: "DeleteUser",
 		},
-		MinRank: 1,
+		MinRank: 0,
 	})
 }
 

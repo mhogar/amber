@@ -22,13 +22,18 @@ type PostUserBody struct {
 	Rank     int    `json:"rank"`
 }
 
-func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PostUser request body", err))
 		return common.NewBadRequestResponse("invalid json body")
+	}
+
+	//verify the session has a greater rank the user being created
+	if body.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
 	}
 
 	//create the user
@@ -47,7 +52,7 @@ type PutUserBody struct {
 	Rank int `json:"rank"`
 }
 
-func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
@@ -60,6 +65,23 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, _ *mo
 	if err != nil {
 		log.Println(common.ChainError("error parsing PutUser request body", err))
 		return common.NewBadRequestResponse("invalid json body")
+	}
+
+	//fetch the requested user
+	user, err := CRUD.GetUserByUsername(username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//verify user exists
+	if user == nil {
+		return common.NewBadRequestResponse("the requested user was not found")
+	}
+
+	//verify the session has a greater rank than the user's current or new rank
+	if user.Rank > session.Rank || body.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
 	}
 
 	//update the user
@@ -109,11 +131,28 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	return common.NewSuccessResponse()
 }
 
-func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
 		return common.NewBadRequestResponse("username not provided")
+	}
+
+	//fetch the requested user
+	user, err := CRUD.GetUserByUsername(username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//verify user exists
+	if user == nil {
+		return common.NewBadRequestResponse("the requested user was not found")
+	}
+
+	//verify the session has a greater rank than the user
+	if user.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
 	}
 
 	//delete the user
