@@ -4,6 +4,7 @@ import (
 	"authserver/common"
 	"authserver/controllers"
 	"authserver/controllers/mocks"
+	"authserver/models"
 	"authserver/testing/helpers"
 	"errors"
 	"testing"
@@ -31,14 +32,11 @@ func (suite *SessionControllerTestSuite) SetupTest() {
 
 func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorAuthenticatingUser_ReturnsError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	authErr := common.ClientError("authenticate user error")
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, authErr)
 
 	//act
-	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, username, password)
+	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, "username", "password")
 
 	//assert
 	suite.Nil(session)
@@ -47,14 +45,13 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorAuthenticati
 
 func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorSavingSession_ReturnsInternalError() {
 	//arrange
-	username := "username"
-	password := "password"
+	user := models.CreateUser("username", 0, nil)
 
-	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.CRUDMock.On("SaveSession", mock.Anything).Return(errors.New(""))
 
 	//act
-	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, username, password)
+	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, user.Username, "password")
 
 	//assert
 	suite.Nil(session)
@@ -63,21 +60,22 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorSavingSessio
 
 func (suite *SessionControllerTestSuite) TestCreateSession_WithNoErrors_ReturnsNoError() {
 	//arrange
-	username := "username"
+	user := models.CreateUser("username", 0, nil)
 	password := "password"
 
-	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
+	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 	suite.CRUDMock.On("SaveSession", mock.Anything).Return(nil)
 
 	//act
-	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, username, password)
+	session, cerr := suite.SessionController.CreateSession(&suite.CRUDMock, user.Username, password)
 
 	//assert
-	suite.ControllersMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, username, password)
+	suite.ControllersMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, user.Username, password)
 	suite.CRUDMock.AssertCalled(suite.T(), "SaveSession", session)
 
 	suite.Require().NotNil(session)
-	suite.Equal(username, session.Username)
+	suite.Equal(user.Username, session.Username)
+	suite.Equal(user.Rank, session.Rank)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 }

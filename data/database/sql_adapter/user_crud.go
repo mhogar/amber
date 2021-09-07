@@ -36,17 +36,20 @@ func (crud *SQLCRUD) DropUserTable() error {
 	return err
 }
 
-// CreateUser validates the user model is valid and inserts a new row into the user table.
-// Updates the model with the new inserted id and returns any errors.
 func (crud *SQLCRUD) CreateUser(user *models.User) error {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
 		return errors.New(fmt.Sprint("error validating user model:", verr))
 	}
 
+	if user.PasswordHash == nil {
+		return errors.New("password hash cannot be nil")
+	}
+
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserScript(),
-		user.Username, user.PasswordHash)
+		user.Username, user.Rank, user.PasswordHash,
+	)
 	cancel()
 
 	if err != nil {
@@ -56,8 +59,6 @@ func (crud *SQLCRUD) CreateUser(user *models.User) error {
 	return nil
 }
 
-// GetUserByUsername gets the row in the user table with the matching username, and creates a new user model using its data.
-// Returns the model and any errors.
 func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserByUsernameScript(), username)
@@ -71,8 +72,6 @@ func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 	return readUserData(rows)
 }
 
-// UpdateUser validates the user model is valid and updates the row in the user table with the matching id.
-// Returns result of whether the user was found, and any errors.
 func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
@@ -81,7 +80,8 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserScript(),
-		user.Username, user.PasswordHash)
+		user.Username, user.Rank,
+	)
 	cancel()
 
 	if err != nil {
@@ -92,8 +92,25 @@ func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
 	return count > 0, nil
 }
 
-// DeleteUser deletes the row in the user table with the matching id.
-// Returns result of whether the user was found, and any errors.
+func (crud *SQLCRUD) UpdateUserPassword(username string, hash []byte) (bool, error) {
+	if hash == nil {
+		return false, errors.New("password hash cannot be nil")
+	}
+
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserPasswordScript(),
+		username, hash,
+	)
+	cancel()
+
+	if err != nil {
+		return false, common.ChainError("error executing update user password statement", err)
+	}
+
+	count, _ := res.RowsAffected()
+	return count > 0, nil
+}
+
 func (crud *SQLCRUD) DeleteUser(username string) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserScript(), username)
@@ -121,7 +138,9 @@ func readUserData(rows *sql.Rows) (*models.User, error) {
 
 	//get the result
 	user := &models.User{}
-	err := rows.Scan(&user.Username, &user.PasswordHash)
+	err := rows.Scan(
+		&user.Username, &user.Rank, &user.PasswordHash,
+	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}

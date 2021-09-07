@@ -42,7 +42,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return newClientDataResponse(client)
+	return h.newClientDataResponse(client)
 }
 
 func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -74,7 +74,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return newClientDataResponse(client)
+	return h.newClientDataResponse(client)
 }
 
 func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -97,7 +97,7 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	return common.NewSuccessResponse()
 }
 
-func newClientDataResponse(client *models.Client) (int, common.DataResponse) {
+func (CoreHandlers) newClientDataResponse(client *models.Client) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(ClientDataResponse{
 		ID: client.UID.String(),
 		PostClientBody: PostClientBody{

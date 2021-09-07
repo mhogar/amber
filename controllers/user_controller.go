@@ -15,16 +15,14 @@ type CoreUserController struct {
 	AuthController            AuthController
 }
 
-func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string) (*models.User, common.CustomError) {
+func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError) {
 	//create the user model
-	user := models.CreateUser(username, nil)
+	user := models.CreateUser(username, rank, nil)
 
-	//validate the username
-	verr := user.Validate()
-	if verr&models.ValidateUserEmptyUsername != 0 {
-		return nil, common.ClientError("username cannot be empty")
-	} else if verr&models.ValidateUserUsernameTooLong != 0 {
-		return nil, common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
+	//validate the user
+	cerr := c.validateUser(user)
+	if cerr.Type != common.ErrorTypeNone {
+		return nil, cerr
 	}
 
 	//validate username is unique
@@ -61,26 +59,34 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError {
-	//delete the user
-	res, err := CRUD.DeleteUser(username)
+func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError) {
+	//create the user model
+	user := models.CreateUser(username, rank, nil)
+
+	//validate the user
+	cerr := c.validateUser(user)
+	if cerr.Type != common.ErrorTypeNone {
+		return nil, cerr
+	}
+
+	//update the user
+	res, err := CRUD.UpdateUser(user)
 	if err != nil {
-		log.Println(common.ChainError("error deleting user", err))
-		return common.InternalError()
+		log.Println(common.ChainError("error updating user", err))
+		return nil, common.InternalError()
 	}
 
 	//verify user was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("user with username %s not found", username))
+		return nil, common.ClientError(fmt.Sprintf("user with username %s not found", username))
 	}
 
-	//return success
-	return common.NoError()
+	return user, common.NoError()
 }
 
 func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	//authenticate user first with their old password
-	user, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
+	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.ClientError("old password is invalid")
 	} else if cerr.Type != common.ErrorTypeNone {
@@ -102,13 +108,43 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username
 	}
 
 	//update the user (don't check result because we know the user already exists)
-	user.PasswordHash = hash
-	_, err = CRUD.UpdateUser(user)
+	_, err = CRUD.UpdateUserPassword(username, hash)
 	if err != nil {
-		log.Println(common.ChainError("error updating user", err))
+		log.Println(common.ChainError("error updating user password", err))
 		return common.InternalError()
 	}
 
 	//return success
+	return common.NoError()
+}
+
+func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError {
+	//delete the user
+	res, err := CRUD.DeleteUser(username)
+	if err != nil {
+		log.Println(common.ChainError("error deleting user", err))
+		return common.InternalError()
+	}
+
+	//verify user was actually found
+	if !res {
+		return common.ClientError(fmt.Sprintf("user with username %s not found", username))
+	}
+
+	//return success
+	return common.NoError()
+}
+
+func (CoreUserController) validateUser(user *models.User) common.CustomError {
+	verr := user.Validate()
+
+	if verr&models.ValidateUserEmptyUsername != 0 {
+		return common.ClientError("username cannot be empty")
+	} else if verr&models.ValidateUserUsernameTooLong != 0 {
+		return common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
+	} else if verr&models.ValidateUserInvalidRank != 0 {
+		return common.ClientError("rank is invalid")
+	}
+
 	return common.NoError()
 }

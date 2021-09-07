@@ -11,13 +11,18 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-// PostUserBody is the struct the body of requests to PostUser should be parsed into.
+type UserDataResponse struct {
+	Username string `json:"username"`
+	PutUserBody
+}
+
 type PostUserBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
+	Rank     int    `json:"rank"`
 }
 
-func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
 	err := parseJSONBody(req.Body, &body)
@@ -26,8 +31,13 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
+	//verify the session has a greater rank the user being created
+	if body.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
+	}
+
 	//create the user
-	_, cerr := h.Controllers.CreateUser(CRUD, body.Username, body.Password)
+	user, cerr := h.Controllers.CreateUser(CRUD, body.Username, body.Password, body.Rank)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -35,12 +45,47 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, _ *models
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return h.newUserDataResponse(user)
 }
 
-func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
-	//delete the user
-	cerr := h.Controllers.DeleteUser(CRUD, session.Username)
+type PutUserBody struct {
+	Rank int `json:"rank"`
+}
+
+func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//get the username
+	username := params.ByName("username")
+	if username == "" {
+		return common.NewBadRequestResponse("username not provided")
+	}
+
+	//parse the body
+	var body PutUserBody
+	err := parseJSONBody(req.Body, &body)
+	if err != nil {
+		log.Println(common.ChainError("error parsing PutUser request body", err))
+		return common.NewBadRequestResponse("invalid json body")
+	}
+
+	//fetch the requested user
+	user, err := CRUD.GetUserByUsername(username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//verify user exists
+	if user == nil {
+		return common.NewBadRequestResponse("the requested user was not found")
+	}
+
+	//verify the session has a greater rank than the user's current or new rank
+	if user.Rank > session.Rank || body.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
+	}
+
+	//update the user
+	user, cerr := h.Controllers.UpdateUser(CRUD, username, body.Rank)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -48,10 +93,9 @@ func (h CoreHandlers) DeleteUser(_ *http.Request, _ httprouter.Params, session *
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return h.newUserDataResponse(user)
 }
 
-// PatchUserPasswordBody is the struct the body of requests to PatchUserPassword should be parsed into.
 type PatchUserPasswordBody struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`
@@ -85,4 +129,49 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 	}
 
 	return common.NewSuccessResponse()
+}
+
+func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//get the username
+	username := params.ByName("username")
+	if username == "" {
+		return common.NewBadRequestResponse("username not provided")
+	}
+
+	//fetch the requested user
+	user, err := CRUD.GetUserByUsername(username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//verify user exists
+	if user == nil {
+		return common.NewBadRequestResponse("the requested user was not found")
+	}
+
+	//verify the session has a greater rank than the user
+	if user.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
+	}
+
+	//delete the user
+	cerr := h.Controllers.DeleteUser(CRUD, username)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
+	return common.NewSuccessResponse()
+}
+
+func (CoreHandlers) newUserDataResponse(user *models.User) (int, common.DataResponse) {
+	return common.NewSuccessDataResponse(UserDataResponse{
+		Username: user.Username,
+		PutUserBody: PutUserBody{
+			Rank: user.Rank,
+		},
+	})
 }

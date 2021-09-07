@@ -15,21 +15,23 @@ type UserTestSuite struct {
 }
 
 func (suite *UserTestSuite) SetupTest() {
-	suite.User = models.CreateUser("username", []byte("password"))
+	suite.User = models.CreateUser("username", 0, []byte("password"))
 }
 
 func (suite *UserTestSuite) TestCreateNewUser_CreatesUserWithSuppliedFields() {
 	//arrange
 	username := "this is a test username"
+	rank := 100
 	hash := []byte("this is a password")
 
 	//act
-	user := models.CreateUser(username, hash)
+	user := models.CreateUser(username, rank, hash)
 
 	//assert
 	suite.Require().NotNil(user)
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
+	suite.Equal(rank, user.Rank)
 }
 
 func (suite *UserTestSuite) TestValidate_WithValidUser_ReturnsValid() {
@@ -75,15 +77,15 @@ func (suite *UserTestSuite) TestValidate_UsernameMaxLengthTestCases() {
 	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 
-func (suite *UserTestSuite) TestValidate_WithEmptyPasswordHash_ReturnsUserInvalidPasswordHash() {
+func (suite *UserTestSuite) TestValidate_WithNegativeRank_ReturnsUserInvalidRank() {
 	//arrange
-	suite.User.PasswordHash = make([]byte, 0)
+	suite.User.Rank = -1
 
 	//act
 	verr := suite.User.Validate()
 
 	//assert
-	suite.Equal(models.ValidateUserInvalidPasswordHash, verr)
+	suite.Equal(models.ValidateUserInvalidRank, verr)
 }
 
 func TestUserTestSuite(t *testing.T) {

@@ -117,7 +117,7 @@ func readSessionData(rows *sql.Rows) (*models.Session, error) {
 
 	//get the result
 	err := rows.Scan(
-		&session.Token, &session.Username,
+		&session.Token, &session.Username, &session.Rank,
 	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)

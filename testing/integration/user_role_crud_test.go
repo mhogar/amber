@@ -29,10 +29,10 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_WithInvalidUser
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_UpdatesRolesForClient() {
 	//arrange
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	user1 := suite.SaveUser(models.CreateUser("user1", []byte("password")))
-	user2 := suite.SaveUser(models.CreateUser("user2", []byte("password")))
-	user3 := suite.SaveUser(models.CreateUser("user3", []byte("password")))
-	user4 := suite.SaveUser(models.CreateUser("user4", []byte("password")))
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
+	user3 := suite.SaveUser(models.CreateUser("user3", 0, []byte("password")))
+	user4 := suite.SaveUser(models.CreateUser("user4", 0, []byte("password")))
 
 	//-- first update --
 	roles := make([]*models.UserRole, 2)
@@ -65,8 +65,8 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_UpdatesRolesFor
 func (suite *UserRoleCRUDTestSuite) TestGetUserRoleForClient_TestCases() {
 	//arrange
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	user1 := suite.SaveUser(models.CreateUser("user1", []byte("password")))
-	user2 := suite.SaveUser(models.CreateUser("user2", []byte("password")))
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
 
 	roles := make([]*models.UserRole, 1)
 	roles[0] = models.CreateUserRole(user2.Username, "role")

@@ -21,7 +21,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithInvalidJSONBody_Return
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
 	//act
-	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -40,7 +40,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithClientErrorCreatingSes
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -58,7 +58,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithInternalErrorCreatingS
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -73,11 +73,11 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	session := models.CreateNewSession(body.Username)
+	session := models.CreateNewSession(body.Username, 0)
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(session, common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
@@ -86,7 +86,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 		Username: body.Username,
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateSession", &suite.DataCRUDMock, body.Username, body.Password)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateSession", &suite.CRUDMock, body.Username, body.Password)
 }
 
 func (suite *SessionHandlerTestSuite) TestDeleteSession_WithClientErrorDeletingSession_ReturnsBadRequest() {
@@ -97,7 +97,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithClientErrorDeletingS
 	suite.ControllersMock.On("DeleteSession", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -111,7 +111,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithInternalErrorDeletin
 	suite.ControllersMock.On("DeleteSession", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -125,13 +125,13 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithNoErrors_ReturnsSucc
 	suite.ControllersMock.On("DeleteSession", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteSession(nil, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteSession", &suite.DataCRUDMock, session.Token)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteSession", &suite.CRUDMock, session.Token)
 }
 
 func TestSessionHandlerTestSuite(t *testing.T) {

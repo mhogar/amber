@@ -152,7 +152,8 @@ func (ScriptRepository) GetSessionByTokenScript() string {
 	return `
 SELECT
     s."token",
-    u."username"
+    u."username",
+    u."rank"
 FROM "session" s
     INNER JOIN "user" u ON u."key" = s."user_key"
 WHERE s."token" = $1
@@ -173,8 +174,8 @@ INSERT INTO "session" ("token", "user_key")
 // CreateUserScript gets the CreateUser script.
 func (ScriptRepository) CreateUserScript() string {
 	return `
-INSERT INTO "user" ("username", "password_hash")
-	VALUES ($1, $2)
+INSERT INTO "user" ("username", "rank", "password_hash")
+	VALUES ($1, $2, $3)
 `
 }
 
@@ -184,6 +185,7 @@ func (ScriptRepository) CreateUserTableScript() string {
 CREATE TABLE "public"."user" (
 	"key" SERIAL,
 	"username" VARCHAR(30) NOT NULL,
+	"rank" SMALLINT NOT NULL,
 	"password_hash" BYTEA NOT NULL,
 	CONSTRAINT "user_pk" PRIMARY KEY ("key"),
 	CONSTRAINT "user_username_un" UNIQUE ("username")
@@ -209,7 +211,7 @@ DROP TABLE "public"."user"
 // GetUserByUsernameScript gets the GetUserByUsername script.
 func (ScriptRepository) GetUserByUsernameScript() string {
 	return `
-SELECT u."username", u."password_hash"
+SELECT u."username", u."rank", u."password_hash"
 	FROM "user" u
 	WHERE u."username" = $1
 `
@@ -217,6 +219,15 @@ SELECT u."username", u."password_hash"
 
 // UpdateUserScript gets the UpdateUser script.
 func (ScriptRepository) UpdateUserScript() string {
+	return `
+UPDATE "user" SET
+    "rank" = $2
+WHERE "username" = $1
+`
+}
+
+// UpdateUserPasswordScript gets the UpdateUserPassword script.
+func (ScriptRepository) UpdateUserPasswordScript() string {
 	return `
 UPDATE "user" SET
     "password_hash" = $2

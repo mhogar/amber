@@ -1,3 +1,3 @@
 UPDATE "user" SET
-    "rank" = $2
+    "password_hash" = $2
 WHERE "username" = $1

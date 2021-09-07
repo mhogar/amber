@@ -13,10 +13,7 @@ type ClientE2ETestSuite struct {
 	E2ETestSuite
 }
 
-func (suite *ClientE2ETestSuite) TestLogin_CreateClient_UpdateClient_DeleteClient_Logout() {
-	//login
-	suite.LoginAsMaxAdmin()
-
+func (suite *ClientE2ETestSuite) TestCreateClient_UpdateClient_DeleteClient() {
 	//create client
 	id := suite.CreateClient(0, "key.pem")
 
@@ -27,14 +24,11 @@ func (suite *ClientE2ETestSuite) TestLogin_CreateClient_UpdateClient_DeleteClien
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	res := suite.SendRequest(http.MethodPut, "/client/"+id.String(), suite.Token, putClientBody)
+	res := suite.SendRequest(http.MethodPut, "/client/"+id.String(), suite.AdminToken, putClientBody)
 	helpers.ParseDataResponseOK(&suite.Suite, res)
 
 	//delete client
 	suite.DeleteClient(id)
-
-	//logout
-	suite.Logout()
 }
 
 func TestClientE2ETestSuite(t *testing.T) {

@@ -21,7 +21,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInvalidJSONBody_ReturnsBad
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
 	//act
-	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -41,7 +41,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRe
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -60,7 +60,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -80,7 +80,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect()
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(redirectUrl, common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Equal(http.StatusSeeOther, status)

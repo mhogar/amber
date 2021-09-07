@@ -1,10 +1,10 @@
 package models
 
 const (
-	ValidateUserValid               = 0x0
-	ValidateUserEmptyUsername       = 0x1
-	ValidateUserUsernameTooLong     = 0x2
-	ValidateUserInvalidPasswordHash = 0x4
+	ValidateUserValid           = 0x0
+	ValidateUserEmptyUsername   = 0x1
+	ValidateUserUsernameTooLong = 0x2
+	ValidateUserInvalidRank     = 0x8
 )
 
 // UserUsernameMaxLength is the max length a user's username can be.
@@ -13,6 +13,7 @@ const UserUsernameMaxLength = 30
 // User represents the user model.
 type User struct {
 	Username     string
+	Rank         int
 	PasswordHash []byte
 }
 
@@ -24,18 +25,23 @@ type UserCRUD interface {
 	// If no users are found, returns nil user. Also returns any errors.
 	GetUserByUsername(username string) (*User, error)
 
-	// UpdateUser updates the user and returns any errors.
+	// UpdateUser updates the user.
 	// Returns result of whether the user was found, and any errors.
 	UpdateUser(user *User) (bool, error)
+
+	// UpdateUserPassword updates the user's password.
+	// Returns result of whether the user was found, and any errors.
+	UpdateUserPassword(username string, hash []byte) (bool, error)
 
 	// DeleteUser deletes the user with the given username.
 	// Returns result of whether the user was found, and any errors.
 	DeleteUser(username string) (bool, error)
 }
 
-func CreateUser(username string, passwordHash []byte) *User {
+func CreateUser(username string, rank int, passwordHash []byte) *User {
 	return &User{
 		Username:     username,
+		Rank:         rank,
 		PasswordHash: passwordHash,
 	}
 }
@@ -51,8 +57,8 @@ func (u *User) Validate() int {
 		code |= ValidateUserUsernameTooLong
 	}
 
-	if len(u.PasswordHash) == 0 {
-		code |= ValidateUserInvalidPasswordHash
+	if u.Rank < 0 {
+		code |= ValidateUserInvalidRank
 	}
 
 	return code

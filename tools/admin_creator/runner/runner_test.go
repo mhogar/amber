@@ -25,11 +25,8 @@ func (suite *AdminCreatorTestSuite) SetupTest() {
 
 func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	message := "create user error"
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
@@ -39,7 +36,7 @@ func (suite *AdminCreatorTestSuite) TestRun_WithErrorCreatingUser_ReturnsError()
 	})
 
 	//act
-	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, "username", "password", 0)
 
 	//assert
 	suite.NoError(err)
@@ -49,8 +46,9 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	//arrange
 	username := "username"
 	password := "password"
+	rank := 0
 
-	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, common.NoError())
+	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(&models.User{}, common.NoError())
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope_WithCallback(nil, func(result bool, err error) {
@@ -59,12 +57,12 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	})
 
 	//act
-	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password)
+	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password, rank)
 
 	//assert
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateTransactionScope", &suite.DataExecutorMock, mock.Anything)
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.TransactionMock, username, password)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.TransactionMock, username, password, rank)
 
 	suite.NoError(err)
 }

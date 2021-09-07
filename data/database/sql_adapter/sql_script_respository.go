@@ -45,6 +45,7 @@ type UserScriptRepository interface {
 	CreateUserScript() string
 	GetUserByUsernameScript() string
 	UpdateUserScript() string
+	UpdateUserPasswordScript() string
 	DeleteUserScript() string
 }
 

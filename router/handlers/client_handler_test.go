@@ -23,7 +23,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsB
 	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
 
 	//act
-	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -44,7 +44,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -64,7 +64,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -85,7 +85,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(client, common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
@@ -99,7 +99,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.DataCRUDMock, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.CRUDMock, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBadRequest() {
@@ -113,7 +113,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBad
 	}
 
 	//act
-	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -131,7 +131,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBa
 	}
 
 	//act
-	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -159,7 +159,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 	suite.ControllersMock.On("UpdateClient", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -186,7 +186,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 	suite.ControllersMock.On("UpdateClient", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -214,7 +214,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	suite.ControllersMock.On("UpdateClient", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
@@ -228,7 +228,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.DataCRUDMock, mock.MatchedBy(func(client *models.Client) bool {
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.CRUDMock, mock.MatchedBy(func(client *models.Client) bool {
 		return client.UID == uid &&
 			client.Name == body.Name &&
 			client.RedirectUrl == body.RedirectUrl &&
@@ -247,7 +247,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithErrorParsingId_Returns
 	}
 
 	//act
-	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -267,7 +267,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithClientErrorDeletingUse
 	suite.ControllersMock.On("DeleteClient", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -286,7 +286,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithInternalErrorDeletingU
 	suite.ControllersMock.On("DeleteClient", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -306,13 +306,13 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSucces
 	suite.ControllersMock.On("DeleteClient", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.DeleteClient(nil, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteClient", &suite.DataCRUDMock, uid)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteClient", &suite.CRUDMock, uid)
 }
 
 func TestClientHandlerTestSuite(t *testing.T) {

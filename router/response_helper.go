@@ -18,13 +18,16 @@ func sendResponse(w http.ResponseWriter, status int, res interface{}) {
 	}
 }
 
-func sendErrorResponse(w http.ResponseWriter, status int, messsage string) {
-	sendResponse(w, status, common.ErrorResponse{
-		Success: false,
-		Error:   messsage,
-	})
+func sendErrorResponse(w http.ResponseWriter, status int, message string) {
+	sendResponse(w, status, common.NewErrorResponse(message))
 }
 
 func sendInternalErrorResponse(w http.ResponseWriter) {
-	sendErrorResponse(w, http.StatusInternalServerError, "an internal error occurred")
+	status, res := common.NewInternalServerErrorResponse()
+	sendErrorResponse(w, status, res.Error)
+}
+
+func sendInsufficientPermissionsErrorResponse(w http.ResponseWriter) {
+	status, res := common.NewInsufficientPermissionsErrorResponse()
+	sendErrorResponse(w, status, res.Error)
 }

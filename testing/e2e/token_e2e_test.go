@@ -18,17 +18,17 @@ type TokenE2ETestSuite struct {
 	Password string
 }
 
-func (suite *TokenE2ETestSuite) SetupTest() {
+func (suite *TokenE2ETestSuite) SetupSuite() {
+	suite.E2ETestSuite.SetupSuite()
+
 	suite.Username = "username"
 	suite.Password = "Password123!"
-
-	//create new user and login
-	suite.CreateUser(suite.Username, suite.Password)
-	suite.Login(suite.Username, suite.Password)
+	suite.CreateUser(suite.Username, suite.Password, 0)
 }
 
-func (suite *TokenE2ETestSuite) TearDownTest() {
-	suite.DeleteUser()
+func (suite *TokenE2ETestSuite) TearDownSuite() {
+	suite.DeleteUser(suite.Username)
+	suite.E2ETestSuite.TearDownSuite()
 }
 
 func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {

@@ -29,7 +29,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutClientRoles_WithErrorParsingId_Ret
 	}
 
 	//act
-	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -47,7 +47,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutClientRoles_WithInvalidJSONBody_Re
 	}
 
 	//act
-	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -74,7 +74,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutClientRoles_WithClientErrorUpdatin
 	suite.ControllersMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -100,7 +100,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutClientRoles_WithInternalErrorUpdat
 	suite.ControllersMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -127,13 +127,13 @@ func (suite *UserRoleHandlerTestSuite) TestPutClientRoles_WithNoErrors_ReturnsIn
 	suite.ControllersMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.DataCRUDMock)
+	status, res := suite.CoreHandlers.PutClientRoles(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserRolesForClient", &suite.DataCRUDMock, clientUID, mock.MatchedBy(func(roles []*models.UserRole) bool {
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserRolesForClient", &suite.CRUDMock, clientUID, mock.MatchedBy(func(roles []*models.UserRole) bool {
 		return len(rolesBody) == len(roles) &&
 			rolesBody[0].Username == roles[0].Username &&
 			rolesBody[0].Role == roles[0].Role

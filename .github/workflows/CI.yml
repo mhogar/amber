@@ -139,7 +139,7 @@ jobs:
       run: go run tools/migration_runner/main.go -db=integration
 
     - name: Create Admin User
-      run: go run tools/admin_creator/main.go -db=integration -username=admin -password=Admin123!
+      run: go run tools/admin_creator/main.go -db=integration -username=admin -password=Admin123! -rank=10
 
     - name: Run Integration Tests
       run: go test ./testing/integration/ -v
