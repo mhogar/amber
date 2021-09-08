@@ -20,31 +20,9 @@ type UserRoleControllerTestSuite struct {
 }
 
 func (suite *UserRoleControllerTestSuite) runValidateClientTestCases(validateFunc func(role *models.UserRole) common.CustomError) {
-	suite.Run("EmptyUsername_ReturnsClientError", func() {
-		//arrange
-		role := models.CreateUserRole("", "")
-
-		//act
-		cerr := validateFunc(role)
-
-		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be empty")
-	})
-
-	suite.Run("UsernameTooLong_ReturnsClientError", func() {
-		//arrange
-		role := models.CreateUserRole(helpers.CreateStringOfLength(models.UserUsernameMaxLength+1), "")
-
-		//act
-		cerr := validateFunc(role)
-
-		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
-	})
-
 	suite.Run("EmptyRole_ReturnsClientError", func() {
 		//arrange
-		role := models.CreateUserRole("username", "")
+		role := models.CreateUserRole("username", uuid.Nil, "")
 
 		//act
 		cerr := validateFunc(role)
@@ -55,7 +33,7 @@ func (suite *UserRoleControllerTestSuite) runValidateClientTestCases(validateFun
 
 	suite.Run("RoleTooLong_ReturnsClientError", func() {
 		//arrange
-		role := models.CreateUserRole("username", helpers.CreateStringOfLength(models.UserRoleRoleMaxLength+1))
+		role := models.CreateUserRole("username", uuid.Nil, helpers.CreateStringOfLength(models.UserRoleRoleMaxLength+1))
 
 		//act
 		cerr := validateFunc(role)
@@ -90,7 +68,7 @@ func (suite *UserRoleControllerTestSuite) TestUpdateUserRolesForClient_WithNoErr
 	clientUID := uuid.New()
 
 	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole("username", "role")
+	roles[0] = models.CreateUserRole("username", uuid.Nil, "role")
 
 	suite.CRUDMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything).Return(nil)
 

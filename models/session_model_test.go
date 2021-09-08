@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"authserver/models"
-	"authserver/testing/helpers"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -51,52 +50,6 @@ func (suite *SessionTestSuite) TestValidate_WithNilID_ReturnsSessionNilToken() {
 
 	//assert
 	suite.Equal(models.ValidateSessionNilToken, verr)
-}
-
-func (suite *SessionTestSuite) TestValidate_WithEmptyUsername_ReturnsSessionEmptyUsername() {
-	//arrange
-	suite.Session.Username = ""
-
-	//act
-	verr := suite.Session.Validate()
-
-	//assert
-	suite.Equal(models.ValidateSessionEmptyUsername, verr)
-}
-
-func (suite *SessionTestSuite) TestValidate_UsernameMaxLengthTestCases() {
-	var username string
-	var expectedValidateError int
-
-	testCase := func() {
-		//arrange
-		suite.Session.Username = username
-
-		//act
-		verr := suite.Session.Validate()
-
-		//assert
-		suite.Equal(expectedValidateError, verr)
-	}
-
-	username = helpers.CreateStringOfLength(models.UserUsernameMaxLength)
-	expectedValidateError = models.ValidateSessionValid
-	suite.Run("ExactlyMaxLengthIsValid", testCase)
-
-	username += "a"
-	expectedValidateError = models.ValidateSessionUsernameTooLong
-	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
-}
-
-func (suite *SessionTestSuite) TestValidate_WithNegativeRank_ReturnsSessionInvalidRank() {
-	//arrange
-	suite.Session.Rank = -1
-
-	//act
-	verr := suite.Session.Validate()
-
-	//assert
-	suite.Equal(models.ValidateSessionInvalidRank, verr)
 }
 
 func TestSessionTestSuite(t *testing.T) {

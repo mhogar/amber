@@ -16,7 +16,7 @@ type UserRoleCRUDTestSuite struct {
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_WithInvalidUserRoles_ReturnsError() {
 	//arrange
 	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole("", "")
+	roles[0] = models.CreateUserRole("", uuid.Nil, "")
 
 	//act
 	err := suite.Tx.UpdateUserRolesForClient(uuid.New(), roles)
@@ -36,8 +36,8 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_UpdatesRolesFor
 
 	//-- first update --
 	roles := make([]*models.UserRole, 2)
-	roles[0] = models.CreateUserRole(user1.Username, "role1")
-	roles[1] = models.CreateUserRole(user2.Username, "role2")
+	roles[0] = models.CreateUserRole(user1.Username, client.UID, "role1")
+	roles[1] = models.CreateUserRole(user2.Username, client.UID, "role2")
 
 	//act
 	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
@@ -49,8 +49,8 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_UpdatesRolesFor
 	suite.Equal(roles, res)
 
 	//-- second update --
-	roles[0] = models.CreateUserRole(user3.Username, "role1")
-	roles[1] = models.CreateUserRole(user4.Username, "role2")
+	roles[0] = models.CreateUserRole(user3.Username, client.UID, "role1")
+	roles[1] = models.CreateUserRole(user4.Username, client.UID, "role2")
 
 	//act
 	err = suite.Tx.UpdateUserRolesForClient(client.UID, roles)
@@ -69,7 +69,7 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRoleForClient_TestCases() {
 	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
 
 	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole(user2.Username, "role")
+	roles[0] = models.CreateUserRole(user2.Username, client.UID, "role")
 
 	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
 	suite.Require().NoError(err)

@@ -36,7 +36,7 @@ func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateTo
 	clientId := suite.CreateClient(models.ClientTokenTypeDefault, "keys/test.private.pem")
 
 	//update user role
-	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
+	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, clientId, "role"))
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -80,7 +80,7 @@ func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_UpdateUserRole_CreateT
 	clientId := suite.CreateClient(models.ClientTokenTypeFirebase, keyUri)
 
 	//update user role
-	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
+	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, clientId, "role"))
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{

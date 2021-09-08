@@ -127,7 +127,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleF
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", "role")
+	userRole := models.CreateUserRole("username", uuid.Nil, "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
@@ -146,7 +146,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreatingToken_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", "role")
+	userRole := models.CreateUserRole("username", uuid.Nil, "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
@@ -166,7 +166,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsingRedirectUrl_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "invalid_\n_url", 0, "key.pem")
-	userRole := models.CreateUserRole("username", "role")
+	userRole := models.CreateUserRole("username", uuid.Nil, "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
@@ -186,7 +186,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_ReturnsTokenRedirectURL() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", "role")
+	userRole := models.CreateUserRole("username", uuid.Nil, "role")
 	password := "password"
 	token := "this_is_the_token_value"
 

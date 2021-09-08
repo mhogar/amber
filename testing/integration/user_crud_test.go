@@ -150,7 +150,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
+	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, client.UID, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)

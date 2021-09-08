@@ -33,11 +33,7 @@ func (c CoreUserRoleController) UpdateUserRolesForClient(CRUD UserRoleController
 func (CoreUserRoleController) validateUserRole(role *models.UserRole) common.CustomError {
 	verr := role.Validate()
 
-	if verr&models.ValidateUserRoleEmptyUsername != 0 {
-		return common.ClientError("username cannot be empty")
-	} else if verr&models.ValidateUserRoleUsernameTooLong != 0 {
-		return common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
-	} else if verr&models.ValidateUserRoleEmptyRole != 0 {
+	if verr&models.ValidateUserRoleEmptyRole != 0 {
 		return common.ClientError("role cannot be empty")
 	} else if verr&models.ValidateUserRoleRoleTooLong != 0 {
 		return common.ClientError(fmt.Sprint("role cannot be longer than ", models.UserRoleRoleMaxLength, " characters"))

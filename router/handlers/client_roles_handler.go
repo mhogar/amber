@@ -36,7 +36,7 @@ func (h CoreHandlers) PutClientRoles(req *http.Request, params httprouter.Params
 	//create the user-role models
 	userRoles := make([]*models.UserRole, len(rolesBody))
 	for index, role := range rolesBody {
-		userRoles[index] = models.CreateUserRole(role.Username, role.Role)
+		userRoles[index] = models.CreateUserRole(role.Username, id, role.Role)
 	}
 
 	//update the roles

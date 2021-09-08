@@ -3,11 +3,9 @@ package models
 import "github.com/google/uuid"
 
 const (
-	ValidateUserRoleValid           = 0x0
-	ValidateUserRoleEmptyUsername   = 0x1
-	ValidateUserRoleUsernameTooLong = 0x2
-	ValidateUserRoleEmptyRole       = 0x4
-	ValidateUserRoleRoleTooLong     = 0x8
+	ValidateUserRoleValid       = 0x0
+	ValidateUserRoleEmptyRole   = 0x1
+	ValidateUserRoleRoleTooLong = 0x2
 )
 
 // UserRoleRoleMaxLength is the max length a user's username can be.
@@ -15,8 +13,9 @@ const UserRoleRoleMaxLength = 15
 
 // UserRole represents the user-role model
 type UserRole struct {
-	Username string
-	Role     string
+	Username  string
+	ClientUID uuid.UUID
+	Role      string
 }
 
 type UserRoleCRUD interface {
@@ -35,10 +34,11 @@ type UserRoleCRUD interface {
 	UpdateUserRolesForClient(clientUID uuid.UUID, roles []*UserRole) error
 }
 
-func CreateUserRole(username string, role string) *UserRole {
+func CreateUserRole(username string, clientUID uuid.UUID, role string) *UserRole {
 	return &UserRole{
-		Username: username,
-		Role:     role,
+		Username:  username,
+		ClientUID: clientUID,
+		Role:      role,
 	}
 }
 
@@ -46,12 +46,6 @@ func CreateUserRole(username string, role string) *UserRole {
 // Returns an int indicating which fields are invalid.
 func (ur *UserRole) Validate() int {
 	code := ValidateUserRoleValid
-
-	if ur.Username == "" {
-		code |= ValidateUserRoleEmptyUsername
-	} else if len(ur.Username) > UserUsernameMaxLength {
-		code |= ValidateUserRoleUsernameTooLong
-	}
 
 	if ur.Role == "" {
 		code |= ValidateUserRoleEmptyRole

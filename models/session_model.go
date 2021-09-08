@@ -3,11 +3,8 @@ package models
 import "github.com/google/uuid"
 
 const (
-	ValidateSessionValid           = 0x0
-	ValidateSessionNilToken        = 0x1
-	ValidateSessionEmptyUsername   = 0x2
-	ValidateSessionUsernameTooLong = 0x4
-	ValidateSessionInvalidRank     = 0x8
+	ValidateSessionValid    = 0x0
+	ValidateSessionNilToken = 0x1
 )
 
 // Session represents the session model.
@@ -54,16 +51,6 @@ func (s *Session) Validate() int {
 
 	if s.Token == uuid.Nil {
 		code |= ValidateSessionNilToken
-	}
-
-	if s.Username == "" {
-		code |= ValidateSessionEmptyUsername
-	} else if len(s.Username) > UserUsernameMaxLength {
-		code |= ValidateSessionUsernameTooLong
-	}
-
-	if s.Rank < 0 {
-		code |= ValidateSessionInvalidRank
 	}
 
 	return code
