@@ -33,8 +33,11 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
+	//create the client model
+	client := models.CreateNewClient(body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
+
 	//create the client
-	client, cerr := h.Controllers.CreateClient(CRUD, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
+	cerr := h.Controllers.CreateClient(CRUD, client)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

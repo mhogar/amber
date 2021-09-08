@@ -11,24 +11,21 @@ import (
 
 type CoreClientController struct{}
 
-func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError) {
-	//create the client model
-	client := models.CreateNewClient(name, redirectUrl, tokenType, keyUri)
-
+func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError {
 	//validate the client
 	verr := c.validateClient(client)
 	if verr.Type != common.ErrorTypeNone {
-		return nil, verr
+		return verr
 	}
 
 	//save the client
 	err := CRUD.CreateClient(client)
 	if err != nil {
 		log.Println(common.ChainError("error saving client", err))
-		return nil, common.InternalError()
+		return common.InternalError()
 	}
 
-	return client, common.NoError()
+	return common.NoError()
 }
 
 func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError {

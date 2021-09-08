@@ -148,3 +148,20 @@ func (CoreUserController) validateUser(user *models.User) common.CustomError {
 
 	return common.NoError()
 }
+
+func (CoreUserController) VerifyUserRank(CRUD UserControllerCRUD, username string, rank int) (bool, common.CustomError) {
+	//get the requested user
+	user, err := CRUD.GetUserByUsername(username)
+	if err != nil {
+		log.Println(common.ChainError("error getting user by username", err))
+		return false, common.InternalError()
+	}
+
+	//verify user exists
+	if user == nil {
+		return false, common.ClientError("the requested user was not found")
+	}
+
+	//verify the rank
+	return user.Rank < rank, common.NoError()
+}

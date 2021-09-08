@@ -44,6 +44,10 @@ type UserController interface {
 
 	// DeleteUser deletes the user with given username.
 	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError
+
+	// VerifyUserRank verifies the user with given username has a rank less than the provided rank.
+	// Returns result and any errors.
+	VerifyUserRank(CRUD UserControllerCRUD, username string, rank int) (bool, common.CustomError)
 }
 
 // ClientControllerCRUD encapsulates the CRUD operations required by the ClientController.
@@ -53,8 +57,8 @@ type ClientControllerCRUD interface {
 }
 
 type ClientController interface {
-	// CreateClient creates a new client with the given name and redirect url.
-	CreateClient(CRUD ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError)
+	// CreateClient creates a new client using the provided model.
+	CreateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
 	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
@@ -69,8 +73,14 @@ type UserRoleControllerCRUD interface {
 }
 
 type UserRoleController interface {
-	// UpdateUserRolesForClient updates the users' role for the provided client.
-	UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError
+	// CreateUserRole creates a new user-role using the provided model.
+	CreateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
+
+	// UpdateUserRole updates the given user-role.
+	UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
+
+	// DeleteUserRole deletes the user-role with the given username and client uid.
+	DeleteUserRole(CRUD UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError
 }
 
 // AuthControllerCRUD encapsulates the CRUD operations required by the AuthController.

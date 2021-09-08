@@ -3,40 +3,22 @@ package controllers
 import (
 	"authserver/common"
 	"authserver/models"
-	"fmt"
 
 	"github.com/google/uuid"
 )
 
 type CoreUserRoleController struct{}
 
-func (c CoreUserRoleController) UpdateUserRolesForClient(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError {
-	//validate the roles
-	for _, role := range roles {
-		cerr := c.validateUserRole(role)
-		if cerr.Type != common.ErrorTypeNone {
-			return cerr
-		}
-	}
-
-	//update the users' roles
-	// err := CRUD.UpdateUserRolesForClient(clientUID, roles)
-	// if err != nil {
-	// 	log.Println(common.ChainError("error updating user roles for client", err))
-	// 	return common.InternalError()
-	// }
+func (c CoreUserRoleController) CreateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError {
+	//TODO: verify the user does not already have a role for the client
 
 	return common.NoError()
 }
 
-func (CoreUserRoleController) validateUserRole(role *models.UserRole) common.CustomError {
-	verr := role.Validate()
+func (c CoreUserRoleController) UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError {
+	return common.NoError()
+}
 
-	if verr&models.ValidateUserRoleEmptyRole != 0 {
-		return common.ClientError("role cannot be empty")
-	} else if verr&models.ValidateUserRoleRoleTooLong != 0 {
-		return common.ClientError(fmt.Sprint("role cannot be longer than ", models.UserRoleRoleMaxLength, " characters"))
-	}
-
+func (c CoreUserRoleController) DeleteUserRole(CRUD UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError {
 	return common.NoError()
 }

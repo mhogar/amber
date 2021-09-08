@@ -31,7 +31,7 @@ func NewBadRequestResponse(err string) (int, ErrorResponse) {
 }
 
 func NewInternalServerErrorResponse() (int, ErrorResponse) {
-	return http.StatusInternalServerError, NewErrorResponse("an internal error occurred")
+	return http.StatusInternalServerError, NewErrorResponse(InternalError().Error())
 }
 
 func NewInsufficientPermissionsErrorResponse() (int, ErrorResponse) {

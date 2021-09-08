@@ -41,7 +41,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
 	message := "create client error"
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
@@ -61,7 +61,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
@@ -81,8 +81,10 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	client := models.CreateNewClient(body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
-	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(client, common.NoError())
+	var client *models.Client
+	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.NoError()).Run(func(args mock.Arguments) {
+		client = args.Get(1).(*models.Client)
+	})
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
@@ -99,7 +101,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.CRUDMock, body.Name, body.RedirectUrl, body.TokenType, body.KeyUri)
+	suite.ControllersMock.AssertCalled(suite.T(), "CreateClient", &suite.CRUDMock, client)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBadRequest() {
@@ -203,15 +205,17 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	uid := uuid.New()
 	params := []httprouter.Param{
 		{
 			Key:   "id",
-			Value: uid.String(),
+			Value: uuid.New().String(),
 		},
 	}
 
-	suite.ControllersMock.On("UpdateClient", mock.Anything, mock.Anything).Return(common.NoError())
+	var client *models.Client
+	suite.ControllersMock.On("UpdateClient", mock.Anything, mock.Anything).Return(common.NoError()).Run(func(args mock.Arguments) {
+		client = args.Get(1).(*models.Client)
+	})
 
 	//act
 	status, res := suite.CoreHandlers.PutClient(req, params, nil, &suite.CRUDMock)
@@ -219,22 +223,16 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
-		ID: uid.String(),
+		ID: client.UID.String(),
 		PostClientBody: handlers.PostClientBody{
-			Name:        body.Name,
-			RedirectUrl: body.RedirectUrl,
-			TokenType:   body.TokenType,
-			KeyUri:      body.KeyUri,
+			Name:        client.Name,
+			RedirectUrl: client.RedirectUrl,
+			TokenType:   client.TokenType,
+			KeyUri:      client.KeyUri,
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.CRUDMock, mock.MatchedBy(func(client *models.Client) bool {
-		return client.UID == uid &&
-			client.Name == body.Name &&
-			client.RedirectUrl == body.RedirectUrl &&
-			client.TokenType == body.TokenType &&
-			client.KeyUri == body.KeyUri
-	}))
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateClient", &suite.CRUDMock, client)
 }
 
 func (suite *ClientHandlerTestSuite) TestDeleteClient_WithErrorParsingId_ReturnsBadRequest() {
