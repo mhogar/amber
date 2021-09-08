@@ -11,6 +11,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type UserRoleDataResponse struct {
+	Username string `json:"username"`
+	PostUserRoleBody
+}
+
 type PostUserRoleBody struct {
 	ClientID uuid.UUID `json:"client_id"`
 	Role     string    `json:"role"`
@@ -56,7 +61,7 @@ func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, 
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return h.newUserRoleDataResponse(role)
 }
 
 type PutUserRoleBody struct {
@@ -110,7 +115,7 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return common.NewSuccessResponse()
+	return h.newUserRoleDataResponse(role)
 }
 
 func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -149,4 +154,14 @@ func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, 
 	}
 
 	return common.NewSuccessResponse()
+}
+
+func (CoreHandlers) newUserRoleDataResponse(role *models.UserRole) (int, common.DataResponse) {
+	return common.NewSuccessDataResponse(UserRoleDataResponse{
+		Username: role.Username,
+		PostUserRoleBody: PostUserRoleBody{
+			ClientID: role.ClientUID,
+			Role:     role.Role,
+		},
+	})
 }
