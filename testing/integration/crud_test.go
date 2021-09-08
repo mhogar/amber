@@ -61,11 +61,11 @@ func (suite *CRUDTestSuite) SaveClient(client *models.Client) *models.Client {
 	return client
 }
 
-func (suite *CRUDTestSuite) UpdateUserRolesForClient(client *models.Client, roles ...*models.UserRole) []*models.UserRole {
-	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
+func (suite *CRUDTestSuite) SaveUserRole(role *models.UserRole) *models.UserRole {
+	err := suite.Tx.CreateUserRole(role)
 	suite.Require().NoError(err)
 
-	return roles
+	return role
 }
 
 func (suite *CRUDTestSuite) SaveSession(session *models.Session) *models.Session {

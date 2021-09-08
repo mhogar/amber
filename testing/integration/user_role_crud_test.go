@@ -13,92 +13,103 @@ type UserRoleCRUDTestSuite struct {
 	CRUDTestSuite
 }
 
-func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_WithInvalidUserRoles_ReturnsError() {
+func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_ReturnsError() {
 	//arrange
-	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole("", uuid.Nil, "")
+	role := models.CreateUserRole("", uuid.Nil, "")
 
 	//act
-	err := suite.Tx.UpdateUserRolesForClient(uuid.New(), roles)
+	err := suite.Tx.CreateUserRole(role)
 
 	//assert
 	suite.Require().Error(err)
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
 }
 
-func (suite *UserRoleCRUDTestSuite) TestUpdateUserRolesForClient_UpdatesRolesForClient() {
-	//arrange
-	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
-	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
-	user3 := suite.SaveUser(models.CreateUser("user3", 0, []byte("password")))
-	user4 := suite.SaveUser(models.CreateUser("user4", 0, []byte("password")))
-
-	//-- first update --
-	roles := make([]*models.UserRole, 2)
-	roles[0] = models.CreateUserRole(user1.Username, client.UID, "role1")
-	roles[1] = models.CreateUserRole(user2.Username, client.UID, "role2")
-
+func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_WhereUserRoleNotFound_ReturnsNilUserRole() {
 	//act
-	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
-	suite.Require().NoError(err)
+	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID("DNE", uuid.New())
 
 	//assert
-	res, err := suite.Tx.GetUserRolesForClient(client.UID)
-	suite.Require().NoError(err)
-	suite.Equal(roles, res)
-
-	//-- second update --
-	roles[0] = models.CreateUserRole(user3.Username, client.UID, "role1")
-	roles[1] = models.CreateUserRole(user4.Username, client.UID, "role2")
-
-	//act
-	err = suite.Tx.UpdateUserRolesForClient(client.UID, roles)
-	suite.Require().NoError(err)
-
-	//assert
-	res, err = suite.Tx.GetUserRolesForClient(client.UID)
-	suite.Require().NoError(err)
-	suite.Equal(roles, res)
+	suite.NoError(err)
+	suite.Nil(role)
 }
 
-func (suite *UserRoleCRUDTestSuite) TestGetUserRoleForClient_TestCases() {
+func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_GetsUserRoleWithUsernameAndClientUID() {
 	//arrange
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
-	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
+	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
 
-	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole(user2.Username, client.UID, "role")
+	//act
+	resultRole, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, role.ClientUID)
 
-	err := suite.Tx.UpdateUserRolesForClient(client.UID, roles)
+	//assert
+	suite.NoError(err)
+	suite.EqualValues(role, resultRole)
+}
+
+func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_ReturnsError() {
+	//act
+	_, err := suite.Tx.UpdateUserRole(models.CreateUserRole("", uuid.Nil, ""))
+
+	//assert
+	suite.Require().Error(err)
+	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
+}
+
+func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WhereUserRoleIsNotFound_ReturnsFalseResult() {
+	//act
+	res, err := suite.Tx.UpdateUserRole(models.CreateUserRole("DNE", uuid.New(), "role"))
+
+	//assert
+	suite.False(res)
+	suite.NoError(err)
+}
+
+func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_UpdatesUserRole() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+
+	//act
+	role.Role = "new role"
+	res, err := suite.Tx.UpdateUserRole(role)
+
+	//assert
+	suite.True(res)
 	suite.Require().NoError(err)
 
-	clientUID := uuid.New()
-	username := ""
-	var expectedRole *models.UserRole = nil
+	resultRole, err := suite.Tx.GetUserRoleByUsernameAndClientUID(role.Username, role.ClientUID)
+	suite.NoError(err)
+	suite.EqualValues(role, resultRole)
+}
 
-	testCase := func() {
-		//act
-		role, err := suite.Tx.GetUserRoleForClient(clientUID, username)
+func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_WhereUserRoleNotFound_ReturnsFalseResult() {
+	//act
+	res, err := suite.Tx.DeleteUserRole("DNE", uuid.New())
 
-		//assert
-		suite.Require().NoError(err)
-		suite.Equal(expectedRole, role)
-	}
+	//assert
+	suite.False(res)
+	suite.NoError(err)
+}
 
-	//-- test cases --
-	suite.Run("ClientNotFound_ReturnsNilRole", testCase)
+func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_DeletesUserRole() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
+	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
+	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
 
-	clientUID = client.UID
-	suite.Run("UserNotFound_ReturnsNilRole", testCase)
+	//act
+	res, err := suite.Tx.DeleteUserRole(role.Username, role.ClientUID)
 
-	username = user1.Username
-	suite.Run("NoRoleForUserAndClient_ReturnsNilRole", testCase)
+	//assert
+	suite.True(res)
+	suite.Require().NoError(err)
 
-	username = user2.Username
-	expectedRole = roles[0]
-	suite.Run("WithRoleForUserAndClient_ReturnsRole", testCase)
+	resultUser, err := suite.Tx.GetUserRoleByUsernameAndClientUID(role.Username, role.ClientUID)
+	suite.NoError(err)
+	suite.Nil(resultUser)
 }
 
 func TestUserRoleCRUDTestSuite(t *testing.T) {

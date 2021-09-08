@@ -19,19 +19,21 @@ type UserRole struct {
 }
 
 type UserRoleCRUD interface {
-	// GetUserRolesForClient fetches all the user roles for the provided client uid.
-	// Returns a slice of the cleint's user-roles if they exist, nil if not.
-	// Also returns any errors.
-	GetUserRolesForClient(clientUID uuid.UUID) ([]*UserRole, error)
+	// CreateUserRole creates the user-role. Returns any errors.
+	CreateUserRole(role *UserRole) error
 
-	// GetUserRoleForClientAndUser fetches the user roles for the provided client uid and username.
+	// GetUserRoleByUsernameAndClientUID fetches the user role for the provided username and client uid.
 	// Returns the user-role if it exists, nil if not.
 	// Also returns any errors.
-	GetUserRoleForClient(clientUID uuid.UUID, username string) (*UserRole, error)
+	GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*UserRole, error)
 
-	// UpdateUserRolesForClient updates the roles for the provided client uid.
-	// Returns any errors.
-	UpdateUserRolesForClient(clientUID uuid.UUID, roles []*UserRole) error
+	// UpdateUserRole updates the user-role.
+	// Returns result of whether the user was found and any errors.
+	UpdateUserRole(role *UserRole) (bool, error)
+
+	// DeleteUserRole deletes the user-role with the given username and client uid.
+	// Returns result of whether the user-role was found, and any errors.
+	DeleteUserRole(username string, clientUID uuid.UUID) (bool, error)
 }
 
 func CreateUserRole(username string, clientUID uuid.UUID, role string) *UserRole {

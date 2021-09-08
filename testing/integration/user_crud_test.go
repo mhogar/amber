@@ -62,14 +62,14 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.UpdateUser(models.CreateUser("username", 0, []byte("password")))
+	res, err := suite.Tx.UpdateUser(models.CreateUser("DNE", 0, []byte("password")))
 
 	//assert
 	suite.False(res)
 	suite.NoError(err)
 }
 
-func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUserWithUsername() {
+func (suite *UserCRUDTestSuite) TestUpdateUser_UpdatesUser() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 
@@ -150,7 +150,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, client.UID, "role"))
+	suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -159,9 +159,9 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	roles, err := suite.Tx.GetUserRoleForClient(client.UID, user.Username)
+	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, client.UID)
 	suite.NoError(err)
-	suite.Empty(roles)
+	suite.Nil(role)
 }
 
 func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllUserSessions() {

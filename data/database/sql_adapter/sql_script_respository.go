@@ -53,8 +53,8 @@ type UserScriptRepository interface {
 type UserRoleScriptRepository interface {
 	CreateUserRoleTableScript() string
 	DropUserRoleTableScript() string
-	GetUserRoleForClientScript() string
-	GetUserRolesForClientScript() string
-	DeleteUserRolesForClientScript() string
-	AddUserRoleForClientScript() string
+	CreateUserRoleScript() string
+	GetUserRoleByUsernameAndClientUIDScript() string
+	UpdateUserRoleScript() string
+	DeleteUserRoleScript() string
 }

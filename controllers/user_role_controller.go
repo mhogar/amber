@@ -4,7 +4,6 @@ import (
 	"authserver/common"
 	"authserver/models"
 	"fmt"
-	"log"
 
 	"github.com/google/uuid"
 )
@@ -21,11 +20,11 @@ func (c CoreUserRoleController) UpdateUserRolesForClient(CRUD UserRoleController
 	}
 
 	//update the users' roles
-	err := CRUD.UpdateUserRolesForClient(clientUID, roles)
-	if err != nil {
-		log.Println(common.ChainError("error updating user roles for client", err))
-		return common.InternalError()
-	}
+	// err := CRUD.UpdateUserRolesForClient(clientUID, roles)
+	// if err != nil {
+	// 	log.Println(common.ChainError("error updating user roles for client", err))
+	// 	return common.InternalError()
+	// }
 
 	return common.NoError()
 }
