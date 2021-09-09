@@ -69,6 +69,11 @@ func (suite *UserE2ETestSuite) TearDownSuite() {
 	suite.E2ETestSuite.TearDownSuite()
 }
 
+func (suite *UserE2ETestSuite) TestCreateUser_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendCreateUserRequest("", "new_user", "Password123!", 0)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+}
+
 func (suite *UserE2ETestSuite) TestCreateUser_WithRankLessThanUser_ReturnsForbidden() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "", "", 11)
 	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
@@ -76,7 +81,7 @@ func (suite *UserE2ETestSuite) TestCreateUser_WithRankLessThanUser_ReturnsForbid
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithInvalidBody_ReturnsBadRequest() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "", "", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "username", "empty")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "username", "cannot be empty")
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsBadRequest() {
@@ -87,6 +92,11 @@ func (suite *UserE2ETestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsBadRe
 func (suite *UserE2ETestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsBadRequest() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "new_user", "invalid", 0)
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUser_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendUpdateUserRequest("", suite.ExistingUser.Username, 0)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithRankLessThanNewUserRank_ReturnsForbidden() {
@@ -143,6 +153,11 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereNewPasswordDoesNotMee
 
 	//logout
 	suite.Logout(token)
+}
+
+func (suite *UserE2ETestSuite) TestDeleteUser_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendDeleteUserRequest("", suite.ExistingUser.Username)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestDeleteUser_WhereUsernameDoesNotExist_ReturnsBadRequest() {

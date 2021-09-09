@@ -33,7 +33,7 @@ func (suite *TokenE2ETestSuite) TestCreateDefaultClient_UpdateUserRole_CreateTok
 
 	//update user role
 	role := "role"
-	suite.CreateUserRole(suite.User1.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, suite.User1.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -78,7 +78,7 @@ func (suite *TokenE2ETestSuite) TestCreateFirebaseClient_UpdateUserRole_CreateTo
 
 	//create user role
 	role := "role"
-	suite.CreateUserRole(suite.User1.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, suite.User1.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{

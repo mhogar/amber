@@ -3,14 +3,11 @@ package e2e_test
 import (
 	"authserver/config"
 	"authserver/dependencies"
-	"authserver/router/handlers"
 	"authserver/server"
 	"authserver/testing/helpers"
 	"net/http"
 	"net/http/httptest"
-	"path"
 
-	"github.com/google/uuid"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 )
@@ -63,18 +60,4 @@ func (suite *E2ETestSuite) SendRequest(method string, endpoint string, bearerTok
 	suite.Require().NoError(err)
 
 	return res
-}
-
-func (suite *E2ETestSuite) CreateUserRole(username string, clientID uuid.UUID, role string) {
-	postUserRoleBody := handlers.PostUserRoleBody{
-		ClientID: clientID,
-		Role:     role,
-	}
-	res := suite.SendRequest(http.MethodPost, path.Join("/user", username, "role"), suite.AdminToken, postUserRoleBody)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
-}
-
-func (suite *E2ETestSuite) DeleteUserRole(username string, clientID uuid.UUID) {
-	res := suite.SendRequest(http.MethodDelete, path.Join("/user", username, "role", clientID.String()), suite.AdminToken, nil)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }

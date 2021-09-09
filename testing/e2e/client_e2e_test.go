@@ -66,6 +66,11 @@ func (suite *ClientE2ETestSuite) TearDownSuite() {
 	suite.E2ETestSuite.TearDownSuite()
 }
 
+func (suite *ClientE2ETestSuite) TestCreateClient_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendCreateClientRequest("", 0, "key.pem")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+}
+
 func (suite *ClientE2ETestSuite) TestCreateClient_WithRankLessThanMin_ReturnsForbidden() {
 	//login
 	token := suite.Login(suite.User)
@@ -81,6 +86,11 @@ func (suite *ClientE2ETestSuite) TestCreateClient_WithRankLessThanMin_ReturnsFor
 func (suite *ClientE2ETestSuite) TestCreateClient_WithInvalidBody_ReturnsBadRequest() {
 	res := suite.SendCreateClientRequest(suite.AdminToken, -1, "key.pem")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "token type", "invalid")
+}
+
+func (suite *ClientE2ETestSuite) TestUpdateClient_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendUpdateClientRequest("", suite.ClientId.String(), 0, "key.pem")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *ClientE2ETestSuite) TestUpdateClient_WithRankLessThanMin_ReturnsForbidden() {
@@ -113,6 +123,11 @@ func (suite *ClientE2ETestSuite) TestUpdateClient_WhereClientNotFound_ReturnsBad
 func (suite *ClientE2ETestSuite) TestUpdateClient_WithValidRequest_ReturnsSuccess() {
 	res := suite.SendUpdateClientRequest(suite.AdminToken, suite.ClientId.String(), 0, "key.pem")
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
+
+func (suite *ClientE2ETestSuite) TestDeleteClient_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendDeleteClientRequest("", suite.ClientId.String())
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *ClientE2ETestSuite) TestDeleteClient_WithRankLessThanMin_ReturnsForbidden() {
