@@ -113,11 +113,11 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_DeletesClientWithId() {
 	suite.Nil(resultClient)
 }
 
-func (suite *UserCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient() {
+func (suite *ClientCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	suite.UpdateUserRolesForClient(client, models.CreateUserRole(user.Username, "role"))
+	suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteClient(client.UID)
@@ -126,9 +126,9 @@ func (suite *UserCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient() 
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	roles, err := suite.Tx.GetUserRolesForClient(client.UID)
+	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, client.UID)
 	suite.NoError(err)
-	suite.Empty(roles)
+	suite.Nil(role)
 }
 
 func TestClientCRUDTestSuite(t *testing.T) {

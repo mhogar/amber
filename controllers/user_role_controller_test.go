@@ -19,32 +19,15 @@ type UserRoleControllerTestSuite struct {
 	UserRoleController controllers.CoreUserRoleController
 }
 
-func (suite *UserRoleControllerTestSuite) runValidateClientTestCases(validateFunc func(role *models.UserRole) common.CustomError) {
-	suite.Run("EmptyUsername_ReturnsClientError", func() {
-		//arrange
-		role := models.CreateUserRole("", "")
+func (suite *UserRoleControllerTestSuite) SetupTest() {
+	suite.ControllerTestSuite.SetupTest()
+	suite.UserRoleController = controllers.CoreUserRoleController{}
+}
 
-		//act
-		cerr := validateFunc(role)
-
-		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be empty")
-	})
-
-	suite.Run("UsernameTooLong_ReturnsClientError", func() {
-		//arrange
-		role := models.CreateUserRole(helpers.CreateStringOfLength(models.UserUsernameMaxLength+1), "")
-
-		//act
-		cerr := validateFunc(role)
-
-		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
-	})
-
+func (suite *UserRoleControllerTestSuite) runValidateUserRoleTestCases(validateFunc func(role *models.UserRole) common.CustomError) {
 	suite.Run("EmptyRole_ReturnsClientError", func() {
 		//arrange
-		role := models.CreateUserRole("username", "")
+		role := models.CreateUserRole("username", uuid.New(), "")
 
 		//act
 		cerr := validateFunc(role)
@@ -55,7 +38,7 @@ func (suite *UserRoleControllerTestSuite) runValidateClientTestCases(validateFun
 
 	suite.Run("RoleTooLong_ReturnsClientError", func() {
 		//arrange
-		role := models.CreateUserRole("username", helpers.CreateStringOfLength(models.UserRoleRoleMaxLength+1))
+		role := models.CreateUserRole("username", uuid.New(), helpers.CreateStringOfLength(models.UserRoleRoleMaxLength+1))
 
 		//act
 		cerr := validateFunc(role)
@@ -65,41 +48,148 @@ func (suite *UserRoleControllerTestSuite) runValidateClientTestCases(validateFun
 	})
 }
 
-func (suite *UserRoleControllerTestSuite) TestUpdateUserRolesForClient_ValidateUserRoleTestCases() {
-	suite.runValidateClientTestCases(func(role *models.UserRole) common.CustomError {
-		roles := make([]*models.UserRole, 1)
-		roles[0] = role
-
-		return suite.UserRoleController.UpdateUserRolesForClient(&suite.CRUDMock, uuid.New(), roles)
+func (suite *UserRoleControllerTestSuite) TestCreateUserRole_ValidateUserRoleTestCases() {
+	suite.runValidateUserRoleTestCases(func(role *models.UserRole) common.CustomError {
+		return suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 	})
 }
 
-func (suite *UserRoleControllerTestSuite) TestUpdateUserRolesForClient_WithErrorUpdatingUserRolesForClient_ReturnsInternalError() {
+func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithErrorGettingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
 	//arrange
-	suite.CRUDMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything).Return(errors.New(""))
+	role := models.CreateUserRole("username", uuid.New(), "role")
+	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	cerr := suite.UserRoleController.UpdateUserRolesForClient(&suite.CRUDMock, uuid.New(), nil)
+	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
-func (suite *UserRoleControllerTestSuite) TestUpdateUserRolesForClient_WithNoErrors_ReturnsNoError() {
+func (suite *UserRoleControllerTestSuite) TestCreateUser_WhereUserAlreadyHasRoleForClient_ReturnsClientError() {
 	//arrange
-	clientUID := uuid.New()
-
-	roles := make([]*models.UserRole, 1)
-	roles[0] = models.CreateUserRole("username", "role")
-
-	suite.CRUDMock.On("UpdateUserRolesForClient", mock.Anything, mock.Anything).Return(nil)
+	role := models.CreateUserRole("username", uuid.New(), "role")
+	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(&models.UserRole{}, nil)
 
 	//act
-	cerr := suite.UserRoleController.UpdateUserRolesForClient(&suite.CRUDMock, clientUID, roles)
+	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "user", "already has a role", "client")
+}
+
+func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithErrorCreatingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
+	//arrange
+	role := models.CreateUserRole("username", uuid.New(), "role")
+
+	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(nil, nil)
+	suite.CRUDMock.On("CreateUserRole", mock.Anything).Return(errors.New(""))
+
+	//act
+	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
+
+	//assert
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithNoErrors_ReturnsNoError() {
+	//arrange
+	role := models.CreateUserRole("username", uuid.New(), "role")
+
+	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(nil, nil)
+	suite.CRUDMock.On("CreateUserRole", mock.Anything).Return(nil)
+
+	//act
+	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
 	helpers.AssertNoError(&suite.Suite, cerr)
-	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserRolesForClient", clientUID, roles)
+
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByUsernameAndClientUID", role.Username, role.ClientUID)
+	suite.CRUDMock.AssertCalled(suite.T(), "CreateUserRole", role)
+}
+
+func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_ValidateUserRoleTestCases() {
+	suite.runValidateUserRoleTestCases(func(role *models.UserRole) common.CustomError {
+		return suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
+	})
+}
+
+func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithErrorUpdatingUserRole_ReturnsInternalError() {
+	//arrange
+	role := models.CreateUserRole("username", uuid.New(), "role")
+	suite.CRUDMock.On("UpdateUserRole", mock.Anything).Return(false, errors.New(""))
+
+	//act
+	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
+
+	//assert
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithFalseResultUpdatingUserRole_ReturnsClientError() {
+	//arrange
+	role := models.CreateUserRole("username", uuid.New(), "role")
+	suite.CRUDMock.On("UpdateUserRole", mock.Anything).Return(false, nil)
+
+	//act
+	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "no role found", role.Username, role.Role)
+}
+
+func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithNoErrors_ReturnsNoError() {
+	//arrange
+	role := models.CreateUserRole("username", uuid.New(), "role")
+	suite.CRUDMock.On("UpdateUserRole", mock.Anything).Return(true, nil)
+
+	//act
+	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
+
+	//assert
+	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserRole", role)
+}
+
+func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithErrorDeletingUserRole_ReturnsInternalError() {
+	//arrange
+	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(false, errors.New(""))
+
+	//act
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, "username", uuid.New())
+
+	//assert
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithFalseResultDeletingUserRole_ReturnsClientError() {
+	//arrange
+	username := "username"
+	clientUID := uuid.New()
+
+	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(false, nil)
+
+	//act
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "no role found", username, clientUID.String())
+}
+
+func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsNoError() {
+	//arrange
+	username := "username"
+	clientUID := uuid.New()
+
+	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(true, nil)
+
+	//act
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
+
+	//assert
+	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUserRole", username, clientUID)
 }
 
 func TestUserRoleControllerTestSuite(t *testing.T) {

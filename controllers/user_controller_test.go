@@ -102,7 +102,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_Retur
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "error creating user")
+	helpers.AssertClientError(&suite.Suite, cerr, "username", "already in use")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsClientError() {
@@ -350,8 +350,59 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUser", user.Username)
-
 	helpers.AssertNoError(&suite.Suite, cerr)
+}
+
+func (suite *UserControllerTestSuite) TestVerifyUserRank_WithErrorGettingUserByUsername_ReturnsInternalError() {
+	//arrange
+	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
+
+	//act
+	_, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, "username", 0)
+
+	//assert
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserControllerTestSuite) TestVerifyUserRank_WhereUserNotFounc_ReturnsClientError() {
+	//arrange
+	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
+
+	//act
+	_, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, "username", 0)
+
+	//assert
+	helpers.AssertClientError(&suite.Suite, cerr, "user", "not found")
+}
+
+func (suite *UserControllerTestSuite) TestVerifyUserRank_WithNoErrors_TestCases() {
+	//arrange
+	user := models.CreateUser("username", 5, nil)
+	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+
+	var rank int
+	expectedResult := false
+
+	testCase := func() {
+		//act
+		res, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, user.Username, rank)
+
+		//assert
+		helpers.AssertNoError(&suite.Suite, cerr)
+		suite.Equal(expectedResult, res)
+	}
+
+	rank = 4
+	suite.Run("RankLessThanUser_ReturnsFalseResult", testCase)
+
+	rank = 5
+	suite.Run("RankEqualToUser_ReturnsFalseResult", testCase)
+
+	rank = 6
+	expectedResult = true
+	suite.Run("RankGreaterThanUser_ReturnsTrueResult", testCase)
+
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", user.Username, mock.Anything)
 }
 
 func TestUserControllerTestSuite(t *testing.T) {

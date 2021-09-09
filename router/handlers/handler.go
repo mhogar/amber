@@ -31,8 +31,14 @@ type Handlers interface {
 	// DeleteClient handles DELETE requests to /client.
 	DeleteClient(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
-	// PutClientRoles handles PUT requests to /client/:id/roles.
-	PutClientRoles(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+	// PostUserRole handles POST requests to /user/:username/role.
+	PostUserRole(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
+	// PutUserRole handles PUT requests to /user/:username/role.
+	PutUserRole(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
+	// DeleteUserRole handles DELETE requests to /user/:username/role.
+	DeleteUserRole(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 	// PostSession handles POST requests to /token.
 	PostSession(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})

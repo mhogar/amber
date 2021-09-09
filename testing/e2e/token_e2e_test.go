@@ -31,12 +31,13 @@ func (suite *TokenE2ETestSuite) TearDownSuite() {
 	suite.E2ETestSuite.TearDownSuite()
 }
 
-func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) TestCreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {
 	//create client
 	clientId := suite.CreateClient(models.ClientTokenTypeDefault, "keys/test.private.pem")
 
 	//update user role
-	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
+	role := "role"
+	suite.CreateUserRole(suite.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -49,7 +50,7 @@ func (suite *TokenE2ETestSuite) Test_CreateDefaultClient_UpdateUserRole_CreateTo
 
 	claims := suite.parseDefaultTokenClaims("keys/test.public.pem", res.Request.URL.Query().Get("token"))
 	suite.Equal(postTokenBody.Username, claims.Username)
-	suite.Equal(roles[0].Role, claims.Role)
+	suite.Equal(role, claims.Role)
 
 	//delete client
 	suite.DeleteClient(clientId)
@@ -73,14 +74,15 @@ func (suite *TokenE2ETestSuite) parseDefaultTokenClaims(keyUri string, tokenStri
 	return claims
 }
 
-func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_UpdateUserRole_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) TestCreateFirebaseClient_UpdateUserRole_CreateToken_DeleteClient() {
 	keyUri := "keys/firebase-test.json"
 
 	//create client
 	clientId := suite.CreateClient(models.ClientTokenTypeFirebase, keyUri)
 
-	//update user role
-	roles := suite.UpdateUserRolesForClient(clientId, models.CreateUserRole(suite.Username, "role"))
+	//create user role
+	role := "role"
+	suite.CreateUserRole(suite.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
@@ -93,7 +95,7 @@ func (suite *TokenE2ETestSuite) Test_CreateFirebaseClient_UpdateUserRole_CreateT
 
 	claims := suite.parseFirebaseTokenClaims(keyUri, res.Request.URL.Query().Get("token"))
 	suite.Equal(suite.Username, claims.UID)
-	suite.Equal(roles[0].Role, claims.Claims["role"])
+	suite.Equal(role, claims.Claims["role"])
 
 	//delete client
 	suite.DeleteClient(clientId)

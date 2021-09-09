@@ -6,6 +6,7 @@ import (
 	"authserver/models"
 	"authserver/testing/helpers"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
@@ -15,7 +16,7 @@ type UserRoleTestSuite struct {
 }
 
 func (suite *UserRoleTestSuite) SetupTest() {
-	suite.UserRole = models.CreateUserRole("username", "role")
+	suite.UserRole = models.CreateUserRole("username", uuid.Nil, "role")
 }
 
 func (suite *UserRoleTestSuite) TestCreateNewUserRole_CreatesUserRoleWithSuppliedFields() {
@@ -24,7 +25,7 @@ func (suite *UserRoleTestSuite) TestCreateNewUserRole_CreatesUserRoleWithSupplie
 	role := "this is a test role"
 
 	//act
-	userRole := models.CreateUserRole(username, role)
+	userRole := models.CreateUserRole(username, uuid.Nil, role)
 
 	//assert
 	suite.Require().NotNil(userRole)
@@ -38,41 +39,6 @@ func (suite *UserRoleTestSuite) TestValidate_WithValidUserRole_ReturnsValid() {
 
 	//assert
 	suite.Equal(models.ValidateUserValid, verr)
-}
-
-func (suite *UserRoleTestSuite) TestValidate_WithEmptyUsername_ReturnsUserRoleEmptyUsername() {
-	//arrange
-	suite.UserRole.Username = ""
-
-	//act
-	verr := suite.UserRole.Validate()
-
-	//assert
-	suite.Equal(models.ValidateUserRoleEmptyUsername, verr)
-}
-
-func (suite *UserRoleTestSuite) TestValidate_UsernameMaxLengthTestCases() {
-	var username string
-	var expectedValidateError int
-
-	testCase := func() {
-		//arrange
-		suite.UserRole.Username = username
-
-		//act
-		verr := suite.UserRole.Validate()
-
-		//assert
-		suite.Equal(expectedValidateError, verr)
-	}
-
-	username = helpers.CreateStringOfLength(models.UserUsernameMaxLength)
-	expectedValidateError = models.ValidateUserRoleValid
-	suite.Run("ExactlyMaxLengthIsValid", testCase)
-
-	username += "a"
-	expectedValidateError = models.ValidateUserRoleUsernameTooLong
-	suite.Run("OneMoreThanMaxLengthIsInvalid", testCase)
 }
 
 func (suite *UserRoleTestSuite) TestValidate_WithEmptyRole_ReturnsUserRoleEmptyRole() {

@@ -41,27 +41,18 @@ func (_m *Controllers) AuthenticateUserWithPassword(CRUD controllers.AuthControl
 	return r0, r1
 }
 
-// CreateClient provides a mock function with given fields: CRUD, name, redirectUrl, tokenType, keyUri
-func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, name string, redirectUrl string, tokenType int, keyUri string) (*models.Client, common.CustomError) {
-	ret := _m.Called(CRUD, name, redirectUrl, tokenType, keyUri)
+// CreateClient provides a mock function with given fields: CRUD, client
+func (_m *Controllers) CreateClient(CRUD controllers.ClientControllerCRUD, client *models.Client) common.CustomError {
+	ret := _m.Called(CRUD, client)
 
-	var r0 *models.Client
-	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, string, string, int, string) *models.Client); ok {
-		r0 = rf(CRUD, name, redirectUrl, tokenType, keyUri)
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD, *models.Client) common.CustomError); ok {
+		r0 = rf(CRUD, client)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Client)
-		}
+		r0 = ret.Get(0).(common.CustomError)
 	}
 
-	var r1 common.CustomError
-	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD, string, string, int, string) common.CustomError); ok {
-		r1 = rf(CRUD, name, redirectUrl, tokenType, keyUri)
-	} else {
-		r1 = ret.Get(1).(common.CustomError)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // CreateSession provides a mock function with given fields: CRUD, username, password
@@ -131,6 +122,20 @@ func (_m *Controllers) CreateUser(CRUD controllers.UserControllerCRUD, username 
 	return r0, r1
 }
 
+// CreateUserRole provides a mock function with given fields: CRUD, role
+func (_m *Controllers) CreateUserRole(CRUD controllers.UserRoleControllerCRUD, role *models.UserRole) common.CustomError {
+	ret := _m.Called(CRUD, role)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, *models.UserRole) common.CustomError); ok {
+		r0 = rf(CRUD, role)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
 // DeleteAllOtherUserSessions provides a mock function with given fields: CRUD, username, id
 func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionControllerCRUD, username string, id uuid.UUID) common.CustomError {
 	ret := _m.Called(CRUD, username, id)
@@ -180,6 +185,20 @@ func (_m *Controllers) DeleteUser(CRUD controllers.UserControllerCRUD, username 
 	var r0 common.CustomError
 	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string) common.CustomError); ok {
 		r0 = rf(CRUD, username)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
+// DeleteUserRole provides a mock function with given fields: CRUD, username, clientUID
+func (_m *Controllers) DeleteUserRole(CRUD controllers.UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError {
+	ret := _m.Called(CRUD, username, clientUID)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, string, uuid.UUID) common.CustomError); ok {
+		r0 = rf(CRUD, username, clientUID)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}
@@ -238,16 +257,37 @@ func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, u
 	return r0
 }
 
-// UpdateUserRolesForClient provides a mock function with given fields: CRUD, clientUID, roles
-func (_m *Controllers) UpdateUserRolesForClient(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID, roles []*models.UserRole) common.CustomError {
-	ret := _m.Called(CRUD, clientUID, roles)
+// UpdateUserRole provides a mock function with given fields: CRUD, role
+func (_m *Controllers) UpdateUserRole(CRUD controllers.UserRoleControllerCRUD, role *models.UserRole) common.CustomError {
+	ret := _m.Called(CRUD, role)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID, []*models.UserRole) common.CustomError); ok {
-		r0 = rf(CRUD, clientUID, roles)
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, *models.UserRole) common.CustomError); ok {
+		r0 = rf(CRUD, role)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}
 
 	return r0
+}
+
+// VerifyUserRank provides a mock function with given fields: CRUD, username, rank
+func (_m *Controllers) VerifyUserRank(CRUD controllers.UserControllerCRUD, username string, rank int) (bool, common.CustomError) {
+	ret := _m.Called(CRUD, username, rank)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string, int) bool); ok {
+		r0 = rf(CRUD, username, rank)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.UserControllerCRUD, string, int) common.CustomError); ok {
+		r1 = rf(CRUD, username, rank)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
 }

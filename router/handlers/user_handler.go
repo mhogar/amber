@@ -67,20 +67,20 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, sessi
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
-	//fetch the requested user
-	user, err := CRUD.GetUserByUsername(username)
-	if err != nil {
-		log.Println(common.ChainError("error getting user by username", err))
+	//verify the session has a greater rank than the new rank
+	if body.Rank > session.Rank {
+		return common.NewInsufficientPermissionsErrorResponse()
+	}
+
+	//verify the session has a greater rank than the user's current rank
+	res, cerr := h.Controllers.VerifyUserRank(CRUD, username, session.Rank)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
-
-	//verify user exists
-	if user == nil {
-		return common.NewBadRequestResponse("the requested user was not found")
-	}
-
-	//verify the session has a greater rank than the user's current or new rank
-	if user.Rank > session.Rank || body.Rank > session.Rank {
+	if !res {
 		return common.NewInsufficientPermissionsErrorResponse()
 	}
 
@@ -138,25 +138,20 @@ func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, sess
 		return common.NewBadRequestResponse("username not provided")
 	}
 
-	//fetch the requested user
-	user, err := CRUD.GetUserByUsername(username)
-	if err != nil {
-		log.Println(common.ChainError("error getting user by username", err))
+	//verify the session has a greater rank than the user
+	res, cerr := h.Controllers.VerifyUserRank(CRUD, username, session.Rank)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
 		return common.NewInternalServerErrorResponse()
 	}
-
-	//verify user exists
-	if user == nil {
-		return common.NewBadRequestResponse("the requested user was not found")
-	}
-
-	//verify the session has a greater rank than the user
-	if user.Rank > session.Rank {
+	if !res {
 		return common.NewInsufficientPermissionsErrorResponse()
 	}
 
 	//delete the user
-	cerr := h.Controllers.DeleteUser(CRUD, username)
+	cerr = h.Controllers.DeleteUser(CRUD, username)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

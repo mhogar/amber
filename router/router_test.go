@@ -21,6 +21,7 @@ type RouterTestSuite struct {
 	helpers.ScopeFactorySuite
 	HandlersMock handlermocks.Handlers
 	Router       *httprouter.Router
+	Server       *httptest.Server
 
 	Method  string
 	Route   string
@@ -42,14 +43,16 @@ func (suite *RouterTestSuite) SetupTest() {
 		Handlers:         &suite.HandlersMock,
 	}
 	suite.Router = rf.CreateRouter()
+	suite.Server = httptest.NewServer(suite.Router)
+}
+
+func (suite *RouterTestSuite) TearDownTest() {
+	suite.Server.Close()
 }
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsInternalServerError() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
-
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(""))
 
@@ -63,10 +66,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsIn
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErrorToDataExecutorScope() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
-
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 	message := "TransactionScope error"
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope_WithCallback(nil, func(err error) {
@@ -84,10 +84,8 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErr
 
 func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponseAndReturnsFailureToTransactionScope() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -113,10 +111,8 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 
 func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedirectResponseAndReturnsSuccessToTransactionScope() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -140,10 +136,8 @@ func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedir
 
 func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAndReturnsSuccessToTransactionScope() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -166,10 +160,8 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 
 func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServerError() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -204,9 +196,6 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 	//arrange
 	var req *http.Request
 
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
-
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
 
@@ -219,7 +208,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 		helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
 	}
 
-	req = helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "", nil)
+	req = helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, "", nil)
 	suite.Run("NoAuthorizationHeader", testCase)
 
 	req.Header.Set("Authorization", "invalid")
@@ -228,10 +217,8 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 
 func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_ReturnsUnauthorized() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, "invalid", nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, "invalid", nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
@@ -246,10 +233,8 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 
 func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsInternalServerError() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, errors.New(""))
@@ -265,10 +250,8 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsI
 
 func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_ReturnsUnauthorized() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, nil)
@@ -284,10 +267,8 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 
 func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_ReturnsForbidden() {
 	//arrange
-	server := httptest.NewServer(suite.Router)
-	defer server.Close()
 
-	req := helpers.CreateRequest(&suite.Suite, suite.Method, server.URL+suite.Route, suite.TokenId, nil)
+	req := helpers.CreateRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 	session := models.CreateNewSession("username", suite.MinRank-1)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
@@ -379,14 +360,36 @@ func TestDeleteClientTestSuite(t *testing.T) {
 	})
 }
 
-func TestPutClientRolesTestSuite(t *testing.T) {
+func TestPostUserRoleTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:  "POST",
+			Route:   "/user/username/role",
+			Handler: "PostUserRole",
+		},
+		MinRank: 0,
+	})
+}
+
+func TestPutUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:  "PUT",
-			Route:   "/client/0/roles",
-			Handler: "PutClientRoles",
+			Route:   "/user/username/role/0",
+			Handler: "PutUserRole",
 		},
-		MinRank: 1,
+		MinRank: 0,
+	})
+}
+
+func TestDeleteUserRoleTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:  "DELETE",
+			Route:   "/user/username/role/0",
+			Handler: "DeleteUserRole",
+		},
+		MinRank: 0,
 	})
 }
 

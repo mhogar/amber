@@ -3,11 +3,9 @@ package models
 import "github.com/google/uuid"
 
 const (
-	ValidateUserRoleValid           = 0x0
-	ValidateUserRoleEmptyUsername   = 0x1
-	ValidateUserRoleUsernameTooLong = 0x2
-	ValidateUserRoleEmptyRole       = 0x4
-	ValidateUserRoleRoleTooLong     = 0x8
+	ValidateUserRoleValid       = 0x0
+	ValidateUserRoleEmptyRole   = 0x1
+	ValidateUserRoleRoleTooLong = 0x2
 )
 
 // UserRoleRoleMaxLength is the max length a user's username can be.
@@ -15,30 +13,34 @@ const UserRoleRoleMaxLength = 15
 
 // UserRole represents the user-role model
 type UserRole struct {
-	Username string
-	Role     string
+	Username  string
+	ClientUID uuid.UUID
+	Role      string
 }
 
 type UserRoleCRUD interface {
-	// GetUserRolesForClient fetches all the user roles for the provided client uid.
-	// Returns a slice of the cleint's user-roles if they exist, nil if not.
-	// Also returns any errors.
-	GetUserRolesForClient(clientUID uuid.UUID) ([]*UserRole, error)
+	// CreateUserRole creates the user-role. Returns any errors.
+	CreateUserRole(role *UserRole) error
 
-	// GetUserRoleForClientAndUser fetches the user roles for the provided client uid and username.
+	// GetUserRoleByUsernameAndClientUID fetches the user role for the provided username and client uid.
 	// Returns the user-role if it exists, nil if not.
 	// Also returns any errors.
-	GetUserRoleForClient(clientUID uuid.UUID, username string) (*UserRole, error)
+	GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*UserRole, error)
 
-	// UpdateUserRolesForClient updates the roles for the provided client uid.
-	// Returns any errors.
-	UpdateUserRolesForClient(clientUID uuid.UUID, roles []*UserRole) error
+	// UpdateUserRole updates the user-role.
+	// Returns result of whether the user was found and any errors.
+	UpdateUserRole(role *UserRole) (bool, error)
+
+	// DeleteUserRole deletes the user-role with the given username and client uid.
+	// Returns result of whether the user-role was found, and any errors.
+	DeleteUserRole(username string, clientUID uuid.UUID) (bool, error)
 }
 
-func CreateUserRole(username string, role string) *UserRole {
+func CreateUserRole(username string, clientUID uuid.UUID, role string) *UserRole {
 	return &UserRole{
-		Username: username,
-		Role:     role,
+		Username:  username,
+		ClientUID: clientUID,
+		Role:      role,
 	}
 }
 
@@ -46,12 +48,6 @@ func CreateUserRole(username string, role string) *UserRole {
 // Returns an int indicating which fields are invalid.
 func (ur *UserRole) Validate() int {
 	code := ValidateUserRoleValid
-
-	if ur.Username == "" {
-		code |= ValidateUserRoleEmptyUsername
-	} else if len(ur.Username) > UserUsernameMaxLength {
-		code |= ValidateUserRoleUsernameTooLong
-	}
 
 	if ur.Role == "" {
 		code |= ValidateUserRoleEmptyRole

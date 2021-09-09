@@ -5,7 +5,6 @@ import (
 	"authserver/models"
 	"authserver/router/handlers"
 	"authserver/testing/helpers"
-	"errors"
 	"net/http"
 	"testing"
 
@@ -151,7 +150,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInvalidJSONBody_ReturnsBadReq
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
-func (suite *UserHandlerTestSuite) TestPutUser_WithErrorGettingUserByUsername_ReturnsInternalServerError() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
@@ -166,7 +165,33 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithErrorGettingUserByUsername_Re
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
+	message := "verify user rank error"
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
+	//arrange
+	session := models.CreateNewSession("admin", 5)
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	body := handlers.PutUserBody{
+		Rank: 1,
+	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
+
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
 	//act
 	status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
@@ -176,7 +201,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithErrorGettingUserByUsername_Re
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUser_WhereUserNotFound_ReturnsBadRequest() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
@@ -191,61 +216,48 @@ func (suite *UserHandlerTestSuite) TestPutUser_WhereUserNotFound_ReturnsBadReque
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
 
 	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "requested user", "not found")
+	suite.Require().Equal(http.StatusForbidden, status)
+	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUser_SessionRankTestCases() {
+func (suite *UserHandlerTestSuite) TestPutUser_WithSessionRankLessThanNewUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 6, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
-			Value: user.Username,
+			Value: "username",
 		},
 	}
 
 	body := handlers.PutUserBody{
-		Rank: 4,
+		Rank: 6,
 	}
+	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
-	testCase := func() {
-		req := helpers.CreateDummyRequest(&suite.Suite, body)
+	//act
+	status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
 
-		//act
-		status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
-
-		//assert
-		suite.Require().Equal(http.StatusForbidden, status)
-		helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
-	}
-
-	suite.Run("SessionRankLessThanCurrentUserRank", testCase)
-
-	user.Rank = 4
-	body.Rank = 6
-	suite.Run("SessionRankLessThanNewUserRank", testCase)
+	//assert
+	suite.Require().Equal(http.StatusForbidden, status)
+	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
-			Value: session.Username,
+			Value: "username",
 		},
 	}
 
@@ -254,7 +266,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_Retur
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
 	message := "update user error"
 	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
@@ -270,8 +282,6 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_Retur
 func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
@@ -284,7 +294,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
@@ -298,8 +308,6 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
@@ -311,10 +319,10 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 		Rank: 1,
 	}
 	req := helpers.CreateDummyRequest(&suite.Suite, body)
-	updatedUser := models.CreateUser(params[0].Value, body.Rank, nil)
+	user := models.CreateUser(params[0].Value, body.Rank, nil)
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
-	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(updatedUser, common.NoError())
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
+	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.PutUser(req, params, session, &suite.CRUDMock)
@@ -322,14 +330,14 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserDataResponse{
-		Username: updatedUser.Username,
+		Username: user.Username,
 		PutUserBody: handlers.PutUserBody{
-			Rank: updatedUser.Rank,
+			Rank: user.Rank,
 		},
 	})
 
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", user.Username)
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUser", &suite.CRUDMock, user.Username, updatedUser.Rank)
+	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUser", &suite.CRUDMock, user.Username, user.Rank)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_ReturnsBadRequest() {
@@ -467,8 +475,9 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithMissingUsername_ReturnsBad
 	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithErrorGettingUserByUsername_ReturnsInternalServerError() {
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
 	//arrange
+	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
 			Key:   "username",
@@ -476,36 +485,38 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithErrorGettingUserByUsername
 		},
 	}
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
+	message := "verify user rank error"
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
+	//arrange
+	session := models.CreateNewSession("admin", 5)
+	params := []httprouter.Param{
+		{
+			Key:   "username",
+			Value: "username",
+		},
+	}
+
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUser(nil, params, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUser_WhereUserNotFound_ReturnsBadRequest() {
-	//arrange
-	params := []httprouter.Param{
-		{
-			Key:   "username",
-			Value: "username",
-		},
-	}
-
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
-
-	//act
-	status, res := suite.CoreHandlers.DeleteUser(nil, params, nil, &suite.CRUDMock)
-
-	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "requested user", "not found")
-}
-
-func (suite *UserHandlerTestSuite) TestDeleteUser_WithSessionRankLessThanUser_ReturnsForbidden() {
+func (suite *UserHandlerTestSuite) TestDeleteUser_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	user := models.CreateUser("username", 6, nil)
@@ -517,7 +528,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithSessionRankLessThanUser_Re
 		},
 	}
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
 	//act
 	status, res := suite.CoreHandlers.DeleteUser(nil, params, session, &suite.CRUDMock)
@@ -530,16 +541,14 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithSessionRankLessThanUser_Re
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
-			Value: user.Username,
+			Value: "username",
 		},
 	}
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
 	message := "delete user error"
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -555,16 +564,14 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_Re
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
-			Value: user.Username,
+			Value: "username",
 		},
 	}
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
@@ -578,16 +585,14 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
-	user := models.CreateUser("username", 0, nil)
-
 	params := []httprouter.Param{
 		{
 			Key:   "username",
-			Value: user.Username,
+			Value: "username",
 		},
 	}
 
-	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(user, nil)
+	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("DeleteUser", mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
@@ -597,7 +602,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() 
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", params[0].Value)
+	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.CRUDMock, params[0].Value)
 }
 

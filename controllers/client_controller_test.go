@@ -111,44 +111,32 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 
 func (suite *ClientControllerTestSuite) TestCreateClient_ValidateClientTestCases() {
 	suite.runValidateClientTestCases(func(client *models.Client) common.CustomError {
-		resClient, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, client.Name, client.RedirectUrl, client.TokenType, client.KeyUri)
-		suite.Nil(resClient)
-
-		return cerr
+		return suite.ClientController.CreateClient(&suite.CRUDMock, client)
 	})
 }
 
 func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_ReturnsInternalError() {
 	//arrange
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	suite.CRUDMock.On("CreateClient", mock.Anything).Return(errors.New(""))
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, "name", "redirect.com", 0, "key.pem")
+	cerr := suite.ClientController.CreateClient(&suite.CRUDMock, client)
 
 	//assert
-	suite.Nil(client)
 	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoError() {
 	//arrange
-	name := "name"
-	url := "redirect.com"
-	tokenType := 0
-	uri := "key.pem"
-
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	suite.CRUDMock.On("CreateClient", mock.Anything).Return(nil)
 
 	//act
-	client, cerr := suite.ClientController.CreateClient(&suite.CRUDMock, name, url, tokenType, uri)
+	cerr := suite.ClientController.CreateClient(&suite.CRUDMock, client)
 
 	//assert
 	suite.Require().NotNil(client)
-	suite.Equal(name, client.Name)
-	suite.Equal(url, client.RedirectUrl)
-	suite.Equal(tokenType, client.TokenType)
-	suite.Equal(uri, client.KeyUri)
-
 	helpers.AssertNoError(&suite.Suite, cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
 }

@@ -3,7 +3,6 @@ package e2e_test
 import (
 	"authserver/config"
 	"authserver/dependencies"
-	"authserver/models"
 	"authserver/router/handlers"
 	"authserver/server"
 	"authserver/testing/helpers"
@@ -70,7 +69,7 @@ func (suite *E2ETestSuite) Logout(token string) {
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
-func (suite *E2ETestSuite) CreateUser(username string, password string, rank int) {
+func (suite *E2ETestSuite) CreateUser(username string, password string, rank int) string {
 	postUserBody := handlers.PostUserBody{
 		Username: username,
 		Password: password,
@@ -78,6 +77,8 @@ func (suite *E2ETestSuite) CreateUser(username string, password string, rank int
 	}
 	res := suite.SendRequest(http.MethodPost, "/user", suite.AdminToken, postUserBody)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+
+	return username
 }
 
 func (suite *E2ETestSuite) DeleteUser(username string) {
@@ -105,17 +106,16 @@ func (suite *E2ETestSuite) DeleteClient(id uuid.UUID) {
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
-func (suite *E2ETestSuite) UpdateUserRolesForClient(clientID uuid.UUID, roles ...*models.UserRole) []*models.UserRole {
-	rolesBody := make([]handlers.PutClientRolesBody, len(roles))
-	for index, role := range roles {
-		rolesBody[index] = handlers.PutClientRolesBody{
-			Username: role.Username,
-			Role:     role.Role,
-		}
+func (suite *E2ETestSuite) CreateUserRole(username string, clientID uuid.UUID, role string) {
+	postUserRoleBody := handlers.PostUserRoleBody{
+		ClientID: clientID,
+		Role:     role,
 	}
-
-	res := suite.SendRequest(http.MethodPut, path.Join("/client", clientID.String(), "roles"), suite.AdminToken, rolesBody)
+	res := suite.SendRequest(http.MethodPost, path.Join("/user", username, "role"), suite.AdminToken, postUserRoleBody)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+}
 
-	return roles
+func (suite *E2ETestSuite) DeleteUserRole(username string, clientID uuid.UUID) {
+	res := suite.SendRequest(http.MethodDelete, path.Join("/user", username, "role", clientID.String()), suite.AdminToken, nil)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }

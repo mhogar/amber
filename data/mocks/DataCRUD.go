@@ -57,6 +57,20 @@ func (_m *DataCRUD) CreateUser(user *models.User) error {
 	return r0
 }
 
+// CreateUserRole provides a mock function with given fields: role
+func (_m *DataCRUD) CreateUserRole(role *models.UserRole) error {
+	ret := _m.Called(role)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*models.UserRole) error); ok {
+		r0 = rf(role)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteAllOtherUserSessions provides a mock function with given fields: username, tokem
 func (_m *DataCRUD) DeleteAllOtherUserSessions(username string, tokem uuid.UUID) error {
 	ret := _m.Called(username, tokem)
@@ -141,6 +155,27 @@ func (_m *DataCRUD) DeleteUser(username string) (bool, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
 		r1 = rf(username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// DeleteUserRole provides a mock function with given fields: username, clientUID
+func (_m *DataCRUD) DeleteUserRole(username string, clientUID uuid.UUID) (bool, error) {
+	ret := _m.Called(username, clientUID)
+
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) bool); ok {
+		r0 = rf(username, clientUID)
+	} else {
+		r0 = ret.Get(0).(bool)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
+		r1 = rf(username, clientUID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -268,13 +303,13 @@ func (_m *DataCRUD) GetUserByUsername(username string) (*models.User, error) {
 	return r0, r1
 }
 
-// GetUserRoleForClient provides a mock function with given fields: clientUID, username
-func (_m *DataCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) (*models.UserRole, error) {
-	ret := _m.Called(clientUID, username)
+// GetUserRoleByUsernameAndClientUID provides a mock function with given fields: username, clientUID
+func (_m *DataCRUD) GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*models.UserRole, error) {
+	ret := _m.Called(username, clientUID)
 
 	var r0 *models.UserRole
-	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.UserRole); ok {
-		r0 = rf(clientUID, username)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) *models.UserRole); ok {
+		r0 = rf(username, clientUID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.UserRole)
@@ -282,31 +317,8 @@ func (_m *DataCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) (
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
-		r1 = rf(clientUID, username)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetUserRolesForClient provides a mock function with given fields: clientUID
-func (_m *DataCRUD) GetUserRolesForClient(clientUID uuid.UUID) ([]*models.UserRole, error) {
-	ret := _m.Called(clientUID)
-
-	var r0 []*models.UserRole
-	if rf, ok := ret.Get(0).(func(uuid.UUID) []*models.UserRole); ok {
-		r0 = rf(clientUID)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*models.UserRole)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(clientUID)
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
+		r1 = rf(username, clientUID)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -405,16 +417,23 @@ func (_m *DataCRUD) UpdateUserPassword(username string, hash []byte) (bool, erro
 	return r0, r1
 }
 
-// UpdateUserRolesForClient provides a mock function with given fields: clientUID, roles
-func (_m *DataCRUD) UpdateUserRolesForClient(clientUID uuid.UUID, roles []*models.UserRole) error {
-	ret := _m.Called(clientUID, roles)
+// UpdateUserRole provides a mock function with given fields: role
+func (_m *DataCRUD) UpdateUserRole(role *models.UserRole) (bool, error) {
+	ret := _m.Called(role)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(uuid.UUID, []*models.UserRole) error); ok {
-		r0 = rf(clientUID, roles)
+	var r0 bool
+	if rf, ok := ret.Get(0).(func(*models.UserRole) bool); ok {
+		r0 = rf(role)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(bool)
 	}
 
-	return r0
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.UserRole) error); ok {
+		r1 = rf(role)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }

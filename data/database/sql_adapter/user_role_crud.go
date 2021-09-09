@@ -38,76 +38,75 @@ func (crud *SQLCRUD) DropUserRoleTable() error {
 	return err
 }
 
-func (crud *SQLCRUD) GetUserRolesForClient(clientUID uuid.UUID) ([]*models.UserRole, error) {
+func (crud *SQLCRUD) CreateUserRole(role *models.UserRole) error {
+	//validate the model
+	verr := role.Validate()
+	if verr != models.ValidateUserRoleValid {
+		return errors.New(fmt.Sprint("error validating user-role model:", verr))
+	}
+
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRolesForClientScript(), clientUID)
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.CreateUserRoleScript(),
+		role.Username, role.ClientUID, role.Role,
+	)
 	defer cancel()
 
 	if err != nil {
-		return nil, common.ChainError("error executing get user roles for client query", err)
-	}
-	defer rows.Close()
-
-	//read the data
-	userRoles := make([]*models.UserRole, 0)
-	for {
-		userRole, err := readUserRoleData(rows)
-		if err != nil {
-			return nil, err
-		}
-
-		if userRole == nil {
-			break
-		}
-		userRoles = append(userRoles, userRole)
+		return common.ChainError("error executing create user role statement", err)
 	}
 
-	return userRoles, nil
+	return nil
 }
 
-func (crud *SQLCRUD) GetUserRoleForClient(clientUID uuid.UUID, username string) (*models.UserRole, error) {
+func (crud *SQLCRUD) GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*models.UserRole, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRoleForClientScript(), clientUID, username)
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRoleByUsernameAndClientUIDScript(),
+		username, clientUID,
+	)
 	defer cancel()
 
 	if err != nil {
-		return nil, common.ChainError("error executing get user role for client query", err)
+		return nil, common.ChainError("error executing get user role query", err)
 	}
 	defer rows.Close()
 
 	return readUserRoleData(rows)
 }
 
-func (crud *SQLCRUD) UpdateUserRolesForClient(clientUID uuid.UUID, roles []*models.UserRole) error {
-	//validate the models
-	for _, role := range roles {
-		verr := role.Validate()
-		if verr != models.ValidateUserRoleValid {
-			return errors.New(fmt.Sprint("error validating user-role model:", verr))
-		}
+func (crud *SQLCRUD) UpdateUserRole(role *models.UserRole) (bool, error) {
+	//validate the model
+	verr := role.Validate()
+	if verr != models.ValidateUserRoleValid {
+		return false, errors.New(fmt.Sprint("error validating user-role model:", verr))
 	}
 
-	//-- delete all existing roles first --
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserRolesForClientScript(), clientUID)
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.UpdateUserRoleScript(),
+		role.Username, role.ClientUID, role.Role,
+	)
 	cancel()
 
 	if err != nil {
-		return common.ChainError("error executing delete user roles for client statement", err)
+		return false, common.ChainError("error executing update user role statement", err)
 	}
 
-	//-- add new roles --
-	for _, role := range roles {
-		ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-		_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.AddUserRoleForClientScript(), clientUID, role.Username, role.Role)
-		cancel()
+	count, _ := res.RowsAffected()
+	return count > 0, nil
+}
 
-		if err != nil {
-			return common.ChainError("error executing add user role for client statement", err)
-		}
+func (crud *SQLCRUD) DeleteUserRole(username string, clientUID uuid.UUID) (bool, error) {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserRoleScript(),
+		username, clientUID,
+	)
+	cancel()
+
+	if err != nil {
+		return false, common.ChainError("error executing delete user role statement", err)
 	}
 
-	return nil
+	count, _ := res.RowsAffected()
+	return count > 0, nil
 }
 
 func readUserRoleData(rows *sql.Rows) (*models.UserRole, error) {
@@ -124,7 +123,9 @@ func readUserRoleData(rows *sql.Rows) (*models.UserRole, error) {
 
 	//get the result
 	userRole := &models.UserRole{}
-	err := rows.Scan(&userRole.Username, &userRole.Role)
+	err := rows.Scan(
+		&userRole.Username, &userRole.ClientUID, &userRole.Role,
+	)
 	if err != nil {
 		return nil, common.ChainError("error reading row", err)
 	}
