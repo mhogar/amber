@@ -32,7 +32,7 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 		return nil, common.InternalError()
 	}
 	if otherUser != nil {
-		return nil, common.ClientError("error creating user")
+		return nil, common.ClientError("username is already in use")
 	}
 
 	//validate password meets criteria
