@@ -77,7 +77,7 @@ func ParseAndAssertErrorResponse(suite *suite.Suite, res *http.Response, expecte
 	var errRes common.ErrorResponse
 	ParseResponse(suite, res, expectedStatus, &errRes)
 
-	AssertErrorResponse(suite, errRes)
+	AssertErrorResponse(suite, errRes, expectedErrorSubStrings...)
 }
 
 // AssertInternalServerErrorResponse asserts the response is an internal server response.

@@ -14,36 +14,32 @@ import (
 
 type TokenE2ETestSuite struct {
 	E2ETestSuite
-	Username string
-	Password string
+	User1 UserCredentials
 }
 
 func (suite *TokenE2ETestSuite) SetupSuite() {
 	suite.E2ETestSuite.SetupSuite()
-
-	suite.Username = "username"
-	suite.Password = "Password123!"
-	suite.CreateUser(suite.Username, suite.Password, 0)
+	suite.User1 = suite.CreateUser(suite.AdminToken, "user1", 5)
 }
 
 func (suite *TokenE2ETestSuite) TearDownSuite() {
-	suite.DeleteUser(suite.Username)
+	suite.DeleteUser(suite.AdminToken, suite.User1.Username)
 	suite.E2ETestSuite.TearDownSuite()
 }
 
 func (suite *TokenE2ETestSuite) TestCreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {
 	//create client
-	clientId := suite.CreateClient(models.ClientTokenTypeDefault, "keys/test.private.pem")
+	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeDefault, "keys/test.private.pem")
 
 	//update user role
 	role := "role"
-	suite.CreateUserRole(suite.Username, clientId, "role")
+	suite.CreateUserRole(suite.User1.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
 		ClientId: clientId,
-		Username: suite.Username,
-		Password: suite.Password,
+		Username: suite.User1.Username,
+		Password: suite.User1.Password,
 	}
 	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
@@ -53,7 +49,7 @@ func (suite *TokenE2ETestSuite) TestCreateDefaultClient_UpdateUserRole_CreateTok
 	suite.Equal(role, claims.Role)
 
 	//delete client
-	suite.DeleteClient(clientId)
+	suite.DeleteClient(suite.AdminToken, clientId)
 }
 
 func (suite *TokenE2ETestSuite) parseDefaultTokenClaims(keyUri string, tokenString string) jwthelpers.DefaultClaims {
@@ -78,27 +74,27 @@ func (suite *TokenE2ETestSuite) TestCreateFirebaseClient_UpdateUserRole_CreateTo
 	keyUri := "keys/firebase-test.json"
 
 	//create client
-	clientId := suite.CreateClient(models.ClientTokenTypeFirebase, keyUri)
+	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeFirebase, keyUri)
 
 	//create user role
 	role := "role"
-	suite.CreateUserRole(suite.Username, clientId, "role")
+	suite.CreateUserRole(suite.User1.Username, clientId, "role")
 
 	//create token
 	postTokenBody := handlers.PostTokenBody{
 		ClientId: clientId,
-		Username: suite.Username,
-		Password: suite.Password,
+		Username: suite.User1.Username,
+		Password: suite.User1.Password,
 	}
 	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
 
 	claims := suite.parseFirebaseTokenClaims(keyUri, res.Request.URL.Query().Get("token"))
-	suite.Equal(suite.Username, claims.UID)
+	suite.Equal(suite.User1.Username, claims.UID)
 	suite.Equal(role, claims.Claims["role"])
 
 	//delete client
-	suite.DeleteClient(clientId)
+	suite.DeleteClient(suite.AdminToken, clientId)
 }
 
 func (suite *TokenE2ETestSuite) parseFirebaseTokenClaims(keyUri string, tokenString string) jwthelpers.FirebaseClaims {
