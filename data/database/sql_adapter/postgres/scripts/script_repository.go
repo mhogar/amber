@@ -132,6 +132,16 @@ DELETE FROM "session" s
 `
 }
 
+// DeleteAllUserSessionsScript gets the DeleteAllUserSessions script.
+func (ScriptRepository) DeleteAllUserSessionsScript() string {
+	return `
+DELETE FROM "session" s
+    WHERE s."user_key" IN (
+        SELECT u."key" FROM "user" u WHERE u."username" = $1
+    )
+`
+}
+
 // DeleteSessionScript gets the DeleteSession script.
 func (ScriptRepository) DeleteSessionScript() string {
 	return `

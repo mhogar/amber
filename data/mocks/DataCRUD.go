@@ -85,6 +85,20 @@ func (_m *DataCRUD) DeleteAllOtherUserSessions(username string, tokem uuid.UUID)
 	return r0
 }
 
+// DeleteAllUserSessions provides a mock function with given fields: username
+func (_m *DataCRUD) DeleteAllUserSessions(username string) error {
+	ret := _m.Called(username)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(username)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // DeleteClient provides a mock function with given fields: uid
 func (_m *DataCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
 	ret := _m.Called(uid)

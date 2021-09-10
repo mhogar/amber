@@ -118,6 +118,34 @@ func (suite *SessionControllerTestSuite) TestDeleteSession_WithNoErrors_ReturnsN
 	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
+func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithErrorDeletingSessions_ReturnsInternalError() {
+	//arrange
+	username := "username"
+
+	suite.CRUDMock.On("DeleteAllUserSessions", mock.Anything).Return(errors.New(""))
+
+	//act
+	cerr := suite.SessionController.DeleteAllUserSessions(&suite.CRUDMock, username)
+
+	//assert
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithNoErrors_ReturnsNoError() {
+	//arrange
+	username := "username"
+
+	suite.CRUDMock.On("DeleteAllUserSessions", mock.Anything).Return(nil)
+
+	//act
+	cerr := suite.SessionController.DeleteAllUserSessions(&suite.CRUDMock, username)
+
+	//assert
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllUserSessions", username)
+
+	helpers.AssertNoError(&suite.Suite, cerr)
+}
+
 func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithErrorDeletingSessions_ReturnsInternalError() {
 	//arrange
 	id := uuid.New()

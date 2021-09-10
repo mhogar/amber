@@ -70,26 +70,60 @@ func (suite *SessionCRUDTestSuite) TestDeleteSession_DeletesSessionWithId() {
 	suite.Nil(resultSession)
 }
 
+func (suite *SessionCRUDTestSuite) TestDeleteAllUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
+
+	//act
+	err := suite.Tx.DeleteAllUserSessions(user.Username)
+
+	//assert
+	suite.NoError(err)
+}
+
+func (suite *SessionCRUDTestSuite) TestDeleteAllUserSessions_DeletesAllSessionsWithUsername() {
+	//arrange
+	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
+	session1 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
+	session2 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
+
+	//act
+	err := suite.Tx.DeleteAllUserSessions(user.Username)
+
+	//assert
+	suite.Require().NoError(err)
+
+	//session2 was deleted
+	resultSession, err := suite.Tx.GetSessionByToken(session1.Token)
+	suite.NoError(err)
+	suite.Nil(resultSession)
+
+	//session2 was deleted
+	resultSession, err = suite.Tx.GetSessionByToken(session2.Token)
+	suite.NoError(err)
+	suite.Nil(resultSession)
+}
+
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	session := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session.Username, session.Token)
+	err := suite.Tx.DeleteAllOtherUserSessions(user.Username, session.Token)
 
 	//assert
 	suite.NoError(err)
 }
 
-func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUserId() {
+func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_DeletesAllOtherSessionWithUsername() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	session1 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
-	session2 := suite.SaveSession(models.CreateNewSession(session1.Username, 0))
+	session2 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
 
 	//act
-	err := suite.Tx.DeleteAllOtherUserSessions(session1.Username, session1.Token)
+	err := suite.Tx.DeleteAllOtherUserSessions(user.Username, session1.Token)
 
 	//assert
 	suite.Require().NoError(err)

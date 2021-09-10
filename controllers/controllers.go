@@ -101,7 +101,6 @@ type AuthController interface {
 // SessionControllerCRUD encapsulates the CRUD operations required by the SessionController.
 type SessionControllerCRUD interface {
 	models.UserCRUD
-	models.ClientCRUD
 	models.SessionCRUD
 }
 
@@ -111,6 +110,9 @@ type SessionController interface {
 
 	// DeleteSession deletes the session with the given id.
 	DeleteSession(CRUD SessionControllerCRUD, id uuid.UUID) common.CustomError
+
+	// DeleteAllUserSessions deletes all of the sessions for the given username.
+	DeleteAllUserSessions(CRUD SessionControllerCRUD, username string) common.CustomError
 
 	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
 	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError

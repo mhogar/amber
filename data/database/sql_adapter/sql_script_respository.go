@@ -16,6 +16,7 @@ type SessionScriptRepository interface {
 	SaveSessionScript() string
 	GetSessionByTokenScript() string
 	DeleteSessionScript() string
+	DeleteAllUserSessionsScript() string
 	DeleteAllOtherUserSessionsScript() string
 }
 

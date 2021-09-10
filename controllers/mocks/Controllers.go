@@ -150,6 +150,20 @@ func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionContro
 	return r0
 }
 
+// DeleteAllUserSessions provides a mock function with given fields: CRUD, username
+func (_m *Controllers) DeleteAllUserSessions(CRUD controllers.SessionControllerCRUD, username string) common.CustomError {
+	ret := _m.Called(CRUD, username)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, string) common.CustomError); ok {
+		r0 = rf(CRUD, username)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
 // DeleteClient provides a mock function with given fields: CRUD, uid
 func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, uid uuid.UUID) common.CustomError {
 	ret := _m.Called(CRUD, uid)

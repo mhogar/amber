@@ -87,6 +87,20 @@ func (crud *SQLCRUD) DeleteSession(token uuid.UUID) (bool, error) {
 	return count > 0, nil
 }
 
+// DeleteAllUserSessions deletes all the rows in the session table with the matching username.
+// Returns any errors.
+func (crud *SQLCRUD) DeleteAllUserSessions(username string) error {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllUserSessionsScript(), username)
+	cancel()
+
+	if err != nil {
+		return common.ChainError("error executing delete all user sessions statement", err)
+	}
+
+	return nil
+}
+
 // DeleteAllOtherUserSessions deletes all the rows in the session table with the matching user token, and not the session token.
 // Returns any errors.
 func (crud *SQLCRUD) DeleteAllOtherUserSessions(username string, token uuid.UUID) error {
