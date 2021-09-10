@@ -97,8 +97,8 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, sessi
 }
 
 type PatchPasswordBody struct {
-	OldPassword string `json:"oldPassword"`
-	NewPassword string `json:"newPassword"`
+	OldPassword string `json:"old_password"`
+	NewPassword string `json:"new_password"`
 }
 
 func (h CoreHandlers) PatchPassword(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -131,7 +131,55 @@ func (h CoreHandlers) PatchPassword(req *http.Request, _ httprouter.Params, sess
 	return common.NewSuccessResponse()
 }
 
-func (h CoreHandlers) PatchUserPassword(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{}) {
+type PatchUserPasswordBody struct {
+	Password string `json:"password"`
+}
+
+func (h CoreHandlers) PatchUserPassword(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//get the username
+	username := params.ByName("username")
+	if username == "" {
+		return common.NewBadRequestResponse("username not provided")
+	}
+
+	//parse the body
+	var body PatchUserPasswordBody
+	err := parseJSONBody(req.Body, &body)
+	if err != nil {
+		log.Println(common.ChainError("error parsing PatchUserPasswordBody request body", err))
+		return common.NewBadRequestResponse("invalid json body")
+	}
+
+	//verify the session has a greater rank than the user
+	res, cerr := h.Controllers.VerifyUserRank(CRUD, username, session.Rank)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+	if !res {
+		return common.NewInsufficientPermissionsErrorResponse()
+	}
+
+	//update the password
+	cerr = h.Controllers.UpdateUserPassword(CRUD, username, body.Password)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//delete all user sessions
+	cerr = h.Controllers.DeleteAllUserSessions(CRUD, username)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
 	return common.NewSuccessResponse()
 }
 
