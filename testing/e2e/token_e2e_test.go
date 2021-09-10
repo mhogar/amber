@@ -5,47 +5,110 @@ import (
 	"authserver/dependencies"
 	"authserver/models"
 	"authserver/router/handlers"
+	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
 	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
+func (suite *E2ETestSuite) SendCreateTokenRequest(clientID uuid.UUID, username string, password string) *http.Response {
+	postTokenBody := handlers.PostTokenBody{
+		ClientId: clientID,
+		Username: username,
+		Password: password,
+	}
+	return suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+}
+
 type TokenE2ETestSuite struct {
 	E2ETestSuite
-	User1 UserCredentials
+	User UserCredentials
 }
 
 func (suite *TokenE2ETestSuite) SetupSuite() {
 	suite.E2ETestSuite.SetupSuite()
-	suite.User1 = suite.CreateUser(suite.AdminToken, "user1", 5)
+	suite.User = suite.CreateUser(suite.AdminToken, "user", 5)
 }
 
 func (suite *TokenE2ETestSuite) TearDownSuite() {
-	suite.DeleteUser(suite.AdminToken, suite.User1.Username)
+	suite.DeleteUser(suite.AdminToken, suite.User.Username)
 	suite.E2ETestSuite.TearDownSuite()
 }
 
-func (suite *TokenE2ETestSuite) TestCreateDefaultClient_UpdateUserRole_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) TestCreateToken_WhereClientNotFound_ReturnsBadRequest() {
+	res := suite.SendCreateTokenRequest(uuid.New(), suite.User.Username, suite.User.Password)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client", "not found")
+}
+
+func (suite *TokenE2ETestSuite) TestCreateToken_WhereUserNotFound_ReturnsBadRequest() {
+	//create client
+	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
+
+	//create token
+	res := suite.SendCreateTokenRequest(clientId, "DNE", "")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
+
+	//delete client
+	suite.DeleteClient(suite.AdminToken, clientId)
+}
+
+func (suite *TokenE2ETestSuite) TestCreateToken_WithIncorrectPassword_ReturnsBadRequest() {
+	//create client
+	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
+
+	//create token
+	res := suite.SendCreateTokenRequest(clientId, suite.Admin.Username, "incorrect")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
+
+	//delete client
+	suite.DeleteClient(suite.AdminToken, clientId)
+}
+
+func (suite *TokenE2ETestSuite) TestCreateToken_WhereRoleNotFound_ReturnsBadRequest() {
+	//create client
+	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
+
+	//create token
+	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "role for user", "not found")
+
+	//delete client
+	suite.DeleteClient(suite.AdminToken, clientId)
+}
+
+func (suite *TokenE2ETestSuite) TestCreateToken_WithInvalidKeyURI_ReturnsInternalServerError() {
+	//create client
+	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeDefault, "invalid")
+
+	//create user-role
+	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
+
+	//create token
+	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
+	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+
+	//delete client
+	suite.DeleteClient(suite.AdminToken, clientId)
+}
+
+func (suite *TokenE2ETestSuite) TestCreateToken_UsingDefaultTokenType_RedirectsToURLWithToken() {
 	//create client
 	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeDefault, "keys/test.private.pem")
 
-	//update user role
+	//create user-role
 	role := "role"
-	suite.CreateUserRole(suite.AdminToken, suite.User1.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
 
 	//create token
-	postTokenBody := handlers.PostTokenBody{
-		ClientId: clientId,
-		Username: suite.User1.Username,
-		Password: suite.User1.Password,
-	}
-	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
 
+	//parse token from url
 	claims := suite.parseDefaultTokenClaims("keys/test.public.pem", res.Request.URL.Query().Get("token"))
-	suite.Equal(postTokenBody.Username, claims.Username)
+	suite.Equal(suite.User.Username, claims.Username)
 	suite.Equal(role, claims.Role)
 
 	//delete client
@@ -70,27 +133,23 @@ func (suite *TokenE2ETestSuite) parseDefaultTokenClaims(keyUri string, tokenStri
 	return claims
 }
 
-func (suite *TokenE2ETestSuite) TestCreateFirebaseClient_UpdateUserRole_CreateToken_DeleteClient() {
+func (suite *TokenE2ETestSuite) TestCreateToken_UsingFirebaseTokenType_RedirectsToURLWithToken() {
 	keyUri := "keys/firebase-test.json"
 
 	//create client
 	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeFirebase, keyUri)
 
-	//create user role
+	//create user-role
 	role := "role"
-	suite.CreateUserRole(suite.AdminToken, suite.User1.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
 
 	//create token
-	postTokenBody := handlers.PostTokenBody{
-		ClientId: clientId,
-		Username: suite.User1.Username,
-		Password: suite.User1.Password,
-	}
-	res := suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
 	suite.Require().Equal(http.StatusOK, res.StatusCode)
 
+	//parse token from url
 	claims := suite.parseFirebaseTokenClaims(keyUri, res.Request.URL.Query().Get("token"))
-	suite.Equal(suite.User1.Username, claims.UID)
+	suite.Equal(suite.User.Username, claims.UID)
 	suite.Equal(role, claims.Claims["role"])
 
 	//delete client

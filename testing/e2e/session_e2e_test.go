@@ -35,17 +35,17 @@ type SessionE2ETestSuite struct {
 	E2ETestSuite
 }
 
-func (suite *SessionE2ETestSuite) TestLogin_WhereUserNotFound_ReturnsBadRequest() {
+func (suite *SessionE2ETestSuite) TestCreateSession_WhereUserNotFound_ReturnsBadRequest() {
 	res := suite.SendCreateSessionRequest("DNE", "")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
 }
 
-func (suite *SessionE2ETestSuite) TestLogin_WithIncorrectPassword_ReturnsBadRequest() {
+func (suite *SessionE2ETestSuite) TestCreateSession_WithIncorrectPassword_ReturnsBadRequest() {
 	res := suite.SendCreateSessionRequest(suite.Admin.Username, "incorrect")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
 }
 
-func (suite *SessionE2ETestSuite) TestLogout_WithInvalidSession_ReturnsUnauthorized() {
+func (suite *SessionE2ETestSuite) TestDeleteSession_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendDeleteSessionRequest("")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
