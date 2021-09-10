@@ -35,7 +35,7 @@
                 z-index: 2;
             }
 
-            .form-signin input[type="email"] {
+            .form-signin input[type="username"] {
                 margin-bottom: -1px;
                 border-bottom-right-radius: 0;
                 border-bottom-left-radius: 0;
@@ -50,10 +50,15 @@
     </head>
     <body>
         <div class="form-signin">
-            <form class="text-center" action="/token" method="post" enctype="application/json">
+            <form class="text-center" action="/token" method="post">
                 <h2 class="mb-3 fw-normal">Sign in with {{.AppName}}</h1>
+                {{if .Error}}
+                <div class="alert alert-danger" role="alert">
+                    {{.Error}}
+                </div>
+                {{ end }}
                 <div class="form-floating">
-                    <input type="text" class="form-control" id="username-input" name="username" placeholder="Username">
+                    <input type="username" class="form-control" id="username-input" name="username" placeholder="Username">
                     <label for="username-input">Username</label>
                 </div>
                 <div class="form-floating">

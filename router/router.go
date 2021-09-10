@@ -58,7 +58,7 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 
 	//token routes
 	r.GET("/token", rf.createHandler(rf.Handlers.GetToken, ResponseTypeRaw, false, 0))
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, ResponseTypeJSON, false, 0))
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, ResponseTypeRaw, false, 0))
 
 	return r
 }
@@ -106,6 +106,7 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int,
 				} else {
 					sendRawResponse(w, status, data.([]byte))
 				}
+
 				return status == http.StatusOK, nil
 			})
 		})
