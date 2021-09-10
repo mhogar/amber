@@ -84,7 +84,7 @@ func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+func (c CoreUserController) UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	//authenticate user first with their old password
 	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
 	if cerr.Type == common.ErrorTypeClient {
@@ -107,7 +107,7 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username
 		return common.InternalError()
 	}
 
-	//update the user (don't check result because we know the user already exists)
+	//update the user's password (don't check result because we know the user already exists)
 	_, err = CRUD.UpdateUserPassword(username, hash)
 	if err != nil {
 		log.Println(common.ChainError("error updating user password", err))

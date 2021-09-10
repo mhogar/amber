@@ -96,22 +96,22 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, sessi
 	return h.newUserDataResponse(user)
 }
 
-type PatchUserPasswordBody struct {
+type PatchPasswordBody struct {
 	OldPassword string `json:"oldPassword"`
 	NewPassword string `json:"newPassword"`
 }
 
-func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) PatchPassword(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
-	var body PatchUserPasswordBody
+	var body PatchPasswordBody
 	err := parseJSONBody(req.Body, &body)
 	if err != nil {
-		log.Println(common.ChainError("error parsing PatchUserPassword request body", err))
+		log.Println(common.ChainError("error parsing PatchPassword request body", err))
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
 	//update the password
-	cerr := h.Controllers.UpdateUserPassword(CRUD, session.Username, body.OldPassword, body.NewPassword)
+	cerr := h.Controllers.UpdateUserPasswordWithAuth(CRUD, session.Username, body.OldPassword, body.NewPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -128,6 +128,10 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, _ httprouter.Params, 
 		return common.NewInternalServerErrorResponse()
 	}
 
+	return common.NewSuccessResponse()
+}
+
+func (h CoreHandlers) PatchUserPassword(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{}) {
 	return common.NewSuccessResponse()
 }
 

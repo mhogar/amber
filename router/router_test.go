@@ -305,11 +305,22 @@ func TestPutUserTestSuite(t *testing.T) {
 	})
 }
 
-func TestPatchUserPasswordTestSuite(t *testing.T) {
+func TestPatchPasswordTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:  "PATCH",
 			Route:   "/user/password",
+			Handler: "PatchPassword",
+		},
+		MinRank: 0,
+	})
+}
+
+func TestPatchUserPasswordTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:  "PATCH",
+			Route:   "/user/password/username",
 			Handler: "PatchUserPassword",
 		},
 		MinRank: 0,

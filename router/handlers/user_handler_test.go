@@ -347,7 +347,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 	session := models.CreateNewSession("username", 0)
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -356,7 +356,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatingUserPassword_ReturnsBadRequest() {
 	//arrange
-	body := handlers.PatchUserPasswordBody{
+	body := handlers.PatchPasswordBody{
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
@@ -365,10 +365,10 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	session := models.CreateNewSession("username", 0)
 
 	message := "update user password error"
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
+	suite.ControllersMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -377,7 +377,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdatingUserPassword_ReturnsInternalServerError() {
 	//arrange
-	body := handlers.PatchUserPasswordBody{
+	body := handlers.PatchPasswordBody{
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
@@ -385,10 +385,10 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 
 	session := models.CreateNewSession("username", 0)
 
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
+	suite.ControllersMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -397,7 +397,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletingAllOtherUserSessions_ReturnsBadRequest() {
 	//arrange
-	body := handlers.PatchUserPasswordBody{
+	body := handlers.PatchPasswordBody{
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
@@ -405,13 +405,13 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 
 	session := models.CreateNewSession("username", 0)
 
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
+	suite.ControllersMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
 	message := "update user password error"
 	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.ClientError(message))
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
@@ -420,7 +420,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDeletingAllOtherUserSessions_ReturnsInternalServerError() {
 	//arrange
-	body := handlers.PatchUserPasswordBody{
+	body := handlers.PatchPasswordBody{
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
@@ -428,11 +428,11 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 
 	session := models.CreateNewSession("username", 0)
 
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
+	suite.ControllersMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
@@ -441,7 +441,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSuccess() {
 	//arrange
-	body := handlers.PatchUserPasswordBody{
+	body := handlers.PatchPasswordBody{
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
@@ -449,17 +449,17 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 
 	session := models.CreateNewSession("username", 0)
 
-	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
+	suite.ControllersMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 	suite.ControllersMock.On("DeleteAllOtherUserSessions", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
 
 	//act
-	status, res := suite.CoreHandlers.PatchUserPassword(req, nil, session, &suite.CRUDMock)
+	status, res := suite.CoreHandlers.PatchPassword(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessResponse(&suite.Suite, res)
 
-	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.CRUDMock, session.Username, body.OldPassword, body.NewPassword)
+	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPasswordWithAuth", &suite.CRUDMock, session.Username, body.OldPassword, body.NewPassword)
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", &suite.CRUDMock, session.Username, session.Token)
 }
 

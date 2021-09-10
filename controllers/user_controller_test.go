@@ -235,7 +235,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithClientErrorAuth
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(""))
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
 	helpers.AssertClientError(&suite.Suite, cerr, "old password", "incorrect")
@@ -246,7 +246,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNonClientErrorA
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
@@ -258,7 +258,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereNewPasswordDoe
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaError(passwordhelpers.ValidatePasswordCriteriaTooShort, ""))
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
 	helpers.AssertClientError(&suite.Suite, cerr, "password", "not", "minimum criteria")
@@ -271,7 +271,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNew
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
@@ -282,10 +282,10 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUs
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(nil, nil)
-	suite.CRUDMock.On("UpdateUserPassword", mock.Anything, mock.Anything).Return(false, errors.New(""))
+	suite.CRUDMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything).Return(false, errors.New(""))
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
 	helpers.AssertInternalError(&suite.Suite, cerr)
@@ -302,16 +302,16 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	suite.ControllersMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.PasswordCriteriaValidatorMock.On("ValidatePasswordCriteria", mock.Anything).Return(passwordhelpers.CreateValidatePasswordCriteriaValid())
 	suite.PasswordHasherMock.On("HashPassword", mock.Anything).Return(newPasswordHash, nil)
-	suite.CRUDMock.On("UpdateUserPassword", mock.Anything, mock.Anything).Return(true, nil)
+	suite.CRUDMock.On("UpdateUserPasswordWithAuth", mock.Anything, mock.Anything).Return(true, nil)
 
 	//act
-	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, username, oldPassword, newPassword)
+	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, username, oldPassword, newPassword)
 
 	//assert
 	suite.ControllersMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, username, oldPassword)
 	suite.PasswordCriteriaValidatorMock.AssertCalled(suite.T(), "ValidatePasswordCriteria", newPassword)
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "HashPassword", newPassword)
-	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserPassword", username, newPasswordHash)
+	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserPasswordWithAuth", username, newPasswordHash)
 
 	helpers.AssertNoError(&suite.Suite, cerr)
 }

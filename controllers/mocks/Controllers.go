@@ -243,8 +243,8 @@ func (_m *Controllers) UpdateUser(CRUD controllers.UserControllerCRUD, username 
 	return r0, r1
 }
 
-// UpdateUserPassword provides a mock function with given fields: CRUD, username, oldPassword, newPassword
-func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+// UpdateUserPasswordWithAuth provides a mock function with given fields: CRUD, username, oldPassword, newPassword
+func (_m *Controllers) UpdateUserPasswordWithAuth(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	ret := _m.Called(CRUD, username, oldPassword, newPassword)
 
 	var r0 common.CustomError

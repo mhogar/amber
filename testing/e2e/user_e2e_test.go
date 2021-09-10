@@ -37,8 +37,8 @@ func (suite *E2ETestSuite) SendUpdateUserRequest(token string, username string, 
 	return suite.SendRequest(http.MethodPut, "/user/"+username, token, putUserBody)
 }
 
-func (suite *E2ETestSuite) SendUpdateUserPasswordRequest(token string, password string, newPassword string) *http.Response {
-	patchPasswordBody := handlers.PatchUserPasswordBody{
+func (suite *E2ETestSuite) SendUpdatePasswordRequest(token string, password string, newPassword string) *http.Response {
+	patchPasswordBody := handlers.PatchPasswordBody{
 		OldPassword: password,
 		NewPassword: newPassword,
 	}
@@ -136,7 +136,7 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereOldPasswordIsIncorrec
 	token := suite.Login(suite.ExistingUser)
 
 	//update user password
-	res := suite.SendUpdateUserPasswordRequest(token, "incorrect", "Password1234!")
+	res := suite.SendUpdatePasswordRequest(token, "incorrect", "Password1234!")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "old password", "incorrect")
 
 	//logout
@@ -148,7 +148,7 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereNewPasswordDoesNotMee
 	token := suite.Login(suite.ExistingUser)
 
 	//update user password
-	res := suite.SendUpdateUserPasswordRequest(token, suite.ExistingUser.Password, "invalid")
+	res := suite.SendUpdatePasswordRequest(token, suite.ExistingUser.Password, "invalid")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
 
 	//logout

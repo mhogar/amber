@@ -33,7 +33,8 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	//user routes
 	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true, 0))
 	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true, 0))
-	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchUserPassword, true, 0))
+	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchPassword, true, 0))
+	r.PATCH("/user/password/:username", rf.createHandler(rf.Handlers.PatchUserPassword, true, 0))
 	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true, 0))
 
 	//client routes
