@@ -116,7 +116,7 @@ func (rf CoreRouterFactory) getSession(CRUD models.SessionCRUD, req *http.Reques
 	token, err := uuid.Parse(splitTokens[1])
 	if err != nil {
 		log.Println(common.ChainError("error parsing token", err))
-		return nil, common.ClientError("bearer session was in an invalid format")
+		return nil, common.ClientError("bearer token was in an invalid format")
 	}
 
 	//fetch the session

@@ -238,7 +238,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithClientErrorAuth
 	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "old password", "invalid")
+	helpers.AssertClientError(&suite.Suite, cerr, "old password", "incorrect")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNonClientErrorAuthenticatingUser_ReturnsError() {
