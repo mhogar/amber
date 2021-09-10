@@ -39,6 +39,9 @@ type UserController interface {
 	// UpdateUser updates the fields of the user for the given username.
 	UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError)
 
+	// UpdateUserPassword updates the password for the user with the given username.
+	UpdateUserPassword(CRUD UserControllerCRUD, username string, password string) common.CustomError
+
 	// UpdateUserPasswordWithAuth authenticates the user and updates their password.
 	UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError
 

@@ -13,6 +13,7 @@ type CoreUserController struct {
 	PasswordHasher            passwordhelpers.PasswordHasher
 	PasswordCriteriaValidator passwordhelpers.PasswordCriteriaValidator
 	AuthController            AuthController
+	UserController            UserController
 }
 
 func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError) {
@@ -84,24 +85,16 @@ func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
-func (c CoreUserController) UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
-	//authenticate user first with their old password
-	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
-	if cerr.Type == common.ErrorTypeClient {
-		return common.ClientError("old password is incorrect")
-	} else if cerr.Type != common.ErrorTypeNone {
-		return cerr
-	}
-
-	//validate new password meets critera
-	verr := c.PasswordCriteriaValidator.ValidatePasswordCriteria(newPassword)
+func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username string, password string) common.CustomError {
+	//validate password meets critera
+	verr := c.PasswordCriteriaValidator.ValidatePasswordCriteria(password)
 	if verr.Status != passwordhelpers.ValidatePasswordCriteriaValid {
 		log.Println(common.ChainError("error validating password criteria", verr))
 		return common.ClientError("password does not meet minimum criteria")
 	}
 
 	//hash the password
-	hash, err := c.PasswordHasher.HashPassword(newPassword)
+	hash, err := c.PasswordHasher.HashPassword(password)
 	if err != nil {
 		log.Println(common.ChainError("error generating password hash", err))
 		return common.InternalError()
@@ -116,6 +109,19 @@ func (c CoreUserController) UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, 
 
 	//return success
 	return common.NoError()
+}
+
+func (c CoreUserController) UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+	//authenticate user first with their old password
+	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.ClientError("old password is incorrect")
+	} else if cerr.Type != common.ErrorTypeNone {
+		return cerr
+	}
+
+	//update the user's password
+	return c.UserController.UpdateUserPassword(CRUD, username, newPassword)
 }
 
 func (c CoreUserController) DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError {
