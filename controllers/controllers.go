@@ -39,8 +39,11 @@ type UserController interface {
 	// UpdateUser updates the fields of the user for the given username.
 	UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError)
 
-	// UpdateUserPassword updates the password for the given username.
-	UpdateUserPassword(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError
+	// UpdateUserPassword updates the password for the user with the given username.
+	UpdateUserPassword(CRUD UserControllerCRUD, username string, password string) common.CustomError
+
+	// UpdateUserPasswordWithAuth authenticates the user and updates their password.
+	UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError
 
 	// DeleteUser deletes the user with given username.
 	DeleteUser(CRUD UserControllerCRUD, username string) common.CustomError
@@ -98,7 +101,6 @@ type AuthController interface {
 // SessionControllerCRUD encapsulates the CRUD operations required by the SessionController.
 type SessionControllerCRUD interface {
 	models.UserCRUD
-	models.ClientCRUD
 	models.SessionCRUD
 }
 
@@ -108,6 +110,9 @@ type SessionController interface {
 
 	// DeleteSession deletes the session with the given id.
 	DeleteSession(CRUD SessionControllerCRUD, id uuid.UUID) common.CustomError
+
+	// DeleteAllUserSessions deletes all of the sessions for the given username.
+	DeleteAllUserSessions(CRUD SessionControllerCRUD, username string) common.CustomError
 
 	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given id.
 	DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError

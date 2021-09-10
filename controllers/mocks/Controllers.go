@@ -150,6 +150,20 @@ func (_m *Controllers) DeleteAllOtherUserSessions(CRUD controllers.SessionContro
 	return r0
 }
 
+// DeleteAllUserSessions provides a mock function with given fields: CRUD, username
+func (_m *Controllers) DeleteAllUserSessions(CRUD controllers.SessionControllerCRUD, username string) common.CustomError {
+	ret := _m.Called(CRUD, username)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.SessionControllerCRUD, string) common.CustomError); ok {
+		r0 = rf(CRUD, username)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
 // DeleteClient provides a mock function with given fields: CRUD, uid
 func (_m *Controllers) DeleteClient(CRUD controllers.ClientControllerCRUD, uid uuid.UUID) common.CustomError {
 	ret := _m.Called(CRUD, uid)
@@ -243,8 +257,22 @@ func (_m *Controllers) UpdateUser(CRUD controllers.UserControllerCRUD, username 
 	return r0, r1
 }
 
-// UpdateUserPassword provides a mock function with given fields: CRUD, username, oldPassword, newPassword
-func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
+// UpdateUserPassword provides a mock function with given fields: CRUD, username, password
+func (_m *Controllers) UpdateUserPassword(CRUD controllers.UserControllerCRUD, username string, password string) common.CustomError {
+	ret := _m.Called(CRUD, username, password)
+
+	var r0 common.CustomError
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, string, string) common.CustomError); ok {
+		r0 = rf(CRUD, username, password)
+	} else {
+		r0 = ret.Get(0).(common.CustomError)
+	}
+
+	return r0
+}
+
+// UpdateUserPasswordWithAuth provides a mock function with given fields: CRUD, username, oldPassword, newPassword
+func (_m *Controllers) UpdateUserPasswordWithAuth(CRUD controllers.UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
 	ret := _m.Called(CRUD, username, oldPassword, newPassword)
 
 	var r0 common.CustomError

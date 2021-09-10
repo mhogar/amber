@@ -49,8 +49,19 @@ func (c CoreSessionController) DeleteSession(CRUD SessionControllerCRUD, id uuid
 	return common.NoError()
 }
 
+func (c CoreSessionController) DeleteAllUserSessions(CRUD SessionControllerCRUD, username string) common.CustomError {
+	//delete the sessions
+	err := CRUD.DeleteAllUserSessions(username)
+	if err != nil {
+		log.Println(common.ChainError("error deleting all user sessions", err))
+		return common.InternalError()
+	}
+
+	return common.NoError()
+}
+
 func (c CoreSessionController) DeleteAllOtherUserSessions(CRUD SessionControllerCRUD, username string, id uuid.UUID) common.CustomError {
-	//delete the session
+	//delete the sessions
 	err := CRUD.DeleteAllOtherUserSessions(username, id)
 	if err != nil {
 		log.Println(common.ChainError("error deleting all other user sessions", err))

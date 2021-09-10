@@ -27,6 +27,10 @@ type SessionCRUD interface {
 	// Returns result of whether the session was found, and any errors.
 	DeleteSession(token uuid.UUID) (bool, error)
 
+	// DeleteAllOtherUserSessions deletes all of the sessions for the given username.
+	// Returns any errors.
+	DeleteAllUserSessions(username string) error
+
 	// DeleteAllOtherUserSessions deletes all of the sessions for the given username expect the one with the given token.
 	// Returns any errors.
 	DeleteAllOtherUserSessions(username string, tokem uuid.UUID) error

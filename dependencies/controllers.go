@@ -13,11 +13,7 @@ var controllers controllerspkg.Controllers
 func ResolveControllers() controllerspkg.Controllers {
 	createControllersOnce.Do(func() {
 		controllers = &controllerspkg.CoreControllers{
-			UserController: controllerspkg.CoreUserController{
-				PasswordHasher:            ResolvePasswordHasher(),
-				PasswordCriteriaValidator: ResolvePasswordCriteriaValidator(),
-				AuthController:            ResolveAuthController(),
-			},
+			UserController:   ResolveUserController(),
 			ClientController: controllerspkg.CoreClientController{},
 			AuthController:   ResolveAuthController(),
 			SessionController: controllerspkg.CoreSessionController{
