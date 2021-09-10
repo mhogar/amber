@@ -16,16 +16,18 @@ import (
 )
 
 type TokenViewData struct {
-	AppName string
+	AppName  string
+	ClientID string
 }
 
-func (h CoreHandlers) GetToken(_ *http.Request, params httprouter.Params, _ *models.Session, _ data.DataCRUD) (int, interface{}) {
+func (h CoreHandlers) GetToken(req *http.Request, _ httprouter.Params, _ *models.Session, _ data.DataCRUD) (int, interface{}) {
 	//parse the template
 	t := template.Must(template.ParseFiles(path.Join(config.GetAppRoot(), "views", "token.gohtml")))
 
 	//fill in the data struct
 	data := TokenViewData{
-		AppName: config.GetAppName(),
+		AppName:  config.GetAppName(),
+		ClientID: req.URL.Query().Get("client_id"),
 	}
 
 	//render the template
@@ -46,17 +48,19 @@ type PostTokenBody struct {
 }
 
 func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
-	var body PostTokenBody
+	//get the form values
+	username := req.PostFormValue("username")
+	password := req.PostFormValue("password")
 
-	//parse the body
-	err := parseJSONBody(req.Body, &body)
+	//parse the client id
+	clientID, err := uuid.Parse(req.PostFormValue("client_id"))
 	if err != nil {
-		log.Println(common.ChainError("error parsing PostToken request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		log.Println(common.ChainError("error parsing client id", err))
+		return common.NewBadRequestResponse("client id is in an invalid format")
 	}
 
 	//create the token redirect url
-	redirectUrl, cerr := h.Controllers.CreateTokenRedirectURL(CRUD, body.ClientId, body.Username, body.Password)
+	redirectUrl, cerr := h.Controllers.CreateTokenRedirectURL(CRUD, clientID, username, password)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
