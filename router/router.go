@@ -13,6 +13,11 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+const (
+	ResponseTypeRaw  = iota
+	ResponseTypeJSON = iota
+)
+
 type RouterFactory interface {
 	// CreateRouter creates a new httprouter with the endpoints and panic handler configured.
 	CreateRouter() *httprouter.Router
@@ -31,35 +36,36 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	}
 
 	//user routes
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, true, 0))
-	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, true, 0))
-	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchPassword, true, 0))
-	r.PATCH("/user/password/:username", rf.createHandler(rf.Handlers.PatchUserPassword, true, 0))
-	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, true, 0))
+	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, ResponseTypeJSON, true, 0))
+	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, ResponseTypeJSON, true, 0))
+	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchPassword, ResponseTypeJSON, true, 0))
+	r.PATCH("/user/password/:username", rf.createHandler(rf.Handlers.PatchUserPassword, ResponseTypeJSON, true, 0))
+	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, ResponseTypeJSON, true, 0))
 
 	//client routes
-	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, true, 1))
-	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, true, 1))
-	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, true, 1))
+	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, ResponseTypeJSON, true, 1))
+	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, ResponseTypeJSON, true, 1))
+	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, ResponseTypeJSON, true, 1))
 
 	//user-role routes
-	r.POST("/user/:username/role", rf.createHandler(rf.Handlers.PostUserRole, true, 0))
-	r.PUT("/user/:username/role/:client_id", rf.createHandler(rf.Handlers.PutUserRole, true, 0))
-	r.DELETE("/user/:username/role/:client_id", rf.createHandler(rf.Handlers.DeleteUserRole, true, 0))
+	r.POST("/user/:username/role", rf.createHandler(rf.Handlers.PostUserRole, ResponseTypeJSON, true, 0))
+	r.PUT("/user/:username/role/:client_id", rf.createHandler(rf.Handlers.PutUserRole, ResponseTypeJSON, true, 0))
+	r.DELETE("/user/:username/role/:client_id", rf.createHandler(rf.Handlers.DeleteUserRole, ResponseTypeJSON, true, 0))
 
 	//session routes
-	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, false, 0))
-	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, true, 0))
+	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, ResponseTypeJSON, false, 0))
+	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, ResponseTypeJSON, true, 0))
 
 	//token routes
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, false, 0))
+	r.GET("/token", rf.createHandler(rf.Handlers.GetToken, ResponseTypeRaw, false, 0))
+	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, ResponseTypeJSON, false, 0))
 
 	return r
 }
 
 type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
-func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool, minRank int) httprouter.Handle {
+func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int, authenticateUser bool, minRank int) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var session *models.Session
 		var cerr common.CustomError
@@ -90,11 +96,16 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser 
 				//handle special redirect case
 				if status == http.StatusSeeOther {
 					w.Header().Set("Location", data.(string))
-					sendResponse(w, status, nil)
+					sendRawResponse(w, status, nil)
 					return true, nil
 				}
 
-				sendResponse(w, status, data)
+				//send response based on type (default to raw)
+				if responseType == ResponseTypeJSON {
+					sendJSONResponse(w, status, data)
+				} else {
+					sendRawResponse(w, status, data.([]byte))
+				}
 				return status == http.StatusOK, nil
 			})
 		})

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Sign in - {{.AppName}}</title>
+
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+        <style>
+            html, body {
+                height: 100%;
+            }
+
+            body {
+                display: flex;
+                align-items: center;
+                padding-top: 40px;
+                padding-bottom: 40px;
+                background-color: #f5f5f5;
+            }
+
+            .form-signin {
+                width: 100%;
+                max-width: 500px;
+                margin: auto;
+            }
+
+            .form-signin .checkbox {
+                font-weight: 400;
+            }
+
+            .form-signin .form-floating:focus-within {
+                z-index: 2;
+            }
+
+            .form-signin input[type="email"] {
+                margin-bottom: -1px;
+                border-bottom-right-radius: 0;
+                border-bottom-left-radius: 0;
+            }
+
+            .form-signin input[type="password"] {
+                margin-bottom: 10px;
+                border-top-left-radius: 0;
+                border-top-right-radius: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="form-signin">
+            <form class="text-center" action="/token" method="post" enctype="application/json">
+                <h2 class="mb-3 fw-normal">Sign in with {{.AppName}}</h1>
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="username-input" name="username" placeholder="Username">
+                    <label for="username-input">Username</label>
+                </div>
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="password-input" name="password" placeholder="Password">
+                    <label for="password-input">Password</label>
+                </div>
+                <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+                <p class="mt-5 mb-3 text-muted">Powered by Amber &copy; 2021</p>
+            </form>
+        </div>
+    </body>
+</html>

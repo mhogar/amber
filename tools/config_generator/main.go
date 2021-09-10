@@ -34,6 +34,7 @@ func Run(name string) error {
 
 	//create the config struct
 	cfg := config.Config{
+		AppName: "Amber",
 		TokenConfig: config.TokenConfig{
 			DefaultIssuer: "amber",
 			Lifetime:      60,

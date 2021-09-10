@@ -6,7 +6,12 @@ import (
 	"net/http"
 )
 
-func sendResponse(w http.ResponseWriter, status int, res interface{}) {
+func sendRawResponse(w http.ResponseWriter, status int, res []byte) {
+	w.WriteHeader(status)
+	w.Write(res)
+}
+
+func sendJSONResponse(w http.ResponseWriter, status int, res interface{}) {
 	//set the header
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -19,7 +24,7 @@ func sendResponse(w http.ResponseWriter, status int, res interface{}) {
 }
 
 func sendErrorResponse(w http.ResponseWriter, status int, message string) {
-	sendResponse(w, status, common.NewErrorResponse(message))
+	sendJSONResponse(w, status, common.NewErrorResponse(message))
 }
 
 func sendInternalErrorResponse(w http.ResponseWriter) {
