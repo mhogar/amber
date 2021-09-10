@@ -37,12 +37,19 @@ func (suite *E2ETestSuite) SendUpdateUserRequest(token string, username string, 
 	return suite.SendRequest(http.MethodPut, "/user/"+username, token, putUserBody)
 }
 
-func (suite *E2ETestSuite) SendUpdatePasswordRequest(token string, password string, newPassword string) *http.Response {
+func (suite *E2ETestSuite) SendUpdatePasswordRequest(token string, oldPassword string, newPassword string) *http.Response {
 	patchPasswordBody := handlers.PatchPasswordBody{
-		OldPassword: password,
+		OldPassword: oldPassword,
 		NewPassword: newPassword,
 	}
 	return suite.SendRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
+}
+
+func (suite *E2ETestSuite) SendUpdateUserPasswordRequest(token string, username string, password string) *http.Response {
+	patchUserPasswordBody := handlers.PatchUserPasswordBody{
+		Password: password,
+	}
+	return suite.SendRequest(http.MethodPatch, "/user/password/"+username, token, patchUserPasswordBody)
 }
 
 func (suite *E2ETestSuite) SendDeleteUserRequest(token string, username string) *http.Response {
@@ -131,7 +138,7 @@ func (suite *UserE2ETestSuite) TestUpdateUser_WithValidRequest_ReturnsSuccess() 
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
-func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereOldPasswordIsIncorrect_ReturnsBadRequest() {
+func (suite *UserE2ETestSuite) TestUpdatePassword_WhereOldPasswordIsIncorrect_ReturnsBadRequest() {
 	//login
 	token := suite.Login(suite.ExistingUser)
 
@@ -143,7 +150,7 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereOldPasswordIsIncorrec
 	suite.Logout(token)
 }
 
-func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereNewPasswordDoesNotMeetCriteria_ReturnsBadRequest() {
+func (suite *UserE2ETestSuite) TestUpdatePassword_WhereNewPasswordDoesNotMeetCriteria_ReturnsBadRequest() {
 	//login
 	token := suite.Login(suite.ExistingUser)
 
@@ -153,6 +160,50 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereNewPasswordDoesNotMee
 
 	//logout
 	suite.Logout(token)
+}
+
+func (suite *UserE2ETestSuite) TestUpdatePassword_WithValidRequest_ReturnsSuccess() {
+	//login
+	token := suite.Login(suite.ExistingUser)
+
+	//update user password
+	res := suite.SendUpdatePasswordRequest(token, suite.ExistingUser.Password, suite.ExistingUser.Password)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+
+	//logout
+	suite.Logout(token)
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendUpdateUserPasswordRequest("", "", "")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereUsernameDoesNotExist_ReturnsBadRequest() {
+	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, "DNE", "")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithRankLessThanUser_ReturnsForbidden() {
+	//login
+	token := suite.Login(suite.ExistingUser)
+
+	//update user password
+	res := suite.SendUpdateUserPasswordRequest(token, suite.Admin.Username, "")
+	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+
+	//logout
+	suite.Logout(token)
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUserPassword_WherePasswordDoesNotMeetCriteria_ReturnsBadRequest() {
+	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, suite.ExistingUser.Username, "invalid")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
+}
+
+func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithValidRequest_ReturnsSuccess() {
+	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, suite.ExistingUser.Username, suite.ExistingUser.Password)
+	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
 func (suite *UserE2ETestSuite) TestDeleteUser_WithInvalidSession_ReturnsUnauthorized() {
