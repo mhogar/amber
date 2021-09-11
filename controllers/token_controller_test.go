@@ -69,23 +69,38 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNot
 	helpers.AssertClientError(&suite.Suite, cerr, "client with id", clientUID.String(), "not found")
 }
 
-func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorAuthenticatingUserWithPassword_ReturnsError() {
+func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithClientErrorAuthenticatingUserWithPassword_ReturnsClientError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	username := "username"
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
-
-	message := "authenticate user error"
-	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(""))
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertClientError(&suite.Suite, cerr, message)
+	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password", "not assigned", "client")
+}
+
+func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNonClientErrorAuthenticatingUserWithPassword_ReturnsError() {
+	//arrange
+	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
+	username := "username"
+	password := "password"
+
+	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
+	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
+
+	//act
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+
+	//assert
+	suite.Empty(tokenURL)
+	helpers.AssertInternalError(&suite.Suite, cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGettingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
@@ -121,7 +136,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleF
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertClientError(&suite.Suite, cerr, "role for user", username, "not found")
+	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password", "not assigned", "client")
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
