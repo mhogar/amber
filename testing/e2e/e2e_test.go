@@ -7,6 +7,7 @@ import (
 	"authserver/testing/helpers"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -53,11 +54,17 @@ func (suite *E2ETestSuite) TearDownSuite() {
 	suite.Server.Close()
 }
 
-func (suite *E2ETestSuite) SendRequest(method string, endpoint string, bearerToken string, body interface{}) *http.Response {
-	req := helpers.CreateRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body)
-
+func (suite *E2ETestSuite) SendRequest(req *http.Request) *http.Response {
 	res, err := http.DefaultClient.Do(req)
 	suite.Require().NoError(err)
 
 	return res
+}
+
+func (suite *E2ETestSuite) SendJSONRequest(method string, endpoint string, bearerToken string, body interface{}) *http.Response {
+	return suite.SendRequest(helpers.CreateJSONRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body))
+}
+
+func (suite *E2ETestSuite) SendFormRequest(method string, endpoint string, bearerToken string, body url.Values) *http.Response {
+	return suite.SendRequest(helpers.CreateFormRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body))
 }

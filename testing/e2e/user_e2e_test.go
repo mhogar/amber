@@ -15,7 +15,7 @@ func (suite *E2ETestSuite) SendCreateUserRequest(token string, username string, 
 		Password: password,
 		Rank:     rank,
 	}
-	return suite.SendRequest(http.MethodPost, "/user", token, postUserBody)
+	return suite.SendJSONRequest(http.MethodPost, "/user", token, postUserBody)
 }
 
 func (suite *E2ETestSuite) CreateUser(token string, username string, rank int) UserCredentials {
@@ -34,7 +34,7 @@ func (suite *E2ETestSuite) SendUpdateUserRequest(token string, username string, 
 	putUserBody := handlers.PutUserBody{
 		Rank: rank,
 	}
-	return suite.SendRequest(http.MethodPut, "/user/"+username, token, putUserBody)
+	return suite.SendJSONRequest(http.MethodPut, "/user/"+username, token, putUserBody)
 }
 
 func (suite *E2ETestSuite) SendUpdatePasswordRequest(token string, oldPassword string, newPassword string) *http.Response {
@@ -42,18 +42,18 @@ func (suite *E2ETestSuite) SendUpdatePasswordRequest(token string, oldPassword s
 		OldPassword: oldPassword,
 		NewPassword: newPassword,
 	}
-	return suite.SendRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
+	return suite.SendJSONRequest(http.MethodPatch, "/user/password", token, patchPasswordBody)
 }
 
 func (suite *E2ETestSuite) SendUpdateUserPasswordRequest(token string, username string, password string) *http.Response {
 	patchUserPasswordBody := handlers.PatchUserPasswordBody{
 		Password: password,
 	}
-	return suite.SendRequest(http.MethodPatch, "/user/password/"+username, token, patchUserPasswordBody)
+	return suite.SendJSONRequest(http.MethodPatch, "/user/password/"+username, token, patchUserPasswordBody)
 }
 
 func (suite *E2ETestSuite) SendDeleteUserRequest(token string, username string) *http.Response {
-	return suite.SendRequest(http.MethodDelete, "/user/"+username, token, nil)
+	return suite.SendJSONRequest(http.MethodDelete, "/user/"+username, token, nil)
 }
 
 func (suite *E2ETestSuite) DeleteUser(token string, username string) {

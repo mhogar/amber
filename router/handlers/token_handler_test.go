@@ -5,9 +5,11 @@ import (
 	"authserver/router/handlers"
 	"authserver/testing/helpers"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/google/uuid"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -16,26 +18,61 @@ type TokenHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_WithInvalidJSONBody_ReturnsBadRequest() {
+func (suite *TokenHandlerTestSuite) SetupSuite() {
+	viper.Set("app_name", "App Name")
+}
+
+func (suite *TokenHandlerTestSuite) AssertTokenViewRenderedWithData(clientID string, errSubStrings ...string) {
+	suite.RendererMock.AssertCalled(suite.T(), "RenderView", "token.gohtml", mock.Anything)
+
+	data := suite.RenderViewData.(handlers.TokenViewData)
+	suite.Equal(viper.GetString("app_name"), data.AppName)
+	suite.Equal(clientID, data.ClientID)
+	helpers.AssertContainsSubstrings(&suite.Suite, data.Error, errSubStrings...)
+}
+
+func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	clientID := uuid.New().String()
+	req := helpers.CreateRequest(&suite.Suite, "", "/token?client_id="+clientID, "", nil)
+
+	//act
+	status, res := suite.CoreHandlers.GetToken(req, nil, nil, nil)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	suite.AssertRenderViewResult(res)
+	suite.AssertTokenViewRenderedWithData(clientID)
+}
+
+func (suite *TokenHandlerTestSuite) TestPostToken_WithErrorParsingClientId_RendersTokenViewWithError() {
+	//arrange
+	clientID := "invalid"
+	values := url.Values{
+		"client_id": []string{clientID},
+		"username":  []string{"username"},
+		"password":  []string{"password"},
+	}
+	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
 
 	//act
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.Require().Equal(http.StatusOK, status)
+	suite.AssertRenderViewResult(res)
+	suite.AssertTokenViewRenderedWithData(clientID, "client_id", "not provided", "invalid format")
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRedirectURL_ReturnsBadRequest() {
+func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRedirectURL_RendersTokenViewWithError() {
 	//arrange
-	body := handlers.PostTokenBody{
-		ClientId: uuid.New(),
-		Username: "username",
-		Password: "password",
+	clientID := uuid.New().String()
+	values := url.Values{
+		"client_id": []string{clientID},
+		"username":  []string{"username"},
+		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
 
 	message := "create token error"
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.ClientError(message))
@@ -44,18 +81,20 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRe
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.Require().Equal(http.StatusOK, status)
+	suite.AssertRenderViewResult(res)
+	suite.AssertTokenViewRenderedWithData(clientID, message)
 }
 
-func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingTokenRedirectURL_ReturnsInternalServerError() {
+func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingTokenRedirectURL_RendersTokenViewWithError() {
 	//arrange
-	body := handlers.PostTokenBody{
-		ClientId: uuid.New(),
-		Username: "username",
-		Password: "password",
+	clientID := uuid.New().String()
+	values := url.Values{
+		"client_id": []string{clientID},
+		"username":  []string{"username"},
+		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
 
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.InternalError())
 
@@ -63,18 +102,20 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
-	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.Require().Equal(http.StatusOK, status)
+	suite.AssertRenderViewResult(res)
+	suite.AssertTokenViewRenderedWithData(clientID, "internal error")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect() {
 	//arrange
-	body := handlers.PostTokenBody{
-		ClientId: uuid.New(),
-		Username: "username",
-		Password: "password",
+	clientID := uuid.New().String()
+	values := url.Values{
+		"client_id": []string{clientID},
+		"username":  []string{"username"},
+		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
 
 	redirectUrl := "redirect.com"
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(redirectUrl, common.NoError())
@@ -83,7 +124,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect()
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
 
 	//assert
-	suite.Equal(http.StatusSeeOther, status)
+	suite.Require().Equal(http.StatusSeeOther, status)
 	suite.Equal(redirectUrl, res)
 }
 

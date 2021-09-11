@@ -17,7 +17,7 @@ func (suite *E2ETestSuite) SendCreateClientRequest(token string, tokenType int, 
 		TokenType:   tokenType,
 		KeyUri:      keyUri,
 	}
-	return suite.SendRequest(http.MethodPost, "/client", token, postClientBody)
+	return suite.SendJSONRequest(http.MethodPost, "/client", token, postClientBody)
 }
 
 func (suite *E2ETestSuite) CreateClient(token string, tokenType int, keyUri string) uuid.UUID {
@@ -36,11 +36,11 @@ func (suite *E2ETestSuite) SendUpdateClientRequest(token string, id string, toke
 		TokenType:   tokenType,
 		KeyUri:      keyUri,
 	}
-	return suite.SendRequest(http.MethodPut, "/client/"+id, token, putClientBody)
+	return suite.SendJSONRequest(http.MethodPut, "/client/"+id, token, putClientBody)
 }
 
 func (suite *E2ETestSuite) SendDeleteClientRequest(token string, id string) *http.Response {
-	return suite.SendRequest(http.MethodDelete, "/client/"+id, token, nil)
+	return suite.SendJSONRequest(http.MethodDelete, "/client/"+id, token, nil)
 }
 
 func (suite *E2ETestSuite) DeleteClient(token string, id uuid.UUID) {

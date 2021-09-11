@@ -38,7 +38,7 @@ func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidJSONBody_Retu
 			Value: "username",
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostUserRole(req, params, nil, &suite.CRUDMock)
@@ -62,7 +62,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorVerifyingUser
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -89,7 +89,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorVerifyingUs
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -115,7 +115,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithFalseResultVerifyingUser
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -141,7 +141,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorCreatingUserR
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -170,7 +170,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorCreatingUse
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("CreateUserRole", mock.Anything, mock.Anything).Return(common.InternalError())
@@ -197,7 +197,7 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithNoErrors_ReturnsUserRole
 		ClientID: uuid.New(),
 		Role:     "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -247,7 +247,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithErrorParsingClientId_
 			Value: "invalid",
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, nil)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
 
 	//act
 	status, res := suite.CoreHandlers.PutUserRole(req, params, nil, &suite.CRUDMock)
@@ -269,7 +269,7 @@ func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithInvalidJSONBody_Retur
 			Value: uuid.New().String(),
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PutUserRole(req, params, nil, &suite.CRUDMock)
@@ -296,7 +296,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorVerifyingUserR
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -326,7 +326,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorVerifyingUse
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -355,7 +355,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithFalseResultVerifyingUserR
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -384,7 +384,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorUpdatingUserRo
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -416,7 +416,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorUpdatingUser
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserRole", mock.Anything, mock.Anything).Return(common.InternalError())
@@ -446,7 +446,7 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithNoErrors_ReturnsUserData(
 	body := handlers.PutUserRoleBody{
 		Role: "role",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -496,7 +496,7 @@ func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithErrorParsingClient
 			Value: "invalid",
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, nil)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
 
 	//act
 	status, res := suite.CoreHandlers.DeleteUserRole(req, params, nil, &suite.CRUDMock)

@@ -5,11 +5,8 @@ import (
 	"authserver/config"
 	"authserver/data"
 	"authserver/models"
-	"bytes"
-	"html/template"
 	"log"
 	"net/http"
-	"path"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
@@ -27,15 +24,15 @@ func (h CoreHandlers) GetToken(req *http.Request, _ httprouter.Params, _ *models
 
 func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//get the form values
+	clientIdStr := req.PostFormValue("client_id")
 	username := req.PostFormValue("username")
 	password := req.PostFormValue("password")
-	clientIdStr := req.PostFormValue("client_id")
 
 	//parse the client id
 	clientID, err := uuid.Parse(clientIdStr)
 	if err != nil {
 		log.Println(common.ChainError("error parsing client id", err))
-		return h.renderTokenView(clientIdStr, "client_id is missing or in an invalid format")
+		return h.renderTokenView(clientIdStr, "client_id is not provided or in an invalid format")
 	}
 
 	//create the token redirect url
@@ -56,16 +53,6 @@ func (h CoreHandlers) renderTokenView(clientID string, errMessage string) (int, 
 		Error:    errMessage,
 	}
 
-	//parse the template
-	t := template.Must(template.ParseFiles(path.Join(config.GetAppRoot(), "views", "token.gohtml")))
-
-	//render the template
-	var buffer bytes.Buffer
-	err := t.Execute(&buffer, data)
-	if err != nil {
-		log.Println("error rendering get token template")
-		return common.NewInternalServerErrorResponse()
-	}
-
-	return http.StatusOK, buffer.Bytes()
+	//render the view
+	return http.StatusOK, h.Renderer.RenderView("token.gohtml", data)
 }

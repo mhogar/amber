@@ -19,7 +19,7 @@ type UserHandlerTestSuite struct {
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.CRUDMock)
@@ -38,7 +38,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithSessionRankLessThanUser_Retu
 		Password: "password",
 		Rank:     10,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, session, &suite.CRUDMock)
@@ -57,7 +57,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_Retu
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "create user error"
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
@@ -79,7 +79,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
@@ -100,7 +100,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsUserData() {
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	user := models.CreateUser(body.Username, body.Rank, nil)
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
@@ -140,7 +140,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInvalidJSONBody_ReturnsBadReq
 			Value: "username",
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.CRUDMock)
@@ -163,7 +163,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorVerifyingUserRank_
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -189,7 +189,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorVerifyingUserRan
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -214,7 +214,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithFalseResultVerifyingUserRank_
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -239,7 +239,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithSessionRankLessThanNewUserRan
 	body := handlers.PutUserBody{
 		Rank: 6,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -264,7 +264,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_Retur
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -292,7 +292,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
@@ -318,7 +318,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 	user := models.CreateUser(params[0].Value, body.Rank, nil)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
@@ -342,7 +342,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	session := models.CreateNewSession("username", 0)
 
@@ -360,7 +360,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorUpdatingUse
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -381,7 +381,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorUpdatingU
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -401,7 +401,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorDeletingAll
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -424,7 +424,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorDeletingA
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -445,7 +445,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSucces
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -466,7 +466,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSucces
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithMissingUsername_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{}
-	req := helpers.CreateDummyRequest(&suite.Suite, nil)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, params, nil, &suite.CRUDMock)
@@ -484,7 +484,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 			Value: "username",
 		},
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, params, nil, &suite.CRUDMock)
@@ -507,7 +507,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorVerifyi
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -533,7 +533,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorVerif
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -558,7 +558,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithFalseResultVerifyi
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -583,7 +583,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -611,7 +611,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
@@ -637,7 +637,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
@@ -666,7 +666,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
@@ -693,7 +693,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())

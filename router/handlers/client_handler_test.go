@@ -20,7 +20,7 @@ type ClientHandlerTestSuite struct {
 
 func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
@@ -38,7 +38,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "create client error"
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -59,7 +59,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.InternalError())
 
@@ -79,7 +79,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	var client *models.Client
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.NoError()).Run(func(args mock.Arguments) {
@@ -106,7 +106,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, nil)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
 	params := []httprouter.Param{
 		{
 			Key:   "id",
@@ -124,7 +124,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBad
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 	params := []httprouter.Param{
 		{
 			Key:   "id",
@@ -148,7 +148,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	params := []httprouter.Param{
 		{
@@ -176,7 +176,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	params := []httprouter.Param{
 		{
@@ -203,7 +203,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	params := []httprouter.Param{
 		{

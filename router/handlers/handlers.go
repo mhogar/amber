@@ -4,6 +4,7 @@ import (
 	"authserver/controllers"
 	"authserver/data"
 	"authserver/models"
+	"authserver/router/renderer"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -58,4 +59,5 @@ type Handlers interface {
 
 type CoreHandlers struct {
 	Controllers controllers.Controllers
+	Renderer    renderer.Renderer
 }

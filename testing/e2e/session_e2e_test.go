@@ -14,7 +14,7 @@ func (suite *E2ETestSuite) SendCreateSessionRequest(username string, password st
 		Username: username,
 		Password: password,
 	}
-	return suite.SendRequest(http.MethodPost, "/session", "", body)
+	return suite.SendJSONRequest(http.MethodPost, "/session", "", body)
 }
 
 func (suite *E2ETestSuite) Login(creds UserCredentials) string {
@@ -23,7 +23,7 @@ func (suite *E2ETestSuite) Login(creds UserCredentials) string {
 }
 
 func (suite *E2ETestSuite) SendDeleteSessionRequest(token string) *http.Response {
-	return suite.SendRequest(http.MethodDelete, "/session", token, nil)
+	return suite.SendJSONRequest(http.MethodDelete, "/session", token, nil)
 }
 
 func (suite *E2ETestSuite) Logout(token string) {
