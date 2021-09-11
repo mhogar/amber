@@ -16,7 +16,7 @@ func (suite *E2ETestSuite) SendCreateUserRoleRequest(token string, username stri
 		ClientID: clientID,
 		Role:     role,
 	}
-	return suite.SendRequest(http.MethodPost, path.Join("/user", username, "role"), token, postUserRoleBody)
+	return suite.SendJSONRequest(http.MethodPost, path.Join("/user", username, "role"), token, postUserRoleBody)
 }
 
 func (suite *E2ETestSuite) CreateUserRole(token string, username string, clientID uuid.UUID, role string) {
@@ -28,11 +28,11 @@ func (suite *E2ETestSuite) SendUpdateUserRoleRequest(token string, username stri
 	putUserRoleBody := handlers.PostUserRoleBody{
 		Role: role,
 	}
-	return suite.SendRequest(http.MethodPut, path.Join("/user", username, "role", clientID), token, putUserRoleBody)
+	return suite.SendJSONRequest(http.MethodPut, path.Join("/user", username, "role", clientID), token, putUserRoleBody)
 }
 
 func (suite *E2ETestSuite) SendDeleteUserRoleRequest(token string, username string, clientID string) *http.Response {
-	return suite.SendRequest(http.MethodDelete, path.Join("/user", username, "role", clientID), token, nil)
+	return suite.SendJSONRequest(http.MethodDelete, path.Join("/user", username, "role", clientID), token, nil)
 }
 
 func (suite *E2ETestSuite) DeleteUserRole(token string, username string, clientID uuid.UUID) {

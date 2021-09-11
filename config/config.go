@@ -14,6 +14,7 @@ import (
 
 // Config is a struct with fields needed for configuring the application.
 type Config struct {
+	AppName                string                 `yaml:"app_name"`
 	TokenConfig            TokenConfig            `yaml:"token"`
 	DatabaseConfig         DatabaseConfig         `yaml:"database"`
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
@@ -84,6 +85,7 @@ func InitConfig(dir string) error {
 
 	//set the config
 	viper.Set("root_dir", rootDir)
+	viper.Set("app_name", cfg.AppName)
 	viper.Set("token", cfg.TokenConfig)
 	viper.Set("database", cfg.DatabaseConfig)
 	viper.Set("password_criteria", cfg.PasswordCriteriaConfig)
@@ -94,6 +96,11 @@ func InitConfig(dir string) error {
 // GetAppRoot gets the app root directory for the application.
 func GetAppRoot() string {
 	return viper.GetString("root_dir")
+}
+
+// GetAppName gets the name for the app.
+func GetAppName() string {
+	return viper.GetString("app_name")
 }
 
 func GetTokenConfig() TokenConfig {

@@ -30,7 +30,9 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 
 	//authenticate the user
 	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, password)
-	if cerr.Type != common.ErrorTypeNone {
+	if cerr.Type == common.ErrorTypeClient {
+		return "", common.ClientError("invalid username and/or password, or user is not assigned to the client")
+	} else if cerr.Type != common.ErrorTypeNone {
 		return "", cerr
 	}
 
@@ -43,7 +45,7 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 
 	//verify role exists
 	if role == nil {
-		return "", common.ClientError(fmt.Sprintf("role for user %s not found", username))
+		return "", common.ClientError("invalid username and/or password, or user is not assigned to the client")
 	}
 
 	//choose the token factory (in practice a factory should always be found since the client model validates the token type when saving)

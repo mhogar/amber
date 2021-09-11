@@ -4,6 +4,7 @@ import (
 	"authserver/controllers"
 	"authserver/data"
 	"authserver/models"
+	"authserver/router/renderer"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -49,10 +50,14 @@ type Handlers interface {
 	// DeleteSession handles DELETE requests to /session.
 	DeleteSession(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
+	// GetToken handles GET requests to /token.
+	GetToken(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
 	// PostToken handles POST requests to /token.
 	PostToken(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 }
 
 type CoreHandlers struct {
 	Controllers controllers.Controllers
+	Renderer    renderer.Renderer
 }

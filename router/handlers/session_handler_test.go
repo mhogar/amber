@@ -18,7 +18,7 @@ type SessionHandlerTestSuite struct {
 
 func (suite *SessionHandlerTestSuite) TestPostSession_WithInvalidJSONBody_ReturnsInvalidRequest() {
 	//arrange
-	req := helpers.CreateDummyRequest(&suite.Suite, "invalid")
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
@@ -34,7 +34,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithClientErrorCreatingSes
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	message := "create session error"
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
@@ -53,7 +53,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithInternalErrorCreatingS
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
@@ -71,7 +71,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyRequest(&suite.Suite, body)
+	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
 
 	session := models.CreateNewSession(body.Username, 0)
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(session, common.NoError())

@@ -14,6 +14,7 @@ func ResolveHandlers() handlerspkg.Handlers {
 	createHandlersOnce.Do(func() {
 		handlers = handlerspkg.CoreHandlers{
 			Controllers: ResolveControllers(),
+			Renderer:    ResolveRenderer(),
 		}
 	})
 	return handlers

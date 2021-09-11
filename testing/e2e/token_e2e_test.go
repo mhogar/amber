@@ -4,9 +4,8 @@ import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/dependencies"
 	"authserver/models"
-	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
+	"net/url"
 	"testing"
 
 	"github.com/golang-jwt/jwt"
@@ -15,12 +14,12 @@ import (
 )
 
 func (suite *E2ETestSuite) SendCreateTokenRequest(clientID uuid.UUID, username string, password string) *http.Response {
-	postTokenBody := handlers.PostTokenBody{
-		ClientId: clientID,
-		Username: username,
-		Password: password,
+	values := url.Values{
+		"client_id": []string{clientID.String()},
+		"username":  []string{username},
+		"password":  []string{password},
 	}
-	return suite.SendRequest(http.MethodPost, "/token", "", postTokenBody)
+	return suite.SendFormRequest(http.MethodPost, "/token", "", values)
 }
 
 type TokenE2ETestSuite struct {
@@ -36,62 +35,6 @@ func (suite *TokenE2ETestSuite) SetupSuite() {
 func (suite *TokenE2ETestSuite) TearDownSuite() {
 	suite.DeleteUser(suite.AdminToken, suite.User.Username)
 	suite.E2ETestSuite.TearDownSuite()
-}
-
-func (suite *TokenE2ETestSuite) TestCreateToken_WhereClientNotFound_ReturnsBadRequest() {
-	res := suite.SendCreateTokenRequest(uuid.New(), suite.User.Username, suite.User.Password)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client", "not found")
-}
-
-func (suite *TokenE2ETestSuite) TestCreateToken_WhereUserNotFound_ReturnsBadRequest() {
-	//create client
-	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
-
-	//create token
-	res := suite.SendCreateTokenRequest(clientId, "DNE", "")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
-
-	//delete client
-	suite.DeleteClient(suite.AdminToken, clientId)
-}
-
-func (suite *TokenE2ETestSuite) TestCreateToken_WithIncorrectPassword_ReturnsBadRequest() {
-	//create client
-	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
-
-	//create token
-	res := suite.SendCreateTokenRequest(clientId, suite.Admin.Username, "incorrect")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
-
-	//delete client
-	suite.DeleteClient(suite.AdminToken, clientId)
-}
-
-func (suite *TokenE2ETestSuite) TestCreateToken_WhereRoleNotFound_ReturnsBadRequest() {
-	//create client
-	clientId := suite.CreateClient(suite.AdminToken, 0, "key.pem")
-
-	//create token
-	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "role for user", "not found")
-
-	//delete client
-	suite.DeleteClient(suite.AdminToken, clientId)
-}
-
-func (suite *TokenE2ETestSuite) TestCreateToken_WithInvalidKeyURI_ReturnsInternalServerError() {
-	//create client
-	clientId := suite.CreateClient(suite.AdminToken, models.ClientTokenTypeDefault, "invalid")
-
-	//create user-role
-	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
-
-	//create token
-	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
-	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
-
-	//delete client
-	suite.DeleteClient(suite.AdminToken, clientId)
 }
 
 func (suite *TokenE2ETestSuite) TestCreateToken_UsingDefaultTokenType_RedirectsToURLWithToken() {
