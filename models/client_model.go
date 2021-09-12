@@ -46,6 +46,10 @@ type ClientCRUD interface {
 	// CreateClient creates a new client and returns any errors.
 	CreateClient(client *Client) error
 
+	// GetClients fetches all the clients.
+	// Returns the clients and any errors.
+	GetClients() ([]*Client, error)
+
 	// GetClientByUID fetches the client associated with the uid.
 	// If no clients are found, returns nil client. Also returns any errors.
 	GetClientByUID(uid uuid.UUID) (*Client, error)

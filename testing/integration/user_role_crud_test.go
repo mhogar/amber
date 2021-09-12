@@ -25,6 +25,29 @@ func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_Retur
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
 }
 
+func (suite *UserRoleCRUDTestSuite) TestGetUserRolesByClientUID_GetsUserRolesWithClientUIDOrderedByUsername() {
+	//arrange
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
+
+	client1 := suite.SaveClient(models.CreateNewClient("name1", "redirect.com", 0, "key.pem"))
+	client2 := suite.SaveClient(models.CreateNewClient("name2", "redirect.com", 0, "key.pem"))
+
+	role1 := suite.SaveUserRole(models.CreateUserRole(user1.Username, client1.UID, "role"))
+	role2 := suite.SaveUserRole(models.CreateUserRole(user2.Username, client1.UID, "role"))
+	suite.SaveUserRole(models.CreateUserRole(user1.Username, client2.UID, "role"))
+
+	//act
+	roles, err := suite.Tx.GetUserRolesByClientUID(client1.UID)
+
+	//assert
+	suite.NoError(err)
+
+	suite.Require().Len(roles, 2)
+	suite.EqualValues(roles[0], role1)
+	suite.EqualValues(roles[1], role2)
+}
+
 func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_WhereUserRoleNotFound_ReturnsNilUserRole() {
 	//act
 	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID("DNE", uuid.New())

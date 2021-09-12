@@ -58,6 +58,32 @@ func (crud *SQLCRUD) CreateUserRole(role *models.UserRole) error {
 	return nil
 }
 
+func (crud *SQLCRUD) GetUserRolesByClientUID(uid uuid.UUID) ([]*models.UserRole, error) {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRolesByClientUIDScript(), uid)
+	defer cancel()
+
+	if err != nil {
+		return nil, common.ChainError("error executing get user-roles by client uid query", err)
+	}
+	defer rows.Close()
+
+	//read the data
+	roles := []*models.UserRole{}
+	for {
+		role, err := readUserRoleData(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		if role == nil {
+			break
+		}
+		roles = append(roles, role)
+	}
+	return roles, nil
+}
+
 func (crud *SQLCRUD) GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*models.UserRole, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRoleByUsernameAndClientUIDScript(),
@@ -66,7 +92,7 @@ func (crud *SQLCRUD) GetUserRoleByUsernameAndClientUID(username string, clientUI
 	defer cancel()
 
 	if err != nil {
-		return nil, common.ChainError("error executing get user role query", err)
+		return nil, common.ChainError("error executing get user-roles by username and client uid query", err)
 	}
 	defer rows.Close()
 

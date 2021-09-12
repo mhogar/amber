@@ -30,6 +30,23 @@ func (suite *UserCRUDTestSuite) TestCreateUser_WithNilPasswordHash_ReturnsError(
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "password hash", "cannot be nil")
 }
 
+func (suite *UserCRUDTestSuite) TestGetUsersWithLesserRank_GetsTheUsersWithLesserRankOrderedByUsername() {
+	//arrange
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 1, []byte("password")))
+	suite.SaveUser(models.CreateUser("user3", 2, []byte("password")))
+
+	//act
+	users, err := suite.Tx.GetUsersWithLesserRank(2)
+
+	//assert
+	suite.NoError(err)
+
+	suite.Require().Len(users, 2)
+	suite.EqualValues(users[0], user1)
+	suite.EqualValues(users[1], user2)
+}
+
 func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsNilUser() {
 	//act
 	user, err := suite.Tx.GetUserByUsername("DNE")

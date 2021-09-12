@@ -21,6 +21,10 @@ type UserCRUD interface {
 	// CreateUser creates a new user and returns any errors.
 	CreateUser(user *User) error
 
+	// GetUsersWithLesserRank fetches all the users with a rank less than the provided one.
+	// Returns the users and any errors.
+	GetUsersWithLesserRank(rank int) ([]*User, error)
+
 	// GetUserByUsername fetches the user with the matching username.
 	// If no users are found, returns nil user. Also returns any errors.
 	GetUserByUsername(username string) (*User, error)

@@ -53,6 +53,15 @@ WHERE c."uid" = $1
 `
 }
 
+// GetClientsScript gets the GetClients script.
+func (ScriptRepository) GetClientsScript() string {
+	return `
+SELECT c."uid", c."name", c."redirect_url", c."token_type", c."key_uri"
+	FROM "client" c
+	ORDER BY c."name"
+`
+}
+
 // UpdateClientScript gets the UpdateClient script.
 func (ScriptRepository) UpdateClientScript() string {
 	return `
@@ -160,13 +169,10 @@ DROP TABLE "public"."session"
 // GetSessionByTokenScript gets the GetSessionByToken script.
 func (ScriptRepository) GetSessionByTokenScript() string {
 	return `
-SELECT
-    s."token",
-    u."username",
-    u."rank"
-FROM "session" s
-    INNER JOIN "user" u ON u."key" = s."user_key"
-WHERE s."token" = $1
+SELECT s."token", u."username", u."rank"
+    FROM "session" s
+        INNER JOIN "user" u ON u."key" = s."user_key"
+    WHERE s."token" = $1
 `
 }
 
@@ -224,6 +230,16 @@ func (ScriptRepository) GetUserByUsernameScript() string {
 SELECT u."username", u."rank", u."password_hash"
 	FROM "user" u
 	WHERE u."username" = $1
+`
+}
+
+// GetUsersWithLesserRankScript gets the GetUsersWithLesserRank script.
+func (ScriptRepository) GetUsersWithLesserRankScript() string {
+	return `
+SELECT u."username", u."rank", u."password_hash"
+	FROM "user" u
+	WHERE u."rank" < $1
+	ORDER BY u."username"
 `
 }
 
@@ -290,13 +306,21 @@ DROP TABLE "public"."user_role"
 // GetUserRoleByUsernameAndClientUIDScript gets the GetUserRoleByUsernameAndClientUID script.
 func (ScriptRepository) GetUserRoleByUsernameAndClientUIDScript() string {
 	return `
-SELECT
-    u."username",
-    c."uid",
-    ur."role"
-FROM "user_role" ur
-    INNER JOIN "user" u on u."username" = $1 AND u."key" = ur."user_key"
-    INNER JOIN "client" c on c."uid" = $2 AND c."key" = ur."client_key"
+SELECT u."username", c."uid", ur."role"
+    FROM "user_role" ur
+        INNER JOIN "user" u on u."username" = $1 AND u."key" = ur."user_key"
+        INNER JOIN "client" c on c."uid" = $2 AND c."key" = ur."client_key"
+`
+}
+
+// GetUserRolesByClientUIDScript gets the GetUserRolesByClientUID script.
+func (ScriptRepository) GetUserRolesByClientUIDScript() string {
+	return `
+SELECT u."username", c."uid", ur."role"
+    FROM "user_role" ur
+        INNER JOIN "client" c on c."uid" = $1 AND c."key" = ur."client_key"
+        INNER JOIN "user" u on u."key" = ur."user_key"
+    ORDER BY u."username"
 `
 }
 

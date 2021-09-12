@@ -25,6 +25,22 @@ func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsErro
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
 }
 
+func (suite *ClientCRUDTestSuite) TestGetClients_GetsClientsOrderedByName() {
+	//arrange
+	client1 := suite.SaveClient(models.CreateNewClient("name1", "redirect.com", 0, "key.pem"))
+	client2 := suite.SaveClient(models.CreateNewClient("name2", "redirect.com", 0, "key.pem"))
+
+	//act
+	clients, err := suite.Tx.GetClients()
+
+	//assert
+	suite.NoError(err)
+
+	suite.Require().Len(clients, 2)
+	suite.EqualValues(clients[0], client1)
+	suite.EqualValues(clients[1], client2)
+}
+
 func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_ReturnsNilClient() {
 	//act
 	client, err := suite.Tx.GetClientByUID(uuid.New())

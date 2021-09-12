@@ -58,6 +58,32 @@ func (crud *SQLCRUD) CreateClient(client *models.Client) error {
 	return nil
 }
 
+func (crud *SQLCRUD) GetClients() ([]*models.Client, error) {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetClientsScript())
+	defer cancel()
+
+	if err != nil {
+		return nil, common.ChainError("error executing get clients query", err)
+	}
+	defer rows.Close()
+
+	//read the data
+	clients := []*models.Client{}
+	for {
+		client, err := readClientData(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		if client == nil {
+			break
+		}
+		clients = append(clients, client)
+	}
+	return clients, nil
+}
+
 // GetClientByUID gets the row in the client table with the matching uid, and creates a new client model using its data.
 // Returns the model and any errors.
 func (crud *SQLCRUD) GetClientByUID(uid uuid.UUID) (*models.Client, error) {

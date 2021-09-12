@@ -244,6 +244,29 @@ func (_m *DataExecutor) GetClientByUID(uid uuid.UUID) (*models.Client, error) {
 	return r0, r1
 }
 
+// GetClients provides a mock function with given fields:
+func (_m *DataExecutor) GetClients() ([]*models.Client, error) {
+	ret := _m.Called()
+
+	var r0 []*models.Client
+	if rf, ok := ret.Get(0).(func() []*models.Client); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLatestTimestamp provides a mock function with given fields:
 func (_m *DataExecutor) GetLatestTimestamp() (string, bool, error) {
 	ret := _m.Called()
@@ -357,6 +380,52 @@ func (_m *DataExecutor) GetUserRoleByUsernameAndClientUID(username string, clien
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
 		r1 = rf(username, clientUID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserRolesByClientUID provides a mock function with given fields: uid
+func (_m *DataExecutor) GetUserRolesByClientUID(uid uuid.UUID) ([]*models.UserRole, error) {
+	ret := _m.Called(uid)
+
+	var r0 []*models.UserRole
+	if rf, ok := ret.Get(0).(func(uuid.UUID) []*models.UserRole); ok {
+		r0 = rf(uid)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.UserRole)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
+		r1 = rf(uid)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUsersWithLesserRank provides a mock function with given fields: rank
+func (_m *DataExecutor) GetUsersWithLesserRank(rank int) ([]*models.User, error) {
+	ret := _m.Called(rank)
+
+	var r0 []*models.User
+	if rf, ok := ret.Get(0).(func(int) []*models.User); ok {
+		r0 = rf(rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(rank)
 	} else {
 		r1 = ret.Error(1)
 	}
