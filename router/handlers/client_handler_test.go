@@ -18,6 +18,68 @@ type ClientHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
+func (suite *ClientHandlerTestSuite) TestGetClients_WithClientErrorGettingClients_ReturnsBadRequest() {
+	//arrange
+	message := "get clients error"
+	suite.ControllersMock.On("GetClients", mock.Anything).Return(nil, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.GetClients(nil, nil, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *ClientHandlerTestSuite) TestGetClients_WithInternalErrorGettingClients_ReturnsInternalServerError() {
+	//arrange
+	suite.ControllersMock.On("GetClients", mock.Anything).Return(nil, common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.GetClients(nil, nil, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+}
+
+func (suite *ClientHandlerTestSuite) TestGetClients_WithNoErrors_ReturnsClientData() {
+	//arrange
+	clients := []*models.Client{
+		models.CreateNewClient("name1", "redirect1.com", 0, "key1.pem"),
+		models.CreateNewClient("name2", "redirect2.com", 1, "key2.pem"),
+	}
+	suite.ControllersMock.On("GetClients", mock.Anything).Return(clients, common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.GetClients(nil, nil, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.ClientDataResponse{
+		{
+			ID: clients[0].UID.String(),
+			PostClientBody: handlers.PostClientBody{
+				Name:        clients[0].Name,
+				RedirectUrl: clients[0].RedirectUrl,
+				TokenType:   clients[0].TokenType,
+				KeyUri:      clients[0].KeyUri,
+			},
+		},
+		{
+			ID: clients[1].UID.String(),
+			PostClientBody: handlers.PostClientBody{
+				Name:        clients[1].Name,
+				RedirectUrl: clients[1].RedirectUrl,
+				TokenType:   clients[1].TokenType,
+				KeyUri:      clients[1].KeyUri,
+			},
+		},
+	})
+
+	suite.ControllersMock.AssertCalled(suite.T(), "GetClients", &suite.CRUDMock)
+}
+
 func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")

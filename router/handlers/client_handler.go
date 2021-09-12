@@ -11,13 +11,27 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (h CoreHandlers) GetClients(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
-	return common.NewSuccessResponse()
-}
-
 type ClientDataResponse struct {
 	ID string `json:"id"`
 	PostClientBody
+}
+
+func (h CoreHandlers) GetClients(_ *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//get the clients
+	clients, cerr := h.Controllers.GetClients(CRUD)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//return the data
+	data := make([]ClientDataResponse, len(clients))
+	for index, client := range clients {
+		data[index] = h.newClientDataResponse(client)
+	}
+	return common.NewSuccessDataResponse(data)
 }
 
 type PostClientBody struct {
@@ -49,7 +63,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newClientDataResponse(client)
+	return common.NewSuccessDataResponse(h.newClientDataResponse(client))
 }
 
 func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -81,7 +95,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newClientDataResponse(client)
+	return common.NewSuccessDataResponse(h.newClientDataResponse(client))
 }
 
 func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -104,8 +118,8 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newClientDataResponse(client *models.Client) (int, common.DataResponse) {
-	return common.NewSuccessDataResponse(ClientDataResponse{
+func (CoreHandlers) newClientDataResponse(client *models.Client) ClientDataResponse {
+	return ClientDataResponse{
 		ID: client.UID.String(),
 		PostClientBody: PostClientBody{
 			Name:        client.Name,
@@ -113,5 +127,5 @@ func (CoreHandlers) newClientDataResponse(client *models.Client) (int, common.Da
 			TokenType:   client.TokenType,
 			KeyUri:      client.KeyUri,
 		},
-	})
+	}
 }

@@ -141,6 +141,32 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoE
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
 }
 
+func (suite *ClientControllerTestSuite) TestGetClients_WithErrorGettingClients_ReturnsInternalError() {
+	//arrange
+	suite.CRUDMock.On("GetClients").Return(nil, errors.New(""))
+
+	//act
+	clients, cerr := suite.ClientController.GetClients(&suite.CRUDMock)
+
+	//assert
+	suite.Nil(clients)
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *ClientControllerTestSuite) TestGetClients_WithNoErrors_ReturnsClients() {
+	//arrange
+	clients := []*models.Client{models.CreateNewClient("name", "redirect.com", 0, "key.pem")}
+	suite.CRUDMock.On("GetClients").Return(clients, nil)
+
+	//act
+	resultClients, cerr := suite.ClientController.GetClients(&suite.CRUDMock)
+
+	//assert
+	suite.Equal(clients, resultClients)
+	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetClients")
+}
+
 func (suite *ClientControllerTestSuite) TestUpdateClient_ValidateClientTestCases() {
 	suite.runValidateClientTestCases(func(client *models.Client) common.CustomError {
 		return suite.ClientController.UpdateClient(&suite.CRUDMock, client)

@@ -63,6 +63,9 @@ type ClientController interface {
 	// CreateClient creates a new client using the provided model.
 	CreateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
+	// GetClients gets the clients.
+	GetClients(CRUD ClientControllerCRUD) ([]*models.Client, common.CustomError)
+
 	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 

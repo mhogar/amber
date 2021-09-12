@@ -220,6 +220,29 @@ func (_m *Controllers) DeleteUserRole(CRUD controllers.UserRoleControllerCRUD, u
 	return r0
 }
 
+// GetClients provides a mock function with given fields: CRUD
+func (_m *Controllers) GetClients(CRUD controllers.ClientControllerCRUD) ([]*models.Client, common.CustomError) {
+	ret := _m.Called(CRUD)
+
+	var r0 []*models.Client
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD) []*models.Client); ok {
+		r0 = rf(CRUD)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Client)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD) common.CustomError); ok {
+		r1 = rf(CRUD)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // UpdateClient provides a mock function with given fields: CRUD, client
 func (_m *Controllers) UpdateClient(CRUD controllers.ClientControllerCRUD, client *models.Client) common.CustomError {
 	ret := _m.Called(CRUD, client)
