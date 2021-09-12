@@ -11,6 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (h CoreHandlers) GetClients(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	return common.NewSuccessResponse()
+}
+
 type ClientDataResponse struct {
 	ID string `json:"id"`
 	PostClientBody

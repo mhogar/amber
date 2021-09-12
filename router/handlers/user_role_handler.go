@@ -11,6 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (h CoreHandlers) GetUserRoles(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	return common.NewSuccessResponse()
+}
+
 type UserRoleDataResponse struct {
 	Username string `json:"username"`
 	PostUserRoleBody

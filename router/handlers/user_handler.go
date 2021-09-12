@@ -11,6 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (h CoreHandlers) GetUsers(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	return common.NewSuccessResponse()
+}
+
 type UserDataResponse struct {
 	Username string `json:"username"`
 	PutUserBody
