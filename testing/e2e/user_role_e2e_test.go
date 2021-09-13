@@ -11,32 +11,32 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-func (suite *E2ETestSuite) SendCreateUserRoleRequest(token string, username string, clientID uuid.UUID, role string) *http.Response {
+func (suite *E2ETestSuite) SendCreateUserRoleRequest(token string, clientID string, username string, role string) *http.Response {
 	postUserRoleBody := handlers.PostUserRoleBody{
-		ClientID: clientID,
+		Username: username,
 		Role:     role,
 	}
-	return suite.SendJSONRequest(http.MethodPost, path.Join("/user", username, "role"), token, postUserRoleBody)
+	return suite.SendJSONRequest(http.MethodPost, path.Join("/client", clientID, "role"), token, postUserRoleBody)
 }
 
-func (suite *E2ETestSuite) CreateUserRole(token string, username string, clientID uuid.UUID, role string) {
-	res := suite.SendCreateUserRoleRequest(token, username, clientID, role)
+func (suite *E2ETestSuite) CreateUserRole(token string, clientID uuid.UUID, username string, role string) {
+	res := suite.SendCreateUserRoleRequest(token, clientID.String(), username, role)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
-func (suite *E2ETestSuite) SendUpdateUserRoleRequest(token string, username string, clientID string, role string) *http.Response {
+func (suite *E2ETestSuite) SendUpdateUserRoleRequest(token string, clientID string, username string, role string) *http.Response {
 	putUserRoleBody := handlers.PostUserRoleBody{
 		Role: role,
 	}
-	return suite.SendJSONRequest(http.MethodPut, path.Join("/user", username, "role", clientID), token, putUserRoleBody)
+	return suite.SendJSONRequest(http.MethodPut, path.Join("/client", clientID, "role", username), token, putUserRoleBody)
 }
 
-func (suite *E2ETestSuite) SendDeleteUserRoleRequest(token string, username string, clientID string) *http.Response {
-	return suite.SendJSONRequest(http.MethodDelete, path.Join("/user", username, "role", clientID), token, nil)
+func (suite *E2ETestSuite) SendDeleteUserRoleRequest(token string, clientID string, username string) *http.Response {
+	return suite.SendJSONRequest(http.MethodDelete, path.Join("/client", clientID, "role", username), token, nil)
 }
 
-func (suite *E2ETestSuite) DeleteUserRole(token string, username string, clientID uuid.UUID) {
-	res := suite.SendDeleteUserRoleRequest(token, username, clientID.String())
+func (suite *E2ETestSuite) DeleteUserRole(token string, clientID uuid.UUID, username string) {
+	res := suite.SendDeleteUserRoleRequest(token, clientID.String(), username)
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
@@ -51,11 +51,11 @@ func (suite *UserRoleE2ETestSuite) SetupSuite() {
 
 	suite.User = suite.CreateUser(suite.AdminToken, "user", 5)
 	suite.ClientID = suite.CreateClient(suite.AdminToken, 0, "key.pem")
-	suite.CreateUserRole(suite.AdminToken, suite.User.Username, suite.ClientID, "role")
+	suite.CreateUserRole(suite.AdminToken, suite.ClientID, suite.User.Username, "role")
 }
 
 func (suite *UserRoleE2ETestSuite) TearDownSuite() {
-	suite.DeleteUserRole(suite.AdminToken, suite.User.Username, suite.ClientID)
+	suite.DeleteUserRole(suite.AdminToken, suite.ClientID, suite.User.Username)
 	suite.DeleteClient(suite.AdminToken, suite.ClientID)
 	suite.DeleteUser(suite.AdminToken, suite.User.Username)
 
@@ -63,12 +63,17 @@ func (suite *UserRoleE2ETestSuite) TearDownSuite() {
 }
 
 func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithInvalidSession_ReturnsUnauthorized() {
-	res := suite.SendCreateUserRoleRequest("", suite.User.Username, suite.ClientID, "role")
+	res := suite.SendCreateUserRoleRequest("", suite.ClientID.String(), suite.User.Username, "role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
+func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithInvalidClientID_ReturnsBadRequest() {
+	res := suite.SendCreateUserRoleRequest(suite.AdminToken, "invalid", suite.User.Username, "role")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client id", "invalid format")
+}
+
 func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WhereUsernameDoesNotExist_ReturnsBadRequest() {
-	res := suite.SendCreateUserRoleRequest(suite.AdminToken, "DNE", suite.ClientID, "role")
+	res := suite.SendCreateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), "DNE", "role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
 }
 
@@ -77,7 +82,7 @@ func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithRankLessThanUser_Retur
 	token := suite.Login(suite.User)
 
 	//delete user
-	res := suite.SendCreateUserRoleRequest(token, suite.Admin.Username, suite.ClientID, "role")
+	res := suite.SendCreateUserRoleRequest(token, suite.ClientID.String(), suite.Admin.Username, "role")
 	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 
 	//logout
@@ -85,27 +90,27 @@ func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithRankLessThanUser_Retur
 }
 
 func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithInvalidBody_ReturnsBadRequest() {
-	res := suite.SendCreateUserRoleRequest(suite.AdminToken, suite.User.Username, suite.ClientID, "")
+	res := suite.SendCreateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), suite.User.Username, "")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "role", "cannot be empty")
 }
 
 func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WhereRoleForClientAlreadyExists_ReturnsBadRequest() {
-	res := suite.SendCreateUserRoleRequest(suite.AdminToken, suite.User.Username, suite.ClientID, "role")
+	res := suite.SendCreateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), suite.User.Username, "role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "already has a role", "client")
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithInvalidSession_ReturnsUnauthorized() {
-	res := suite.SendUpdateUserRoleRequest("", suite.User.Username, suite.ClientID.String(), "new role")
+	res := suite.SendUpdateUserRoleRequest("", suite.ClientID.String(), suite.User.Username, "new role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithInvalidClientID_ReturnsBadRequest() {
-	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.User.Username, "invalid", "new role")
+	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, "invalid", suite.User.Username, "new role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client id", "invalid format")
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WhereUsernameDoesNotExist_ReturnsBadRequest() {
-	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, "DNE", suite.ClientID.String(), "new role")
+	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), "DNE", "new role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
 }
 
@@ -114,7 +119,7 @@ func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithRankLessThanUser_Retur
 	token := suite.Login(suite.User)
 
 	//delete user
-	res := suite.SendUpdateUserRoleRequest(token, suite.Admin.Username, suite.ClientID.String(), "new role")
+	res := suite.SendUpdateUserRoleRequest(token, suite.ClientID.String(), suite.Admin.Username, "new role")
 	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 
 	//logout
@@ -122,32 +127,32 @@ func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithRankLessThanUser_Retur
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithInvalidBody_ReturnsBadRequest() {
-	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.User.Username, suite.ClientID.String(), "")
+	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), suite.User.Username, "")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "role", "cannot be empty")
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WhereRoleNotFound_ReturnsBadRequest() {
-	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.User.Username, uuid.New().String(), "new role")
+	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, uuid.New().String(), suite.User.Username, "new role")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "no role found", "user", "client")
 }
 
 func (suite *UserRoleE2ETestSuite) TestUpdateUserRole_WithValidRequest_ReturnsSuccess() {
-	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.User.Username, suite.ClientID.String(), "new role")
+	res := suite.SendUpdateUserRoleRequest(suite.AdminToken, suite.ClientID.String(), suite.User.Username, "new role")
 	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
 }
 
 func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WithInvalidSession_ReturnsUnauthorized() {
-	res := suite.SendDeleteUserRoleRequest("", suite.User.Username, suite.ClientID.String())
+	res := suite.SendDeleteUserRoleRequest("", suite.ClientID.String(), suite.User.Username)
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WithInvalidClientID_ReturnsBadRequest() {
-	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, suite.User.Username, "invalid")
+	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, "invalid", suite.User.Username)
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client id", "invalid format")
 }
 
 func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WhereUsernameDoesNotExist_ReturnsBadRequest() {
-	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, "DNE", suite.ClientID.String())
+	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, suite.ClientID.String(), "DNE")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
 }
 
@@ -156,7 +161,7 @@ func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WithRankLessThanUser_Retur
 	token := suite.Login(suite.User)
 
 	//delete user
-	res := suite.SendDeleteUserRoleRequest(token, suite.Admin.Username, suite.ClientID.String())
+	res := suite.SendDeleteUserRoleRequest(token, suite.ClientID.String(), suite.Admin.Username)
 	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 
 	//logout
@@ -164,7 +169,7 @@ func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WithRankLessThanUser_Retur
 }
 
 func (suite *UserRoleE2ETestSuite) TestDeleteUserRole_WhereRoleNotFound_ReturnsBadRequest() {
-	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, suite.User.Username, uuid.New().String())
+	res := suite.SendDeleteUserRoleRequest(suite.AdminToken, uuid.New().String(), suite.User.Username)
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "no role found", "user", "client")
 }
 

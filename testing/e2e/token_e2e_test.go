@@ -43,7 +43,7 @@ func (suite *TokenE2ETestSuite) TestCreateToken_UsingDefaultTokenType_RedirectsT
 
 	//create user-role
 	role := "role"
-	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, clientId, suite.User.Username, "role")
 
 	//create token
 	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)
@@ -84,7 +84,7 @@ func (suite *TokenE2ETestSuite) TestCreateToken_UsingFirebaseTokenType_Redirects
 
 	//create user-role
 	role := "role"
-	suite.CreateUserRole(suite.AdminToken, suite.User.Username, clientId, "role")
+	suite.CreateUserRole(suite.AdminToken, clientId, suite.User.Username, "role")
 
 	//create token
 	res := suite.SendCreateTokenRequest(clientId, suite.User.Username, suite.User.Password)

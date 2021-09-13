@@ -111,7 +111,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGetti
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(nil, errors.New(""))
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(nil, errors.New(""))
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
@@ -129,7 +129,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleF
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(nil, nil)
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(nil, nil)
 
 	//act
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
@@ -142,12 +142,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleF
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", uuid.Nil, "role")
+	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(userRole, nil)
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(userRole, nil)
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(nil)
 
 	//act
@@ -161,12 +161,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreatingToken_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", uuid.Nil, "role")
+	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(userRole, nil)
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(userRole, nil)
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", errors.New(""))
 
@@ -181,12 +181,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsingRedirectUrl_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "invalid_\n_url", 0, "key.pem")
-	userRole := models.CreateUserRole("username", uuid.Nil, "role")
+	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
 	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(userRole, nil)
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(userRole, nil)
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
 
@@ -201,13 +201,13 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_ReturnsTokenRedirectURL() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	userRole := models.CreateUserRole("username", uuid.Nil, "role")
+	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
 	password := "password"
 	token := "this_is_the_token_value"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
-	suite.CRUDMock.On("GetUserRoleByUsernameAndClientUID", mock.Anything, mock.Anything).Return(userRole, nil)
+	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(userRole, nil)
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(&suite.TokenFactoryMock)
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(token, nil)
 
@@ -224,7 +224,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", client.UID)
 	suite.ControllerMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, userRole.Username, password)
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByUsernameAndClientUID", userRole.Username, client.UID)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByClientUIDAndUsername", userRole.Username, client.UID)
 	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", client.TokenType)
 	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", client.KeyUri, client.UID, userRole.Username, userRole.Role)
 }

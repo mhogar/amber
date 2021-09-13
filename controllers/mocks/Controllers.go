@@ -243,6 +243,29 @@ func (_m *Controllers) GetClients(CRUD controllers.ClientControllerCRUD) ([]*mod
 	return r0, r1
 }
 
+// GetUserRolesByClientUID provides a mock function with given fields: CRUD, clientUID
+func (_m *Controllers) GetUserRolesByClientUID(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID) ([]*models.UserRole, common.CustomError) {
+	ret := _m.Called(CRUD, clientUID)
+
+	var r0 []*models.UserRole
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID) []*models.UserRole); ok {
+		r0 = rf(CRUD, clientUID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.UserRole)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.UserRoleControllerCRUD, uuid.UUID) common.CustomError); ok {
+		r1 = rf(CRUD, clientUID)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // GetUsersWithLesserRank provides a mock function with given fields: CRUD, rank
 func (_m *Controllers) GetUsersWithLesserRank(CRUD controllers.UserControllerCRUD, rank int) ([]*models.User, common.CustomError) {
 	ret := _m.Called(CRUD, rank)

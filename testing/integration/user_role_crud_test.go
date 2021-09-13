@@ -15,7 +15,7 @@ type UserRoleCRUDTestSuite struct {
 
 func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_ReturnsError() {
 	//arrange
-	role := models.CreateUserRole("", uuid.Nil, "")
+	role := models.CreateUserRole(uuid.Nil, "", "")
 
 	//act
 	err := suite.Tx.CreateUserRole(role)
@@ -33,9 +33,9 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRolesByClientUID_GetsUserRolesWit
 	client1 := suite.SaveClient(models.CreateNewClient("name1", "redirect.com", 0, "key.pem"))
 	client2 := suite.SaveClient(models.CreateNewClient("name2", "redirect.com", 0, "key.pem"))
 
-	role1 := suite.SaveUserRole(models.CreateUserRole(user1.Username, client1.UID, "role"))
-	role2 := suite.SaveUserRole(models.CreateUserRole(user2.Username, client1.UID, "role"))
-	suite.SaveUserRole(models.CreateUserRole(user1.Username, client2.UID, "role"))
+	role1 := suite.SaveUserRole(models.CreateUserRole(client1.UID, user1.Username, "role"))
+	role2 := suite.SaveUserRole(models.CreateUserRole(client1.UID, user2.Username, "role"))
+	suite.SaveUserRole(models.CreateUserRole(client2.UID, user1.Username, "role"))
 
 	//act
 	roles, err := suite.Tx.GetUserRolesByClientUID(client1.UID)
@@ -50,7 +50,7 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRolesByClientUID_GetsUserRolesWit
 
 func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_WhereUserRoleNotFound_ReturnsNilUserRole() {
 	//act
-	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID("DNE", uuid.New())
+	role, err := suite.Tx.GetUserRoleByClientUIDAndUsername(uuid.New(), "DNE")
 
 	//assert
 	suite.NoError(err)
@@ -61,10 +61,10 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_GetsUs
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
-	resultRole, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, role.ClientUID)
+	resultRole, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, user.Username)
 
 	//assert
 	suite.NoError(err)
@@ -73,7 +73,7 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_GetsUs
 
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_ReturnsError() {
 	//act
-	_, err := suite.Tx.UpdateUserRole(models.CreateUserRole("", uuid.Nil, ""))
+	_, err := suite.Tx.UpdateUserRole(models.CreateUserRole(uuid.Nil, "", ""))
 
 	//assert
 	suite.Require().Error(err)
@@ -82,7 +82,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_Retur
 
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WhereUserRoleIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.UpdateUserRole(models.CreateUserRole("DNE", uuid.New(), "role"))
+	res, err := suite.Tx.UpdateUserRole(models.CreateUserRole(uuid.New(), "DNE", "role"))
 
 	//assert
 	suite.False(res)
@@ -93,7 +93,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_UpdatesUserRole() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
 	role.Role = "new role"
@@ -103,7 +103,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_UpdatesUserRole() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultRole, err := suite.Tx.GetUserRoleByUsernameAndClientUID(role.Username, role.ClientUID)
+	resultRole, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
 	suite.NoError(err)
 	suite.EqualValues(role, resultRole)
 }
@@ -121,7 +121,7 @@ func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_DeletesUserRole() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	role := suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteUserRole(role.Username, role.ClientUID)
@@ -130,7 +130,7 @@ func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_DeletesUserRole() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultUser, err := suite.Tx.GetUserRoleByUsernameAndClientUID(role.Username, role.ClientUID)
+	resultUser, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
 	suite.NoError(err)
 	suite.Nil(resultUser)
 }

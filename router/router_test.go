@@ -435,7 +435,7 @@ func TestGetUserRolesTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "GET",
-			Route:        "/user/username/roles",
+			Route:        "/client/0/roles",
 			Handler:      "GetUserRoles",
 			ResponseType: router.ResponseTypeJSON,
 		},
@@ -447,7 +447,7 @@ func TestPostUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "POST",
-			Route:        "/user/username/role",
+			Route:        "/client/0/role",
 			Handler:      "PostUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},
@@ -459,7 +459,7 @@ func TestPutUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "PUT",
-			Route:        "/user/username/role/0",
+			Route:        "/client/0/role/username",
 			Handler:      "PutUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},
@@ -471,7 +471,7 @@ func TestDeleteUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "DELETE",
-			Route:        "/user/username/role/0",
+			Route:        "/client/0/role/username",
 			Handler:      "DeleteUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},

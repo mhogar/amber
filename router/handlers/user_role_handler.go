@@ -16,33 +16,33 @@ func (h CoreHandlers) GetUserRoles(req *http.Request, _ httprouter.Params, sessi
 }
 
 type UserRoleDataResponse struct {
-	Username string `json:"username"`
 	PostUserRoleBody
 }
 
 type PostUserRoleBody struct {
-	ClientID uuid.UUID `json:"client_id"`
-	Role     string    `json:"role"`
+	Username string `json:"username"`
+	Role     string `json:"role"`
 }
 
 func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostUserRoleBody
 
-	//get the username
-	username := params.ByName("username")
-	if username == "" {
-		return common.NewBadRequestResponse("username not provided")
+	//parse the client id
+	clientID, err := uuid.Parse(params.ByName("id"))
+	if err != nil {
+		log.Println(common.ChainError("error parsing client id", err))
+		return common.NewBadRequestResponse("client id is in an invalid format")
 	}
 
 	//parse the body
-	err := parseJSONBody(req.Body, &body)
+	err = parseJSONBody(req.Body, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PostUserRoleBody request body", err))
 		return common.NewBadRequestResponse("invalid json body")
 	}
 
 	//verify the session has a greater rank than the user
-	res, cerr := h.Controllers.VerifyUserRank(CRUD, username, session.Rank)
+	res, cerr := h.Controllers.VerifyUserRank(CRUD, body.Username, session.Rank)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}
@@ -54,7 +54,7 @@ func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, 
 	}
 
 	//create the model
-	role := models.CreateUserRole(username, body.ClientID, body.Role)
+	role := models.CreateUserRole(clientID, body.Username, body.Role)
 
 	//create the user-role
 	cerr = h.Controllers.CreateUserRole(CRUD, role)
@@ -75,17 +75,17 @@ type PutUserRoleBody struct {
 func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	var body PutUserRoleBody
 
+	//parse the client id
+	clientID, err := uuid.Parse(params.ByName("id"))
+	if err != nil {
+		log.Println(common.ChainError("error parsing client id", err))
+		return common.NewBadRequestResponse("client id is in an invalid format")
+	}
+
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
 		return common.NewBadRequestResponse("username not provided")
-	}
-
-	//parse the client id
-	clientID, err := uuid.Parse(params.ByName("client_id"))
-	if err != nil {
-		log.Println(common.ChainError("error parsing client id", err))
-		return common.NewBadRequestResponse("client id is in an invalid format")
 	}
 
 	//parse the body
@@ -108,7 +108,7 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 	}
 
 	//create the model
-	role := models.CreateUserRole(username, clientID, body.Role)
+	role := models.CreateUserRole(clientID, username, body.Role)
 
 	//update the user-role
 	cerr = h.Controllers.UpdateUserRole(CRUD, role)
@@ -123,17 +123,17 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 }
 
 func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//parse the client id
+	clientID, err := uuid.Parse(params.ByName("id"))
+	if err != nil {
+		log.Println(common.ChainError("error parsing client id", err))
+		return common.NewBadRequestResponse("client id is in an invalid format")
+	}
+
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
 		return common.NewBadRequestResponse("username not provided")
-	}
-
-	//parse the client id
-	clientID, err := uuid.Parse(params.ByName("client_id"))
-	if err != nil {
-		log.Println(common.ChainError("error parsing client id", err))
-		return common.NewBadRequestResponse("client id is in an invalid format")
 	}
 
 	//verify the session has a greater rank than the user
@@ -162,9 +162,8 @@ func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, 
 
 func (CoreHandlers) newUserRoleDataResponse(role *models.UserRole) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(UserRoleDataResponse{
-		Username: role.Username,
 		PostUserRoleBody: PostUserRoleBody{
-			ClientID: role.ClientUID,
+			Username: role.Username,
 			Role:     role.Role,
 		},
 	})

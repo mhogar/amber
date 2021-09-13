@@ -37,7 +37,7 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	}
 
 	//get the user's role
-	role, err := CRUD.GetUserRoleByUsernameAndClientUID(username, clientUID)
+	role, err := CRUD.GetUserRoleByClientUIDAndUsername(clientUID, username)
 	if err != nil {
 		log.Println(common.ChainError("error getting user role", err))
 		return "", common.InternalError()
