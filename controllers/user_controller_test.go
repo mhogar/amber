@@ -178,6 +178,33 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	helpers.AssertNoError(&suite.Suite, cerr)
 }
 
+func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithErrorGettingUsersWithLesserRank_ReturnsInternalError() {
+	//arrange
+	suite.CRUDMock.On("GetUsersWithLesserRank", mock.Anything).Return(nil, errors.New(""))
+
+	//act
+	users, cerr := suite.UserController.GetUsersWithLesserRank(&suite.CRUDMock, 0)
+
+	//assert
+	suite.Nil(users)
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithNoErrors_ReturnsUsers() {
+	//arrange
+	rank := 5
+	users := []*models.User{models.CreateUser("username", 0, nil)}
+	suite.CRUDMock.On("GetUsersWithLesserRank", mock.Anything).Return(users, nil)
+
+	//act
+	resultUsers, cerr := suite.UserController.GetUsersWithLesserRank(&suite.CRUDMock, rank)
+
+	//assert
+	suite.Equal(users, resultUsers)
+	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUsersWithLesserRank", rank)
+}
+
 func (suite *UserControllerTestSuite) TestUpdateUser_ValidateUserTestCases() {
 	suite.runValidateUserTestCases(func(user *models.User) common.CustomError {
 		resUser, cerr := suite.UserController.UpdateUser(&suite.CRUDMock, user.Username, user.Rank)

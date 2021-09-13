@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+func (suite *E2ETestSuite) SendGetUsersRequest(token string) *http.Response {
+	return suite.SendJSONRequest(http.MethodGet, "/users", token, nil)
+}
+
 func (suite *E2ETestSuite) SendCreateUserRequest(token string, username string, password string, rank int) *http.Response {
 	postUserBody := handlers.PostUserBody{
 		Username: username,
@@ -74,6 +78,11 @@ func (suite *UserE2ETestSuite) SetupSuite() {
 func (suite *UserE2ETestSuite) TearDownSuite() {
 	suite.DeleteUser(suite.AdminToken, suite.ExistingUser.Username)
 	suite.E2ETestSuite.TearDownSuite()
+}
+
+func (suite *ClientE2ETestSuite) TestGetUsers_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendGetUsersRequest("")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithInvalidSession_ReturnsUnauthorized() {

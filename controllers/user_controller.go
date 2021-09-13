@@ -60,6 +60,17 @@ func (c CoreUserController) CreateUser(CRUD UserControllerCRUD, username string,
 	return user, common.NoError()
 }
 
+func (CoreUserController) GetUsersWithLesserRank(CRUD UserControllerCRUD, rank int) ([]*models.User, common.CustomError) {
+	//get the users
+	users, err := CRUD.GetUsersWithLesserRank(rank)
+	if err != nil {
+		log.Println(common.ChainError("error getting users with lesser rank", err))
+		return nil, common.InternalError()
+	}
+
+	return users, common.NoError()
+}
+
 func (c CoreUserController) UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError) {
 	//create the user model
 	user := models.CreateUser(username, rank, nil)
