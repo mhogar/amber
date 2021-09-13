@@ -58,13 +58,13 @@ func (crud *SQLCRUD) CreateUserRole(role *models.UserRole) error {
 	return nil
 }
 
-func (crud *SQLCRUD) GetUserRolesByClientUID(uid uuid.UUID) ([]*models.UserRole, error) {
+func (crud *SQLCRUD) GetUserRolesWithLesserRankByClientUID(uid uuid.UUID, rank int) ([]*models.UserRole, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRolesByClientUIDScript(), uid)
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserRolesWithLesserRankByClientUIDScript(), uid, rank)
 	defer cancel()
 
 	if err != nil {
-		return nil, common.ChainError("error executing get user-roles by client uid query", err)
+		return nil, common.ChainError("error executing get user roles with lesser rank by client uid query", err)
 	}
 	defer rows.Close()
 

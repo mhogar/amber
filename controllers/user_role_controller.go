@@ -38,11 +38,11 @@ func (c CoreUserRoleController) CreateUserRole(CRUD UserRoleControllerCRUD, role
 	return common.NoError()
 }
 
-func (c CoreUserRoleController) GetUserRolesByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID) ([]*models.UserRole, common.CustomError) {
+func (c CoreUserRoleController) GetUserRolesWithLesserRankByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, rank int) ([]*models.UserRole, common.CustomError) {
 	//get the roles
-	roles, err := CRUD.GetUserRolesByClientUID(clientUID)
+	roles, err := CRUD.GetUserRolesWithLesserRankByClientUID(clientUID, rank)
 	if err != nil {
-		log.Println("error getting user-roles by client uid", err)
+		log.Println("error getting user roles with lesser rank by client uid", err)
 		return nil, common.InternalError()
 	}
 

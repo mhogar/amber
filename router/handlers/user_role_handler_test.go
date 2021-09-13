@@ -18,6 +18,104 @@ type UserRoleHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithInvalidClientID_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: "invalid",
+		},
+	}
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithClientErrorGettingUserRolesWithLesserRankByClientUID_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	message := "get user-roles error"
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithInternalErrorGettingUserRolesWithLesserRankByClientUID_ReturnsInternalServerError() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithNoErrors_ReturnsUserRoleData() {
+	//arrange
+	clientUID := uuid.New()
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: clientUID.String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	roles := []*models.UserRole{
+		models.CreateUserRole(clientUID, "user1", "role"),
+		models.CreateUserRole(clientUID, "user2", "role"),
+	}
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(roles, common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.UserRoleDataResponse{
+		{
+			PostUserRoleBody: handlers.PostUserRoleBody{
+				Username: roles[0].Username,
+				Role:     roles[0].Role,
+			},
+		},
+		{
+			PostUserRoleBody: handlers.PostUserRoleBody{
+				Username: roles[1].Username,
+				Role:     roles[1].Role,
+			},
+		},
+	})
+
+	suite.ControllersMock.AssertCalled(suite.T(), "GetUserRolesWithLesserRankByClientUID", &suite.CRUDMock, clientUID, session.Rank)
+}
+
 func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidClientID_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{
@@ -26,6 +124,7 @@ func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidClientID_Retu
 			Value: "invalid",
 		},
 	}
+
 	//act
 	status, res := suite.CoreHandlers.PostUserRole(nil, params, nil, &suite.CRUDMock)
 

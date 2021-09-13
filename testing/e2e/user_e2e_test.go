@@ -80,7 +80,7 @@ func (suite *UserE2ETestSuite) TearDownSuite() {
 	suite.E2ETestSuite.TearDownSuite()
 }
 
-func (suite *ClientE2ETestSuite) TestGetUsers_WithInvalidSession_ReturnsUnauthorized() {
+func (suite *UserE2ETestSuite) TestGetUsers_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendGetUsersRequest("")
 	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
 }

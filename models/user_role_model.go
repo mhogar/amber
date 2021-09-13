@@ -22,9 +22,9 @@ type UserRoleCRUD interface {
 	// CreateUserRole creates the user-role. Returns any errors.
 	CreateUserRole(role *UserRole) error
 
-	// GetUserRolesByClientUID fetches the user roles for the provided client uid.
+	// GetUserRolesByClientUID fetches the user roles for the provided client uid and with a rank less than the provided rank.
 	// Returns the user-roles and returns any errors.
-	GetUserRolesByClientUID(uid uuid.UUID) ([]*UserRole, error)
+	GetUserRolesWithLesserRankByClientUID(uid uuid.UUID, rank int) ([]*UserRole, error)
 
 	// GetUserRoleByClientUIDAndUsername fetches the user role for the provided client uid and username.
 	// Returns the user-role if it exists, nil if not. Also returns any errors.

@@ -11,6 +11,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+func (suite *E2ETestSuite) SendGetUserRolesRequest(token string, clientID string) *http.Response {
+	return suite.SendJSONRequest(http.MethodGet, path.Join("/client", clientID, "roles"), token, nil)
+}
+
 func (suite *E2ETestSuite) SendCreateUserRoleRequest(token string, clientID string, username string, role string) *http.Response {
 	postUserRoleBody := handlers.PostUserRoleBody{
 		Username: username,
@@ -60,6 +64,16 @@ func (suite *UserRoleE2ETestSuite) TearDownSuite() {
 	suite.DeleteUser(suite.AdminToken, suite.User.Username)
 
 	suite.E2ETestSuite.TearDownSuite()
+}
+
+func (suite *UserRoleE2ETestSuite) TestGetUserRoles_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendGetUserRolesRequest("", suite.ClientID.String())
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+}
+
+func (suite *UserRoleE2ETestSuite) TestGetUserRoles_WithInvalidClientId_ReturnsBadRequest() {
+	res := suite.SendGetUserRolesRequest(suite.AdminToken, "invalid")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "client id", "invalid format")
 }
 
 func (suite *UserRoleE2ETestSuite) TestCreateUserRole_WithInvalidSession_ReturnsUnauthorized() {

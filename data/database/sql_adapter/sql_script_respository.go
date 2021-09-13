@@ -57,7 +57,7 @@ type UserRoleScriptRepository interface {
 	CreateUserRoleTableScript() string
 	DropUserRoleTableScript() string
 	CreateUserRoleScript() string
-	GetUserRolesByClientUIDScript() string
+	GetUserRolesWithLesserRankByClientUIDScript() string
 	GetUserRoleByClientUIDAndUsernameScript() string
 	UpdateUserRoleScript() string
 	DeleteUserRoleScript() string

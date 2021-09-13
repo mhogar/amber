@@ -387,13 +387,13 @@ func (_m *DataExecutor) GetUserRoleByClientUIDAndUsername(clientUID uuid.UUID, u
 	return r0, r1
 }
 
-// GetUserRolesByClientUID provides a mock function with given fields: uid
-func (_m *DataExecutor) GetUserRolesByClientUID(uid uuid.UUID) ([]*models.UserRole, error) {
-	ret := _m.Called(uid)
+// GetUserRolesWithLesserRankByClientUID provides a mock function with given fields: uid, rank
+func (_m *DataExecutor) GetUserRolesWithLesserRankByClientUID(uid uuid.UUID, rank int) ([]*models.UserRole, error) {
+	ret := _m.Called(uid, rank)
 
 	var r0 []*models.UserRole
-	if rf, ok := ret.Get(0).(func(uuid.UUID) []*models.UserRole); ok {
-		r0 = rf(uid)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, int) []*models.UserRole); ok {
+		r0 = rf(uid, rank)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.UserRole)
@@ -401,8 +401,8 @@ func (_m *DataExecutor) GetUserRolesByClientUID(uid uuid.UUID) ([]*models.UserRo
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(uuid.UUID) error); ok {
-		r1 = rf(uid)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, int) error); ok {
+		r1 = rf(uid, rank)
 	} else {
 		r1 = ret.Error(1)
 	}

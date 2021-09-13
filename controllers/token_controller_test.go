@@ -224,7 +224,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClientByUID", client.UID)
 	suite.ControllerMock.AssertCalled(suite.T(), "AuthenticateUserWithPassword", &suite.CRUDMock, userRole.Username, password)
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByClientUIDAndUsername", userRole.Username, client.UID)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByClientUIDAndUsername", client.UID, userRole.Username)
 	suite.TokenFactorySelectorMock.AssertCalled(suite.T(), "Select", client.TokenType)
 	suite.TokenFactoryMock.AssertCalled(suite.T(), "CreateToken", client.KeyUri, client.UID, userRole.Username, userRole.Role)
 }

@@ -11,8 +11,29 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func (h CoreHandlers) GetUserRoles(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
-	return common.NewSuccessResponse()
+func (h CoreHandlers) GetUserRoles(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//parse the client id
+	clientID, err := uuid.Parse(params.ByName("id"))
+	if err != nil {
+		log.Println(common.ChainError("error parsing client id", err))
+		return common.NewBadRequestResponse("client id is in an invalid format")
+	}
+
+	//get the roles
+	roles, cerr := h.Controllers.GetUserRolesWithLesserRankByClientUID(CRUD, clientID, session.Rank)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//return the data
+	data := make([]UserRoleDataResponse, len(roles))
+	for index, role := range roles {
+		data[index] = h.newUserRoleDataResponse(role)
+	}
+	return common.NewSuccessDataResponse(data)
 }
 
 type UserRoleDataResponse struct {
@@ -65,7 +86,7 @@ func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, 
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newUserRoleDataResponse(role)
+	return common.NewSuccessDataResponse(h.newUserRoleDataResponse(role))
 }
 
 type PutUserRoleBody struct {
@@ -119,7 +140,7 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newUserRoleDataResponse(role)
+	return common.NewSuccessDataResponse(h.newUserRoleDataResponse(role))
 }
 
 func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -160,11 +181,11 @@ func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, 
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newUserRoleDataResponse(role *models.UserRole) (int, common.DataResponse) {
-	return common.NewSuccessDataResponse(UserRoleDataResponse{
+func (CoreHandlers) newUserRoleDataResponse(role *models.UserRole) UserRoleDataResponse {
+	return UserRoleDataResponse{
 		PostUserRoleBody: PostUserRoleBody{
 			Username: role.Username,
 			Role:     role.Role,
 		},
-	})
+	}
 }

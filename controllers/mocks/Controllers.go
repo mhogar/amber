@@ -243,13 +243,13 @@ func (_m *Controllers) GetClients(CRUD controllers.ClientControllerCRUD) ([]*mod
 	return r0, r1
 }
 
-// GetUserRolesByClientUID provides a mock function with given fields: CRUD, clientUID
-func (_m *Controllers) GetUserRolesByClientUID(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID) ([]*models.UserRole, common.CustomError) {
-	ret := _m.Called(CRUD, clientUID)
+// GetUserRolesWithLesserRankByClientUID provides a mock function with given fields: CRUD, clientUID, rank
+func (_m *Controllers) GetUserRolesWithLesserRankByClientUID(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID, rank int) ([]*models.UserRole, common.CustomError) {
+	ret := _m.Called(CRUD, clientUID, rank)
 
 	var r0 []*models.UserRole
-	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID) []*models.UserRole); ok {
-		r0 = rf(CRUD, clientUID)
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID, int) []*models.UserRole); ok {
+		r0 = rf(CRUD, clientUID, rank)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.UserRole)
@@ -257,8 +257,8 @@ func (_m *Controllers) GetUserRolesByClientUID(CRUD controllers.UserRoleControll
 	}
 
 	var r1 common.CustomError
-	if rf, ok := ret.Get(1).(func(controllers.UserRoleControllerCRUD, uuid.UUID) common.CustomError); ok {
-		r1 = rf(CRUD, clientUID)
+	if rf, ok := ret.Get(1).(func(controllers.UserRoleControllerCRUD, uuid.UUID, int) common.CustomError); ok {
+		r1 = rf(CRUD, clientUID, rank)
 	} else {
 		r1 = ret.Get(1).(common.CustomError)
 	}

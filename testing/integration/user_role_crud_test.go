@@ -25,20 +25,22 @@ func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_Retur
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
 }
 
-func (suite *UserRoleCRUDTestSuite) TestGetUserRolesByClientUID_GetsUserRolesWithClientUIDOrderedByUsername() {
+func (suite *UserRoleCRUDTestSuite) TestGetUserRolesWithLesserRankByClientUID_GetsTheUserRolesWithLesserRankAndClientUIDOrderedByUsername() {
 	//arrange
 	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
-	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 1, []byte("password")))
+	user3 := suite.SaveUser(models.CreateUser("user3", 2, []byte("password")))
 
 	client1 := suite.SaveClient(models.CreateNewClient("name1", "redirect.com", 0, "key.pem"))
 	client2 := suite.SaveClient(models.CreateNewClient("name2", "redirect.com", 0, "key.pem"))
 
 	role1 := suite.SaveUserRole(models.CreateUserRole(client1.UID, user1.Username, "role"))
 	role2 := suite.SaveUserRole(models.CreateUserRole(client1.UID, user2.Username, "role"))
+	suite.SaveUserRole(models.CreateUserRole(client1.UID, user3.Username, "role"))
 	suite.SaveUserRole(models.CreateUserRole(client2.UID, user1.Username, "role"))
 
 	//act
-	roles, err := suite.Tx.GetUserRolesByClientUID(client1.UID)
+	roles, err := suite.Tx.GetUserRolesWithLesserRankByClientUID(client1.UID, 2)
 
 	//assert
 	suite.NoError(err)
