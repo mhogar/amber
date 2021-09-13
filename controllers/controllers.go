@@ -85,6 +85,9 @@ type UserRoleController interface {
 	// CreateUserRole creates a new user-role using the provided model.
 	CreateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
 
+	// GetUserRolesByClientUID gets the user-roles with the provided client uid.
+	GetUserRolesByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID) ([]*models.UserRole, common.CustomError)
+
 	// UpdateUserRole updates the given user-role.
 	UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
 

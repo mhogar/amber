@@ -38,6 +38,17 @@ func (c CoreUserRoleController) CreateUserRole(CRUD UserRoleControllerCRUD, role
 	return common.NoError()
 }
 
+func (c CoreUserRoleController) GetUserRolesByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID) ([]*models.UserRole, common.CustomError) {
+	//get the roles
+	roles, err := CRUD.GetUserRolesByClientUID(clientUID)
+	if err != nil {
+		log.Println("error getting user-roles by client uid", err)
+		return nil, common.InternalError()
+	}
+
+	return roles, common.NoError()
+}
+
 func (c CoreUserRoleController) UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError {
 	//validate the model
 	cerr := c.validateUserRole(role)

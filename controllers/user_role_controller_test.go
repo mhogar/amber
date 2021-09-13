@@ -109,6 +109,34 @@ func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithNoErrors_Return
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateUserRole", role)
 }
 
+func (suite *UserRoleControllerTestSuite) TestGetUserRolesByClientUID_WithErrorGettingUserRolesByClientUID_ReturnsInternalError() {
+	//arrange
+	suite.CRUDMock.On("GetUserRolesByClientUID", mock.Anything).Return(nil, errors.New(""))
+
+	//act
+	clients, cerr := suite.UserRoleController.GetUserRolesByClientUID(&suite.CRUDMock, uuid.New())
+
+	//assert
+	suite.Nil(clients)
+	helpers.AssertInternalError(&suite.Suite, cerr)
+}
+
+func (suite *UserRoleControllerTestSuite) TestGetUserRolesByClientUID_WithNoErrors_ReturnsUserRoles() {
+	//arrange
+	clientUID := uuid.New()
+
+	roles := []*models.UserRole{models.CreateUserRole("username", clientUID, "role")}
+	suite.CRUDMock.On("GetUserRolesByClientUID", mock.Anything).Return(roles, nil)
+
+	//act
+	resultRoles, cerr := suite.UserRoleController.GetUserRolesByClientUID(&suite.CRUDMock, clientUID)
+
+	//assert
+	suite.Equal(roles, resultRoles)
+	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRolesByClientUID", clientUID)
+}
+
 func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_ValidateUserRoleTestCases() {
 	suite.runValidateUserRoleTestCases(func(role *models.UserRole) common.CustomError {
 		return suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
