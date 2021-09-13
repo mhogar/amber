@@ -220,6 +220,75 @@ func (_m *Controllers) DeleteUserRole(CRUD controllers.UserRoleControllerCRUD, u
 	return r0
 }
 
+// GetClients provides a mock function with given fields: CRUD
+func (_m *Controllers) GetClients(CRUD controllers.ClientControllerCRUD) ([]*models.Client, common.CustomError) {
+	ret := _m.Called(CRUD)
+
+	var r0 []*models.Client
+	if rf, ok := ret.Get(0).(func(controllers.ClientControllerCRUD) []*models.Client); ok {
+		r0 = rf(CRUD)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Client)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.ClientControllerCRUD) common.CustomError); ok {
+		r1 = rf(CRUD)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
+// GetUserRolesWithLesserRankByClientUID provides a mock function with given fields: CRUD, clientUID, rank
+func (_m *Controllers) GetUserRolesWithLesserRankByClientUID(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID, rank int) ([]*models.UserRole, common.CustomError) {
+	ret := _m.Called(CRUD, clientUID, rank)
+
+	var r0 []*models.UserRole
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID, int) []*models.UserRole); ok {
+		r0 = rf(CRUD, clientUID, rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.UserRole)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.UserRoleControllerCRUD, uuid.UUID, int) common.CustomError); ok {
+		r1 = rf(CRUD, clientUID, rank)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
+// GetUsersWithLesserRank provides a mock function with given fields: CRUD, rank
+func (_m *Controllers) GetUsersWithLesserRank(CRUD controllers.UserControllerCRUD, rank int) ([]*models.User, common.CustomError) {
+	ret := _m.Called(CRUD, rank)
+
+	var r0 []*models.User
+	if rf, ok := ret.Get(0).(func(controllers.UserControllerCRUD, int) []*models.User); ok {
+		r0 = rf(CRUD, rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.User)
+		}
+	}
+
+	var r1 common.CustomError
+	if rf, ok := ret.Get(1).(func(controllers.UserControllerCRUD, int) common.CustomError); ok {
+		r1 = rf(CRUD, rank)
+	} else {
+		r1 = ret.Get(1).(common.CustomError)
+	}
+
+	return r0, r1
+}
+
 // UpdateClient provides a mock function with given fields: CRUD, client
 func (_m *Controllers) UpdateClient(CRUD controllers.ClientControllerCRUD, client *models.Client) common.CustomError {
 	ret := _m.Called(CRUD, client)

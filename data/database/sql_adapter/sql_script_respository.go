@@ -25,6 +25,7 @@ type ClientScriptRepository interface {
 	CreateClientTableScript() string
 	DropClientTableScript() string
 	CreateClientScript() string
+	GetClientsScript() string
 	GetClientByUIDScript() string
 	UpdateClientScript() string
 	DeleteClientScript() string
@@ -44,6 +45,7 @@ type UserScriptRepository interface {
 	CreateUserTableScript() string
 	DropUserTableScript() string
 	CreateUserScript() string
+	GetUsersWithLesserRankScript() string
 	GetUserByUsernameScript() string
 	UpdateUserScript() string
 	UpdateUserPasswordScript() string
@@ -55,7 +57,8 @@ type UserRoleScriptRepository interface {
 	CreateUserRoleTableScript() string
 	DropUserRoleTableScript() string
 	CreateUserRoleScript() string
-	GetUserRoleByUsernameAndClientUIDScript() string
+	GetUserRolesWithLesserRankByClientUIDScript() string
+	GetUserRoleByClientUIDAndUsernameScript() string
 	UpdateUserRoleScript() string
 	DeleteUserRoleScript() string
 }

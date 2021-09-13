@@ -10,6 +10,10 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+func (suite *E2ETestSuite) SendGetClientsRequest(token string) *http.Response {
+	return suite.SendJSONRequest(http.MethodGet, "/clients", token, nil)
+}
+
 func (suite *E2ETestSuite) SendCreateClientRequest(token string, tokenType int, keyUri string) *http.Response {
 	postClientBody := handlers.PostClientBody{
 		Name:        "Test Client",
@@ -64,6 +68,23 @@ func (suite *ClientE2ETestSuite) TearDownSuite() {
 	suite.DeleteClient(suite.AdminToken, suite.ClientId)
 	suite.DeleteUser(suite.AdminToken, suite.User.Username)
 	suite.E2ETestSuite.TearDownSuite()
+}
+
+func (suite *ClientE2ETestSuite) TestGetClients_WithInvalidSession_ReturnsUnauthorized() {
+	res := suite.SendGetClientsRequest("")
+	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+}
+
+func (suite *ClientE2ETestSuite) TestGetClients_WithRankLessThanMin_ReturnsForbidden() {
+	//login
+	token := suite.Login(suite.User)
+
+	//get clients
+	res := suite.SendGetClientsRequest(token)
+	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+
+	//logout
+	suite.Logout(token)
 }
 
 func (suite *ClientE2ETestSuite) TestCreateClient_WithInvalidSession_ReturnsUnauthorized() {

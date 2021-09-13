@@ -39,6 +39,9 @@ func Run(name string) error {
 			DefaultIssuer: "amber",
 			Lifetime:      60,
 		},
+		PermissionConfig: config.PermissionConfig{
+			MinClientRank: 5,
+		},
 		DatabaseConfig: config.DatabaseConfig{
 			ConnectionStrings: map[string]string{
 				"core":        "",

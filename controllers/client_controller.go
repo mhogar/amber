@@ -28,6 +28,17 @@ func (c CoreClientController) CreateClient(CRUD ClientControllerCRUD, client *mo
 	return common.NoError()
 }
 
+func (CoreClientController) GetClients(CRUD ClientControllerCRUD) ([]*models.Client, common.CustomError) {
+	//get the clients
+	clients, err := CRUD.GetClients()
+	if err != nil {
+		log.Println(common.ChainError("error getting clients", err))
+		return nil, common.InternalError()
+	}
+
+	return clients, common.NoError()
+}
+
 func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError {
 	//validate the client
 	verr := c.validateClient(client)
@@ -50,7 +61,7 @@ func (c CoreClientController) UpdateClient(CRUD ClientControllerCRUD, client *mo
 	return common.NoError()
 }
 
-func (c CoreClientController) DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError {
+func (CoreClientController) DeleteClient(CRUD ClientControllerCRUD, uid uuid.UUID) common.CustomError {
 	//delete the client
 	res, err := CRUD.DeleteClient(uid)
 	if err != nil {

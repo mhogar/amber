@@ -2,6 +2,8 @@ app_name: Test App
 token:
     default_issuer: "test"
     lifetime: 60
+permissions:
+    min_client_rank: 5
 database:
     connection_strings:
         core: ""

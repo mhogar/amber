@@ -16,7 +16,7 @@ type UserRoleTestSuite struct {
 }
 
 func (suite *UserRoleTestSuite) SetupTest() {
-	suite.UserRole = models.CreateUserRole("username", uuid.Nil, "role")
+	suite.UserRole = models.CreateUserRole(uuid.Nil, "username", "role")
 }
 
 func (suite *UserRoleTestSuite) TestCreateNewUserRole_CreatesUserRoleWithSuppliedFields() {
@@ -25,7 +25,7 @@ func (suite *UserRoleTestSuite) TestCreateNewUserRole_CreatesUserRoleWithSupplie
 	role := "this is a test role"
 
 	//act
-	userRole := models.CreateUserRole(username, uuid.Nil, role)
+	userRole := models.CreateUserRole(uuid.Nil, username, role)
 
 	//assert
 	suite.Require().NotNil(userRole)

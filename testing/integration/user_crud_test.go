@@ -30,6 +30,23 @@ func (suite *UserCRUDTestSuite) TestCreateUser_WithNilPasswordHash_ReturnsError(
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "password hash", "cannot be nil")
 }
 
+func (suite *UserCRUDTestSuite) TestGetUsersWithLesserRank_GetsTheUsersWithLesserRankOrderedByUsername() {
+	//arrange
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 1, []byte("password")))
+	suite.SaveUser(models.CreateUser("user3", 2, []byte("password")))
+
+	//act
+	users, err := suite.Tx.GetUsersWithLesserRank(2)
+
+	//assert
+	suite.NoError(err)
+
+	suite.Require().Len(users, 2)
+	suite.EqualValues(users[0], user1)
+	suite.EqualValues(users[1], user2)
+}
+
 func (suite *UserCRUDTestSuite) TestGetUserByUsername_WhereUserNotFound_ReturnsNilUser() {
 	//act
 	user, err := suite.Tx.GetUserByUsername("DNE")
@@ -150,7 +167,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+	suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteUser(user.Username)
@@ -159,7 +176,7 @@ func (suite *UserCRUDTestSuite) TestDeleteUser_AlsoDeletesAllRolesForUser() {
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, client.UID)
+	role, err := suite.Tx.GetUserRoleByClientUIDAndUsername(client.UID, user.Username)
 	suite.NoError(err)
 	suite.Nil(role)
 }

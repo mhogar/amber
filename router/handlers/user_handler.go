@@ -11,6 +11,23 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+func (h CoreHandlers) GetUsers(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	users, cerr := h.Controllers.GetUsersWithLesserRank(CRUD, session.Rank)
+	if cerr.Type == common.ErrorTypeClient {
+		return common.NewBadRequestResponse(cerr.Error())
+	}
+	if cerr.Type == common.ErrorTypeInternal {
+		return common.NewInternalServerErrorResponse()
+	}
+
+	//retrun the data
+	data := make([]UserDataResponse, len(users))
+	for index, user := range users {
+		data[index] = h.newUserDataResponse(user)
+	}
+	return common.NewSuccessDataResponse(data)
+}
+
 type UserDataResponse struct {
 	Username string `json:"username"`
 	PutUserBody
@@ -45,7 +62,7 @@ func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, session *
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newUserDataResponse(user)
+	return common.NewSuccessDataResponse(h.newUserDataResponse(user))
 }
 
 type PutUserBody struct {
@@ -93,7 +110,7 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, sessi
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return h.newUserDataResponse(user)
+	return common.NewSuccessDataResponse(h.newUserDataResponse(user))
 }
 
 type PatchPasswordBody struct {
@@ -214,11 +231,11 @@ func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, sess
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newUserDataResponse(user *models.User) (int, common.DataResponse) {
-	return common.NewSuccessDataResponse(UserDataResponse{
+func (CoreHandlers) newUserDataResponse(user *models.User) UserDataResponse {
+	return UserDataResponse{
 		Username: user.Username,
 		PutUserBody: PutUserBody{
 			Rank: user.Rank,
 		},
-	})
+	}
 }

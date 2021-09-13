@@ -11,6 +11,9 @@ import (
 )
 
 type Handlers interface {
+	// GetUsers handles GET requests to /users.
+	GetUsers(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
 	// PostUser handles POST requests to /user.
 	PostUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
@@ -26,6 +29,9 @@ type Handlers interface {
 	// DeleteUser handles DELETE requests to /user/:username.
 	DeleteUser(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
+	// GetClients handles GET requests to /clients.
+	GetClients(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
 	// PostClient handles POST requests to /client.
 	PostClient(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
@@ -34,6 +40,9 @@ type Handlers interface {
 
 	// DeleteClient handles DELETE requests to /client/:id.
 	DeleteClient(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
+	// GetUserRoles handles GET requests to /user/:username/roles.
+	GetUserRoles(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
 	// PostUserRole handles POST requests to /user/:username/role.
 	PostUserRole(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})

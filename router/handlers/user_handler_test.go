@@ -17,6 +17,67 @@ type UserHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
+func (suite *UserHandlerTestSuite) TestGetUsers_WithClientErrorGettingUsers_ReturnsBadRequest() {
+	//arrange
+	session := models.CreateNewSession("admin", 5)
+
+	message := "get users error"
+	suite.ControllersMock.On("GetUsersWithLesserRank", mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.GetUsers(nil, nil, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserHandlerTestSuite) TestGetUsers_WithInternalErrorGettingUsers_ReturnsInternalServerError() {
+	//arrange
+	session := models.CreateNewSession("admin", 5)
+	suite.ControllersMock.On("GetUsersWithLesserRank", mock.Anything, mock.Anything).Return(nil, common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUsers(nil, nil, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+}
+
+func (suite *UserHandlerTestSuite) TestGetUsers_WithNoErrors_ReturnsUserData() {
+	//arrange
+	session := models.CreateNewSession("admin", 5)
+
+	users := []*models.User{
+		models.CreateUser("user1", 0, nil),
+		models.CreateUser("user2", 1, nil),
+	}
+	suite.ControllersMock.On("GetUsersWithLesserRank", mock.Anything, mock.Anything).Return(users, common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUsers(nil, nil, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.UserDataResponse{
+		{
+			Username: users[0].Username,
+			PutUserBody: handlers.PutUserBody{
+				Rank: users[0].Rank,
+			},
+		},
+		{
+			Username: users[1].Username,
+			PutUserBody: handlers.PutUserBody{
+				Rank: users[1].Rank,
+			},
+		},
+	})
+
+	suite.ControllersMock.AssertCalled(suite.T(), "GetUsersWithLesserRank", &suite.CRUDMock, session.Rank)
+}
+
 func (suite *UserHandlerTestSuite) TestPostUser_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")

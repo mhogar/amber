@@ -25,6 +25,22 @@ func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsErro
 	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
 }
 
+func (suite *ClientCRUDTestSuite) TestGetClients_GetsClientsOrderedByName() {
+	//arrange
+	client1 := suite.SaveClient(models.CreateNewClient("name1", "redirect.com", 0, "key.pem"))
+	client2 := suite.SaveClient(models.CreateNewClient("name2", "redirect.com", 0, "key.pem"))
+
+	//act
+	clients, err := suite.Tx.GetClients()
+
+	//assert
+	suite.NoError(err)
+
+	suite.Require().Len(clients, 2)
+	suite.EqualValues(clients[0], client1)
+	suite.EqualValues(clients[1], client2)
+}
+
 func (suite *ClientCRUDTestSuite) TestGetClientByUId_WhereClientNotFound_ReturnsNilClient() {
 	//act
 	client, err := suite.Tx.GetClientByUID(uuid.New())
@@ -117,7 +133,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient(
 	//arrange
 	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
 	client := suite.SaveClient(models.CreateNewClient("name", "redirect.com", 0, "key.pem"))
-	suite.SaveUserRole(models.CreateUserRole(user.Username, client.UID, "role"))
+	suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
 	res, err := suite.Tx.DeleteClient(client.UID)
@@ -126,7 +142,7 @@ func (suite *ClientCRUDTestSuite) TestDeleteClient_AlsoDeletesAllRolesForClient(
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	role, err := suite.Tx.GetUserRoleByUsernameAndClientUID(user.Username, client.UID)
+	role, err := suite.Tx.GetUserRoleByClientUIDAndUsername(client.UID, user.Username)
 	suite.NoError(err)
 	suite.Nil(role)
 }

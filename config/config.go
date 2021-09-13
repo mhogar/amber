@@ -16,6 +16,7 @@ import (
 type Config struct {
 	AppName                string                 `yaml:"app_name"`
 	TokenConfig            TokenConfig            `yaml:"token"`
+	PermissionConfig       PermissionConfig       `yaml:"permissions"`
 	DatabaseConfig         DatabaseConfig         `yaml:"database"`
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
 }
@@ -26,6 +27,11 @@ type TokenConfig struct {
 
 	// Lifetime is the length of time a token will be valid for.
 	Lifetime int64 `yaml:"lifetime"`
+}
+
+type PermissionConfig struct {
+	// MinClientRank is the minimum rank a user must have to manage clients.
+	MinClientRank int `yaml:"min_client_rank"`
 }
 
 type DatabaseConfig struct {
@@ -87,6 +93,7 @@ func InitConfig(dir string) error {
 	viper.Set("root_dir", rootDir)
 	viper.Set("app_name", cfg.AppName)
 	viper.Set("token", cfg.TokenConfig)
+	viper.Set("permission", cfg.PermissionConfig)
 	viper.Set("database", cfg.DatabaseConfig)
 	viper.Set("password_criteria", cfg.PasswordCriteriaConfig)
 
@@ -105,4 +112,8 @@ func GetAppName() string {
 
 func GetTokenConfig() TokenConfig {
 	return viper.Get("token").(TokenConfig)
+}
+
+func GetPermissionConfig() PermissionConfig {
+	return viper.Get("permission").(PermissionConfig)
 }

@@ -13,8 +13,8 @@ const UserRoleRoleMaxLength = 15
 
 // UserRole represents the user-role model
 type UserRole struct {
-	Username  string
 	ClientUID uuid.UUID
+	Username  string
 	Role      string
 }
 
@@ -22,10 +22,13 @@ type UserRoleCRUD interface {
 	// CreateUserRole creates the user-role. Returns any errors.
 	CreateUserRole(role *UserRole) error
 
-	// GetUserRoleByUsernameAndClientUID fetches the user role for the provided username and client uid.
-	// Returns the user-role if it exists, nil if not.
-	// Also returns any errors.
-	GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*UserRole, error)
+	// GetUserRolesByClientUID fetches the user roles for the provided client uid and with a rank less than the provided rank.
+	// Returns the user-roles and returns any errors.
+	GetUserRolesWithLesserRankByClientUID(uid uuid.UUID, rank int) ([]*UserRole, error)
+
+	// GetUserRoleByClientUIDAndUsername fetches the user role for the provided client uid and username.
+	// Returns the user-role if it exists, nil if not. Also returns any errors.
+	GetUserRoleByClientUIDAndUsername(clientUID uuid.UUID, username string) (*UserRole, error)
 
 	// UpdateUserRole updates the user-role.
 	// Returns result of whether the user was found and any errors.
@@ -36,10 +39,10 @@ type UserRoleCRUD interface {
 	DeleteUserRole(username string, clientUID uuid.UUID) (bool, error)
 }
 
-func CreateUserRole(username string, clientUID uuid.UUID, role string) *UserRole {
+func CreateUserRole(clientUID uuid.UUID, username string, role string) *UserRole {
 	return &UserRole{
-		Username:  username,
 		ClientUID: clientUID,
+		Username:  username,
 		Role:      role,
 	}
 }

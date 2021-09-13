@@ -59,6 +59,32 @@ func (crud *SQLCRUD) CreateUser(user *models.User) error {
 	return nil
 }
 
+func (crud *SQLCRUD) GetUsersWithLesserRank(rank int) ([]*models.User, error) {
+	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
+	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUsersWithLesserRankScript(), rank)
+	defer cancel()
+
+	if err != nil {
+		return nil, common.ChainError("error executing get users with lesser rank query", err)
+	}
+	defer rows.Close()
+
+	//read the data
+	users := []*models.User{}
+	for {
+		user, err := readUserData(rows)
+		if err != nil {
+			return nil, err
+		}
+
+		if user == nil {
+			break
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
 func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetUserByUsernameScript(), username)

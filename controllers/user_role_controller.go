@@ -19,7 +19,7 @@ func (c CoreUserRoleController) CreateUserRole(CRUD UserRoleControllerCRUD, role
 	}
 
 	//verify the user does not already have a role for the client
-	existingRole, err := CRUD.GetUserRoleByUsernameAndClientUID(role.Username, role.ClientUID)
+	existingRole, err := CRUD.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
 	if err != nil {
 		log.Println("error getting user-role by username and client uid", err)
 		return common.InternalError()
@@ -36,6 +36,17 @@ func (c CoreUserRoleController) CreateUserRole(CRUD UserRoleControllerCRUD, role
 	}
 
 	return common.NoError()
+}
+
+func (c CoreUserRoleController) GetUserRolesWithLesserRankByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, rank int) ([]*models.UserRole, common.CustomError) {
+	//get the roles
+	roles, err := CRUD.GetUserRolesWithLesserRankByClientUID(clientUID, rank)
+	if err != nil {
+		log.Println("error getting user roles with lesser rank by client uid", err)
+		return nil, common.InternalError()
+	}
+
+	return roles, common.NoError()
 }
 
 func (c CoreUserRoleController) UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError {

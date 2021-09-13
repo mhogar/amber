@@ -18,24 +18,127 @@ type UserRoleHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
-func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithMissingUsername_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithInvalidClientID_ReturnsBadRequest() {
 	//arrange
-	params := []httprouter.Param{}
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: "invalid",
+		},
+	}
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithClientErrorGettingUserRolesWithLesserRankByClientUID_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	message := "get user-roles error"
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, message)
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithInternalErrorGettingUserRolesWithLesserRankByClientUID_ReturnsInternalServerError() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusInternalServerError, status)
+	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+}
+
+func (suite *UserRoleHandlerTestSuite) TestGetUserRoles_WithNoErrors_ReturnsUserRoleData() {
+	//arrange
+	clientUID := uuid.New()
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: clientUID.String(),
+		},
+	}
+	session := models.CreateNewSession("admin", 5)
+
+	roles := []*models.UserRole{
+		models.CreateUserRole(clientUID, "user1", "role"),
+		models.CreateUserRole(clientUID, "user2", "role"),
+	}
+	suite.ControllersMock.On("GetUserRolesWithLesserRankByClientUID", mock.Anything, mock.Anything, mock.Anything).Return(roles, common.NoError())
+
+	//act
+	status, res := suite.CoreHandlers.GetUserRoles(nil, params, session, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusOK, status)
+	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.UserRoleDataResponse{
+		{
+			PostUserRoleBody: handlers.PostUserRoleBody{
+				Username: roles[0].Username,
+				Role:     roles[0].Role,
+			},
+		},
+		{
+			PostUserRoleBody: handlers.PostUserRoleBody{
+				Username: roles[1].Username,
+				Role:     roles[1].Role,
+			},
+		},
+	})
+
+	suite.ControllersMock.AssertCalled(suite.T(), "GetUserRolesWithLesserRankByClientUID", &suite.CRUDMock, clientUID, session.Rank)
+}
+
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidClientID_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: "invalid",
+		},
+	}
 
 	//act
 	status, res := suite.CoreHandlers.PostUserRole(nil, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
 }
 
 func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
@@ -48,18 +151,18 @@ func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInvalidJSONBody_Retu
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -75,18 +178,18 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorVerifyingUser
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -101,18 +204,18 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorVerifyingUs
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -127,18 +230,18 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithFalseResultVerifyingUser
 	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorCreatingUserRole_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithClientErrorCreatingUserRole_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -156,18 +259,18 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithClientErrorCreatingUserR
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorCreatingUserRole_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithInternalErrorCreatingUserRole_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -183,18 +286,18 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithInternalErrorCreatingUse
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPostUserRole_WithNoErrors_ReturnsUserRoleData() {
+func (suite *UserRoleHandlerTestSuite) TestPostUserRole_WithNoErrors_ReturnsUserRoleData() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 	}
 
 	body := handlers.PostUserRoleBody{
-		ClientID: uuid.New(),
+		Username: "username",
 		Role:     "role",
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
@@ -212,38 +315,21 @@ func (suite *UserHandlerTestSuite) TestPostUserRole_WithNoErrors_ReturnsUserRole
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserRoleDataResponse{
-		Username: role.Username,
 		PostUserRoleBody: handlers.PostUserRoleBody{
-			ClientID: role.ClientUID,
+			Username: role.Username,
 			Role:     role.Role,
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
+	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, body.Username, session.Rank)
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateUserRole", &suite.CRUDMock, role)
-}
-
-func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithMissingUsername_ReturnsBadRequest() {
-	//arrange
-	params := []httprouter.Param{}
-
-	//act
-	status, res := suite.CoreHandlers.PutUserRole(nil, params, nil, &suite.CRUDMock)
-
-	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
 }
 
 func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithErrorParsingClientId_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
-		},
-		{
-			Key:   "client_id",
+			Key:   "id",
 			Value: "invalid",
 		},
 	}
@@ -257,16 +343,33 @@ func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithErrorParsingClientId_
 	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
 }
 
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithMissingUsername_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+
+	//act
+	status, res := suite.CoreHandlers.PutUserRole(nil, params, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+}
+
 func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
@@ -279,17 +382,18 @@ func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithInvalidJSONBody_Retur
 	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
+
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
 		{
 			Key:   "username",
 			Value: "username",
-		},
-		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
 		},
 	}
 
@@ -309,17 +413,18 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorVerifyingUserR
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
+
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
 		{
 			Key:   "username",
 			Value: "username",
-		},
-		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
 		},
 	}
 
@@ -338,17 +443,17 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorVerifyingUse
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -367,17 +472,17 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithFalseResultVerifyingUserR
 	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorUpdatingUserRole_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithClientErrorUpdatingUserRole_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -399,17 +504,17 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithClientErrorUpdatingUserRo
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorUpdatingUserRole_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithInternalErrorUpdatingUserRole_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -429,17 +534,17 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithInternalErrorUpdatingUser
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestPutUserRole_WithNoErrors_ReturnsUserData() {
+func (suite *UserRoleHandlerTestSuite) TestPutUserRole_WithNoErrors_ReturnsUserData() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -461,38 +566,21 @@ func (suite *UserHandlerTestSuite) TestPutUserRole_WithNoErrors_ReturnsUserData(
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserRoleDataResponse{
-		Username: role.Username,
 		PostUserRoleBody: handlers.PostUserRoleBody{
-			ClientID: role.ClientUID,
+			Username: role.Username,
 			Role:     role.Role,
 		},
 	})
 
-	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
+	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[1].Value, session.Rank)
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserRole", &suite.CRUDMock, role)
-}
-
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithMissingUsername_ReturnsBadRequest() {
-	//arrange
-	params := []httprouter.Param{}
-
-	//act
-	status, res := suite.CoreHandlers.DeleteUserRole(nil, params, nil, &suite.CRUDMock)
-
-	//assert
-	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
 }
 
 func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithErrorParsingClientId_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
-		},
-		{
-			Key:   "client_id",
+			Key:   "id",
 			Value: "invalid",
 		},
 	}
@@ -506,17 +594,34 @@ func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithErrorParsingClient
 	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithMissingUsername_ReturnsBadRequest() {
+	//arrange
+	params := []httprouter.Param{
+		{
+			Key:   "id",
+			Value: uuid.New().String(),
+		},
+	}
+
+	//act
+	status, res := suite.CoreHandlers.DeleteUserRole(nil, params, nil, &suite.CRUDMock)
+
+	//assert
+	suite.Require().Equal(http.StatusBadRequest, status)
+	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+}
+
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -531,17 +636,17 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithClientErrorVerifyingUs
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -555,7 +660,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithInternalErrorVerifying
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	user := models.CreateUser("username", 6, nil)
@@ -566,7 +671,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithFalseResultVerifyingUs
 			Value: user.Username,
 		},
 		{
-			Key:   "client_id",
+			Key:   "id",
 			Value: uuid.New().String(),
 		},
 	}
@@ -581,17 +686,17 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithFalseResultVerifyingUs
 	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithClientErrorDeletingUser_ReturnsBadRequest() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithClientErrorDeletingUser_ReturnsBadRequest() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -608,17 +713,17 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithClientErrorDeletingUse
 	helpers.AssertErrorResponse(&suite.Suite, res, message)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	params := []httprouter.Param{
 		{
-			Key:   "username",
-			Value: "username",
+			Key:   "id",
+			Value: uuid.New().String(),
 		},
 		{
-			Key:   "client_id",
-			Value: uuid.New().String(),
+			Key:   "username",
+			Value: "username",
 		},
 	}
 
@@ -633,7 +738,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithInternalErrorDeletingU
 	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
 }
 
-func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsSuccess() {
+func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsSuccess() {
 	//arrange
 	session := models.CreateNewSession("admin", 5)
 	clientID := uuid.New()
@@ -643,7 +748,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsSucces
 			Value: "username",
 		},
 		{
-			Key:   "client_id",
+			Key:   "id",
 			Value: clientID.String(),
 		},
 	}

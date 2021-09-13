@@ -36,6 +36,9 @@ type UserController interface {
 	// CreateUser creates a new user with the given username, password, and rank.
 	CreateUser(CRUD UserControllerCRUD, username string, password string, rank int) (*models.User, common.CustomError)
 
+	// GetUsersWithLesserRank gets all users with a rank less than the provided one.
+	GetUsersWithLesserRank(CRUD UserControllerCRUD, rank int) ([]*models.User, common.CustomError)
+
 	// UpdateUser updates the fields of the user for the given username.
 	UpdateUser(CRUD UserControllerCRUD, username string, rank int) (*models.User, common.CustomError)
 
@@ -63,6 +66,9 @@ type ClientController interface {
 	// CreateClient creates a new client using the provided model.
 	CreateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
+	// GetClients gets the clients.
+	GetClients(CRUD ClientControllerCRUD) ([]*models.Client, common.CustomError)
+
 	// UpdateClient updates the given client.
 	UpdateClient(CRUD ClientControllerCRUD, client *models.Client) common.CustomError
 
@@ -78,6 +84,9 @@ type UserRoleControllerCRUD interface {
 type UserRoleController interface {
 	// CreateUserRole creates a new user-role using the provided model.
 	CreateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
+
+	// GetUserRolesByClientUID gets the user-roles with the provided client uid and with a rank less than the provided rank.
+	GetUserRolesWithLesserRankByClientUID(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, rank int) ([]*models.UserRole, common.CustomError)
 
 	// UpdateUserRole updates the given user-role.
 	UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError

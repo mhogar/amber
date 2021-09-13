@@ -2,6 +2,7 @@ package router_test
 
 import (
 	"authserver/common"
+	"authserver/config"
 	"authserver/models"
 	"authserver/router"
 	handlermocks "authserver/router/handlers/mocks"
@@ -13,9 +14,12 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
+	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
+
+const MinClientRank = 5
 
 type RouterTestSuite struct {
 	helpers.ScopeFactorySuite
@@ -30,6 +34,12 @@ type RouterTestSuite struct {
 
 	Session *models.Session
 	TokenId string
+}
+
+func (suite *RouterTestSuite) SetupSuite() {
+	viper.Set("permission", config.PermissionConfig{
+		MinClientRank: MinClientRank,
+	})
 }
 
 func (suite *RouterTestSuite) SetupTest() {
@@ -301,6 +311,18 @@ func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_Retur
 	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
 }
 
+func TestGetUsersTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:       "GET",
+			Route:        "/users",
+			Handler:      "GetUsers",
+			ResponseType: router.ResponseTypeJSON,
+		},
+		MinRank: 0,
+	})
+}
+
 func TestPostUserTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
@@ -361,6 +383,18 @@ func TestDeleteUserTestSuite(t *testing.T) {
 	})
 }
 
+func TestGetClientsTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:       "GET",
+			Route:        "/clients",
+			Handler:      "GetClients",
+			ResponseType: router.ResponseTypeJSON,
+		},
+		MinRank: MinClientRank,
+	})
+}
+
 func TestPostClientTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
@@ -369,7 +403,7 @@ func TestPostClientTestSuite(t *testing.T) {
 			Handler:      "PostClient",
 			ResponseType: router.ResponseTypeJSON,
 		},
-		MinRank: 1,
+		MinRank: MinClientRank,
 	})
 }
 
@@ -381,7 +415,7 @@ func TestPutClientTestSuite(t *testing.T) {
 			Handler:      "PutClient",
 			ResponseType: router.ResponseTypeJSON,
 		},
-		MinRank: 1,
+		MinRank: MinClientRank,
 	})
 }
 
@@ -393,7 +427,19 @@ func TestDeleteClientTestSuite(t *testing.T) {
 			Handler:      "DeleteClient",
 			ResponseType: router.ResponseTypeJSON,
 		},
-		MinRank: 1,
+		MinRank: MinClientRank,
+	})
+}
+
+func TestGetUserRolesTestSuite(t *testing.T) {
+	suite.Run(t, &RouterAuthTestSuite{
+		RouterTestSuite: RouterTestSuite{
+			Method:       "GET",
+			Route:        "/client/0/roles",
+			Handler:      "GetUserRoles",
+			ResponseType: router.ResponseTypeJSON,
+		},
+		MinRank: 0,
 	})
 }
 
@@ -401,7 +447,7 @@ func TestPostUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "POST",
-			Route:        "/user/username/role",
+			Route:        "/client/0/role",
 			Handler:      "PostUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},
@@ -413,7 +459,7 @@ func TestPutUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "PUT",
-			Route:        "/user/username/role/0",
+			Route:        "/client/0/role/username",
 			Handler:      "PutUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},
@@ -425,7 +471,7 @@ func TestDeleteUserRoleTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
 			Method:       "DELETE",
-			Route:        "/user/username/role/0",
+			Route:        "/client/0/role/username",
 			Handler:      "DeleteUserRole",
 			ResponseType: router.ResponseTypeJSON,
 		},

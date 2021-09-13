@@ -234,6 +234,29 @@ func (_m *Transaction) GetClientByUID(uid uuid.UUID) (*models.Client, error) {
 	return r0, r1
 }
 
+// GetClients provides a mock function with given fields:
+func (_m *Transaction) GetClients() ([]*models.Client, error) {
+	ret := _m.Called()
+
+	var r0 []*models.Client
+	if rf, ok := ret.Get(0).(func() []*models.Client); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.Client)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetLatestTimestamp provides a mock function with given fields:
 func (_m *Transaction) GetLatestTimestamp() (string, bool, error) {
 	ret := _m.Called()
@@ -331,13 +354,13 @@ func (_m *Transaction) GetUserByUsername(username string) (*models.User, error) 
 	return r0, r1
 }
 
-// GetUserRoleByUsernameAndClientUID provides a mock function with given fields: username, clientUID
-func (_m *Transaction) GetUserRoleByUsernameAndClientUID(username string, clientUID uuid.UUID) (*models.UserRole, error) {
-	ret := _m.Called(username, clientUID)
+// GetUserRoleByClientUIDAndUsername provides a mock function with given fields: clientUID, username
+func (_m *Transaction) GetUserRoleByClientUIDAndUsername(clientUID uuid.UUID, username string) (*models.UserRole, error) {
+	ret := _m.Called(clientUID, username)
 
 	var r0 *models.UserRole
-	if rf, ok := ret.Get(0).(func(string, uuid.UUID) *models.UserRole); ok {
-		r0 = rf(username, clientUID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, string) *models.UserRole); ok {
+		r0 = rf(clientUID, username)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.UserRole)
@@ -345,8 +368,54 @@ func (_m *Transaction) GetUserRoleByUsernameAndClientUID(username string, client
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
-		r1 = rf(username, clientUID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
+		r1 = rf(clientUID, username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUserRolesWithLesserRankByClientUID provides a mock function with given fields: uid, rank
+func (_m *Transaction) GetUserRolesWithLesserRankByClientUID(uid uuid.UUID, rank int) ([]*models.UserRole, error) {
+	ret := _m.Called(uid, rank)
+
+	var r0 []*models.UserRole
+	if rf, ok := ret.Get(0).(func(uuid.UUID, int) []*models.UserRole); ok {
+		r0 = rf(uid, rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.UserRole)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(uuid.UUID, int) error); ok {
+		r1 = rf(uid, rank)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetUsersWithLesserRank provides a mock function with given fields: rank
+func (_m *Transaction) GetUsersWithLesserRank(rank int) ([]*models.User, error) {
+	ret := _m.Called(rank)
+
+	var r0 []*models.User
+	if rf, ok := ret.Get(0).(func(int) []*models.User); ok {
+		r0 = rf(rank)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*models.User)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int) error); ok {
+		r1 = rf(rank)
 	} else {
 		r1 = ret.Error(1)
 	}
