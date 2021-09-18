@@ -2,13 +2,14 @@ package models_test
 
 import (
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 )
 
 type MigrationTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	Migration *models.Migration
 }
 

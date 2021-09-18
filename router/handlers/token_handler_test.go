@@ -3,7 +3,6 @@ package handlers_test
 import (
 	"authserver/common"
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"net/url"
 	"testing"
@@ -28,13 +27,13 @@ func (suite *TokenHandlerTestSuite) AssertTokenViewRenderedWithData(clientID str
 	data := suite.RenderViewData.(handlers.TokenViewData)
 	suite.Equal(viper.GetString("app_name"), data.AppName)
 	suite.Equal(clientID, data.ClientID)
-	helpers.AssertContainsSubstrings(&suite.Suite, data.Error, errSubStrings...)
+	suite.ContainsSubstrings(data.Error, errSubStrings...)
 }
 
 func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {
 	//arrange
 	clientID := uuid.New().String()
-	req := helpers.CreateRequest(&suite.Suite, "", "/token?client_id="+clientID, "", nil)
+	req := suite.CreateRequest("", "/token?client_id="+clientID, "", nil)
 
 	//act
 	status, res := suite.CoreHandlers.GetToken(req, nil, nil, nil)
@@ -53,7 +52,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithErrorParsingClientId_Rende
 		"username":  []string{"username"},
 		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
+	req := suite.CreateDummyFormRequest(values)
 
 	//act
 	status, res := suite.CoreHandlers.PostToken(req, nil, nil, &suite.CRUDMock)
@@ -72,7 +71,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRe
 		"username":  []string{"username"},
 		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
+	req := suite.CreateDummyFormRequest(values)
 
 	message := "create token error"
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.ClientError(message))
@@ -94,7 +93,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken
 		"username":  []string{"username"},
 		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
+	req := suite.CreateDummyFormRequest(values)
 
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", common.InternalError())
 
@@ -115,7 +114,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect()
 		"username":  []string{"username"},
 		"password":  []string{"password"},
 	}
-	req := helpers.CreateDummyFormRequest(&suite.Suite, values)
+	req := suite.CreateDummyFormRequest(values)
 
 	redirectUrl := "redirect.com"
 	suite.ControllersMock.On("CreateTokenRedirectURL", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(redirectUrl, common.NoError())

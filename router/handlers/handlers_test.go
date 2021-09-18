@@ -5,13 +5,13 @@ import (
 	datamocks "authserver/data/mocks"
 	"authserver/router/handlers"
 	renderermocks "authserver/router/renderer/mocks"
+	"authserver/testing/helpers"
 
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
 type HandlersTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	CRUDMock        datamocks.DataCRUD
 	ControllersMock controllermocks.Controllers
 	RendererMock    renderermocks.Renderer

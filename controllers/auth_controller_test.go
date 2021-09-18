@@ -4,7 +4,6 @@ import (
 	"authserver/controllers"
 	"authserver/controllers/password_helpers/mocks"
 	"authserver/models"
-	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -39,7 +38,7 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithError
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WhereUserWithUsernameIsNotFound_ReturnsClientError() {
@@ -54,7 +53,7 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WhereUser
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password")
+	suite.CustomClientError(cerr, "invalid", "username", "password")
 }
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WherePasswordDoesNotMatch_ReturnsClientError() {
@@ -70,7 +69,7 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WherePass
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password")
+	suite.CustomClientError(cerr, "invalid", "username", "password")
 }
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithNoErrors_ReturnsNoError() {
@@ -89,7 +88,7 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithNoErr
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", existingUser.PasswordHash, password)
 
 	suite.Equal(existingUser, user)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func TestAuthControllerTestSuite(t *testing.T) {

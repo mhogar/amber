@@ -5,7 +5,6 @@ import (
 	"authserver/controllers"
 	"authserver/controllers/mocks"
 	"authserver/models"
-	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -55,7 +54,7 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithErrorSavingSessio
 
 	//assert
 	suite.Nil(session)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestCreateSession_WithNoErrors_ReturnsNoError() {
@@ -77,7 +76,7 @@ func (suite *SessionControllerTestSuite) TestCreateSession_WithNoErrors_ReturnsN
 	suite.Equal(user.Username, session.Username)
 	suite.Equal(user.Rank, session.Rank)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteSession_WithErrorDeletingSession_ReturnsInternalError() {
@@ -89,7 +88,7 @@ func (suite *SessionControllerTestSuite) TestDeleteSession_WithErrorDeletingSess
 	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, id)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteSession_WithFalseResultDeletingSession_ReturnsClientError() {
@@ -101,7 +100,7 @@ func (suite *SessionControllerTestSuite) TestDeleteSession_WithFalseResultDeleti
 	cerr := suite.SessionController.DeleteSession(&suite.CRUDMock, id)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "session with id", id.String(), "not found")
+	suite.CustomClientError(cerr, "session with id", id.String(), "not found")
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteSession_WithNoErrors_ReturnsNoError() {
@@ -115,7 +114,7 @@ func (suite *SessionControllerTestSuite) TestDeleteSession_WithNoErrors_ReturnsN
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteSession", id)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithErrorDeletingSessions_ReturnsInternalError() {
@@ -128,7 +127,7 @@ func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithErrorDele
 	cerr := suite.SessionController.DeleteAllUserSessions(&suite.CRUDMock, username)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithNoErrors_ReturnsNoError() {
@@ -143,7 +142,7 @@ func (suite *SessionControllerTestSuite) TestDeleteAllUserSessions_WithNoErrors_
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllUserSessions", username)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithErrorDeletingSessions_ReturnsInternalError() {
@@ -157,7 +156,7 @@ func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithErro
 	cerr := suite.SessionController.DeleteAllOtherUserSessions(&suite.CRUDMock, username, id)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithNoErrors_ReturnsNoError() {
@@ -173,7 +172,7 @@ func (suite *SessionControllerTestSuite) TestDeleteAllOtherUserSessions_WithNoEr
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", username, id)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func TestSessionControllerTestSuite(t *testing.T) {

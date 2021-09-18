@@ -4,7 +4,6 @@ import (
 	"authserver/common"
 	"authserver/models"
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -28,7 +27,7 @@ func (suite *ClientHandlerTestSuite) TestGetClients_WithClientErrorGettingClient
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *ClientHandlerTestSuite) TestGetClients_WithInternalErrorGettingClients_ReturnsInternalServerError() {
@@ -40,7 +39,7 @@ func (suite *ClientHandlerTestSuite) TestGetClients_WithInternalErrorGettingClie
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *ClientHandlerTestSuite) TestGetClients_WithNoErrors_ReturnsClientData() {
@@ -56,7 +55,7 @@ func (suite *ClientHandlerTestSuite) TestGetClients_WithNoErrors_ReturnsClientDa
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.ClientDataResponse{
+	suite.SuccessDataResponse(res, []handlers.ClientDataResponse{
 		{
 			ID: clients[0].UID.String(),
 			PostClientBody: handlers.PostClientBody{
@@ -82,14 +81,14 @@ func (suite *ClientHandlerTestSuite) TestGetClients_WithNoErrors_ReturnsClientDa
 
 func (suite *ClientHandlerTestSuite) TestPostClient_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostClient(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClient_ReturnsBadRequest() {
@@ -100,7 +99,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	message := "create client error"
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.ClientError(message))
@@ -110,7 +109,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithClientErrorCreatingClien
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingClient_ReturnsInternalServerError() {
@@ -121,7 +120,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.InternalError())
 
@@ -130,7 +129,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithInternalErrorCreatingCli
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientData() {
@@ -141,7 +140,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	var client *models.Client
 	suite.ControllersMock.On("CreateClient", mock.Anything, mock.Anything).Return(common.NoError()).Run(func(args mock.Arguments) {
@@ -153,7 +152,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
+	suite.SuccessDataResponse(res, handlers.ClientDataResponse{
 		ID: client.UID.String(),
 		PostClientBody: handlers.PostClientBody{
 			Name:        client.Name,
@@ -168,7 +167,7 @@ func (suite *ClientHandlerTestSuite) TestPostClient_WithNoErrors_ReturnsClientDa
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
+	req := suite.CreateDummyJSONRequest(nil)
 	params := []httprouter.Param{
 		{
 			Key:   "id",
@@ -181,12 +180,12 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithErrorParsingId_ReturnsBad
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
+	suite.ErrorResponse(res, "client id", "invalid format")
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 	params := []httprouter.Param{
 		{
 			Key:   "id",
@@ -199,7 +198,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInvalidJSONBody_ReturnsBa
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient_ReturnsBadRequest() {
@@ -210,7 +209,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	params := []httprouter.Param{
 		{
@@ -227,7 +226,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithClientErrorUpdatingClient
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClient_ReturnsInternalServerError() {
@@ -238,7 +237,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	params := []httprouter.Param{
 		{
@@ -254,7 +253,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithInternalErrorUpdatingClie
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientData() {
@@ -265,7 +264,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 		TokenType:   0,
 		KeyUri:      "key.pem",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	params := []httprouter.Param{
 		{
@@ -284,7 +283,7 @@ func (suite *ClientHandlerTestSuite) TestPutClient_WithNoErrors_ReturnsClientDat
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.ClientDataResponse{
+	suite.SuccessDataResponse(res, handlers.ClientDataResponse{
 		ID: client.UID.String(),
 		PostClientBody: handlers.PostClientBody{
 			Name:        client.Name,
@@ -311,7 +310,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithErrorParsingId_Returns
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "client id", "invalid format")
+	suite.ErrorResponse(res, "client id", "invalid format")
 }
 
 func (suite *ClientHandlerTestSuite) TestDeleteClient_WithClientErrorDeletingUser_ReturnsBadRequest() {
@@ -331,7 +330,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithClientErrorDeletingUse
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *ClientHandlerTestSuite) TestDeleteClient_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
@@ -350,7 +349,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithInternalErrorDeletingU
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSuccess() {
@@ -370,7 +369,7 @@ func (suite *ClientHandlerTestSuite) TestDeleteClient_WithNoErrors_ReturnsSucces
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteClient", &suite.CRUDMock, uid)
 }

@@ -12,7 +12,7 @@ import (
 )
 
 type MigrationRunnerTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	helpers.ScopeFactorySuite
 	MigrationRunnerFactoryMock mocks.MigrationRunnerFactory
 	MigrationRunnerMock        mocks.MigrationRunner

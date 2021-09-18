@@ -10,7 +10,7 @@ import (
 )
 
 type UserTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	User *models.User
 }
 

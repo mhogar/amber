@@ -2,13 +2,14 @@ package passwordhelpers_test
 
 import (
 	passwordhelpers "authserver/controllers/password_helpers"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 )
 
 type BCryptPasswordHasherTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	BCryptPasswordHasher passwordhelpers.BCryptPasswordHasher
 }
 

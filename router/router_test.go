@@ -63,7 +63,7 @@ func (suite *RouterTestSuite) TearDownTest() {
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsInternalServerError() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(errors.New(""))
 
@@ -72,12 +72,12 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromDataExecutorScope_ReturnsIn
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInternalServerErrorResponse(res)
 }
 
 func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErrorToDataExecutorScope() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 	message := "TransactionScope error"
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope_WithCallback(nil, func(err error) {
@@ -95,7 +95,7 @@ func (suite *RouterTestSuite) TestRoute_WithErrorFromTransactionScope_ReturnsErr
 
 func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponseAndReturnsFailureToTransactionScope() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -122,16 +122,16 @@ func (suite *RouterTestSuite) TestRoute_WithNonOKStatusFromHandler_SendsResponse
 
 	//assert
 	if suite.ResponseType == router.ResponseTypeJSON {
-		helpers.ParseAndAssertErrorResponse(&suite.Suite, res, status, message)
+		suite.ParseAndAssertErrorResponse(res, status, message)
 	} else {
-		helpers.ReadAndAssertRawResponse(&suite.Suite, res, status, body.([]byte))
+		suite.ReadAndAssertRawResponse(res, status, body.([]byte))
 	}
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
 func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedirectResponseAndReturnsSuccessToTransactionScope() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -155,7 +155,7 @@ func (suite *RouterTestSuite) TestRoute_WithRedirectStatusFromHandler_SendsRedir
 
 func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAndReturnsSuccessToTransactionScope() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -180,16 +180,16 @@ func (suite *RouterTestSuite) TestRoute_WithOKStatusFromHandler_SendsResponseAnd
 
 	//assert
 	if suite.ResponseType == router.ResponseTypeJSON {
-		helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+		suite.ParseAndAssertOKSuccessResponse(res)
 	} else {
-		helpers.ReadAndAssertRawResponse(&suite.Suite, res, status, body.([]byte))
+		suite.ReadAndAssertRawResponse(res, status, body.([]byte))
 	}
 	suite.HandlersMock.AssertCalled(suite.T(), suite.Handler, mock.Anything, mock.Anything, mock.Anything, &suite.TransactionMock)
 }
 
 func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServerError() {
 	//arrange
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(suite.Session, nil)
@@ -204,7 +204,7 @@ func (suite *RouterTestSuite) TestRoute_WhereHandlerPanics_ReturnsInternalServer
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInternalServerErrorResponse(res)
 }
 
 type RouterAuthTestSuite struct {
@@ -233,10 +233,10 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 		suite.Require().NoError(err)
 
 		//assert
-		helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "no bearer token")
+		suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized, "no bearer token")
 	}
 
-	req = helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, "", nil)
+	req = suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, "", nil)
 	suite.Run("NoAuthorizationHeader", testCase)
 
 	req.Header.Set("Authorization", "invalid")
@@ -246,7 +246,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_ReturnsUnauthorized() {
 	//arrange
 
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, "invalid", nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, "invalid", nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.SetupScopeFactoryMock_CreateTransactionScope(nil)
@@ -256,13 +256,13 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid format")
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized, "bearer token", "invalid format")
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsInternalServerError() {
 	//arrange
 
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, errors.New(""))
@@ -273,13 +273,13 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsI
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInternalServerErrorResponse(res)
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_ReturnsUnauthorized() {
 	//arrange
 
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
 	suite.DataExecutorMock.On("GetSessionByToken", mock.Anything).Return(nil, nil)
@@ -290,13 +290,13 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized, "bearer token", "invalid", "expired")
 }
 
 func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_ReturnsForbidden() {
 	//arrange
 
-	req := helpers.CreateJSONRequest(&suite.Suite, suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
+	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 	session := models.CreateNewSession("username", suite.MinRank-1)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
@@ -308,7 +308,7 @@ func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_Retur
 	suite.Require().NoError(err)
 
 	//assert
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 }
 
 func TestGetUsersTestSuite(t *testing.T) {

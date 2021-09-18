@@ -2,7 +2,6 @@ package integration_test
 
 import (
 	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -22,7 +21,7 @@ func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_Retur
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
+	suite.ContainsSubstrings(err.Error(), "error", "user-role model")
 }
 
 func (suite *UserRoleCRUDTestSuite) TestGetUserRolesWithLesserRankByClientUID_GetsTheUserRolesWithLesserRankAndClientUIDOrderedByUsername() {
@@ -79,7 +78,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_Retur
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user-role model")
+	suite.ContainsSubstrings(err.Error(), "error", "user-role model")
 }
 
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WhereUserRoleIsNotFound_ReturnsFalseResult() {

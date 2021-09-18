@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -29,7 +28,7 @@ func (suite *E2ETestSuite) CreateUser(token string, username string, rank int) U
 	}
 
 	res := suite.SendCreateUserRequest(token, username, newUser.Password, rank)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 
 	return newUser
 }
@@ -62,7 +61,7 @@ func (suite *E2ETestSuite) SendDeleteUserRequest(token string, username string) 
 
 func (suite *E2ETestSuite) DeleteUser(token string, username string) {
 	res := suite.SendDeleteUserRequest(token, username)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 }
 
 type UserE2ETestSuite struct {
@@ -82,47 +81,47 @@ func (suite *UserE2ETestSuite) TearDownSuite() {
 
 func (suite *UserE2ETestSuite) TestGetUsers_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendGetUsersRequest("")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendCreateUserRequest("", "new_user", "Password123!", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithRankLessThanUser_ReturnsForbidden() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "", "", 11)
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithInvalidBody_ReturnsBadRequest() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "", "", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "username", "cannot be empty")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "username", "cannot be empty")
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsBadRequest() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, suite.ExistingUser.Username, "Password123!", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "username", "already in use")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "username", "already in use")
 }
 
 func (suite *UserE2ETestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsBadRequest() {
 	res := suite.SendCreateUserRequest(suite.AdminToken, "new_user", "invalid", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "password", "does not meet", "criteria")
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendUpdateUserRequest("", suite.ExistingUser.Username, 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithRankLessThanNewUserRank_ReturnsForbidden() {
 	res := suite.SendUpdateUserRequest(suite.AdminToken, suite.ExistingUser.Username, 11)
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WhereUsernameDoesNotExist_ReturnsBadRequest() {
 	res := suite.SendUpdateUserRequest(suite.AdminToken, "DNE", 0)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "user", "not found")
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithRankLessThanCurrentUserRank_ReturnsForbidden() {
@@ -131,7 +130,7 @@ func (suite *UserE2ETestSuite) TestUpdateUser_WithRankLessThanCurrentUserRank_Re
 
 	//update user
 	res := suite.SendUpdateUserRequest(token, suite.Admin.Username, 0)
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 
 	//logout
 	suite.Logout(token)
@@ -139,12 +138,12 @@ func (suite *UserE2ETestSuite) TestUpdateUser_WithRankLessThanCurrentUserRank_Re
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithInvalidBody_ReturnsBadRequest() {
 	res := suite.SendUpdateUserRequest(suite.AdminToken, suite.ExistingUser.Username, -1)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "rank", "invalid")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "rank", "invalid")
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUser_WithValidRequest_ReturnsSuccess() {
 	res := suite.SendUpdateUserRequest(suite.AdminToken, suite.ExistingUser.Username, 0)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 }
 
 func (suite *UserE2ETestSuite) TestUpdatePassword_WhereOldPasswordIsIncorrect_ReturnsBadRequest() {
@@ -153,7 +152,7 @@ func (suite *UserE2ETestSuite) TestUpdatePassword_WhereOldPasswordIsIncorrect_Re
 
 	//update user password
 	res := suite.SendUpdatePasswordRequest(token, "incorrect", "Password1234!")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "old password", "incorrect")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "old password", "incorrect")
 
 	//logout
 	suite.Logout(token)
@@ -165,7 +164,7 @@ func (suite *UserE2ETestSuite) TestUpdatePassword_WhereNewPasswordDoesNotMeetCri
 
 	//update user password
 	res := suite.SendUpdatePasswordRequest(token, suite.ExistingUser.Password, "invalid")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "password", "does not meet", "criteria")
 
 	//logout
 	suite.Logout(token)
@@ -177,7 +176,7 @@ func (suite *UserE2ETestSuite) TestUpdatePassword_WithValidRequest_ReturnsSucces
 
 	//update user password
 	res := suite.SendUpdatePasswordRequest(token, suite.ExistingUser.Password, suite.ExistingUser.Password)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 
 	//logout
 	suite.Logout(token)
@@ -185,12 +184,12 @@ func (suite *UserE2ETestSuite) TestUpdatePassword_WithValidRequest_ReturnsSucces
 
 func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendUpdateUserPasswordRequest("", "", "")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUserPassword_WhereUsernameDoesNotExist_ReturnsBadRequest() {
 	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, "DNE", "")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "user", "not found")
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithRankLessThanUser_ReturnsForbidden() {
@@ -199,7 +198,7 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithRankLessThanUser_Retur
 
 	//update user password
 	res := suite.SendUpdateUserPasswordRequest(token, suite.Admin.Username, "")
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 
 	//logout
 	suite.Logout(token)
@@ -207,22 +206,22 @@ func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithRankLessThanUser_Retur
 
 func (suite *UserE2ETestSuite) TestUpdateUserPassword_WherePasswordDoesNotMeetCriteria_ReturnsBadRequest() {
 	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, suite.ExistingUser.Username, "invalid")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "password", "does not meet", "criteria")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "password", "does not meet", "criteria")
 }
 
 func (suite *UserE2ETestSuite) TestUpdateUserPassword_WithValidRequest_ReturnsSuccess() {
 	res := suite.SendUpdateUserPasswordRequest(suite.AdminToken, suite.ExistingUser.Username, suite.ExistingUser.Password)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 }
 
 func (suite *UserE2ETestSuite) TestDeleteUser_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendDeleteUserRequest("", suite.ExistingUser.Username)
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func (suite *UserE2ETestSuite) TestDeleteUser_WhereUsernameDoesNotExist_ReturnsBadRequest() {
 	res := suite.SendDeleteUserRequest(suite.AdminToken, "DNE")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "user", "not found")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "user", "not found")
 }
 
 func (suite *UserE2ETestSuite) TestDeleteUser_WithRankLessThanUser_ReturnsForbidden() {
@@ -231,7 +230,7 @@ func (suite *UserE2ETestSuite) TestDeleteUser_WithRankLessThanUser_ReturnsForbid
 
 	//delete user
 	res := suite.SendDeleteUserRequest(token, suite.Admin.Username)
-	helpers.ParseAndAssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 
 	//logout
 	suite.Logout(token)

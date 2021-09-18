@@ -3,6 +3,7 @@ package passwordhelpers_test
 import (
 	"authserver/config"
 	passwordhelpers "authserver/controllers/password_helpers"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/spf13/viper"
@@ -10,7 +11,7 @@ import (
 )
 
 type ConfigPasswordCriteriaValidatorTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	ConfigPasswordCriteriaValidator passwordhelpers.ConfigPasswordCriteriaValidator
 	Criteria                        config.PasswordCriteriaConfig
 }

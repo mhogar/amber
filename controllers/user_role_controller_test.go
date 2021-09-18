@@ -33,7 +33,7 @@ func (suite *UserRoleControllerTestSuite) runValidateUserRoleTestCases(validateF
 		cerr := validateFunc(role)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "role", "cannot be empty")
+		suite.CustomClientError(cerr, "role", "cannot be empty")
 	})
 
 	suite.Run("RoleTooLong_ReturnsClientError", func() {
@@ -44,7 +44,7 @@ func (suite *UserRoleControllerTestSuite) runValidateUserRoleTestCases(validateF
 		cerr := validateFunc(role)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "role", "cannot be longer", fmt.Sprint(models.UserRoleRoleMaxLength))
+		suite.CustomClientError(cerr, "role", "cannot be longer", fmt.Sprint(models.UserRoleRoleMaxLength))
 	})
 }
 
@@ -63,7 +63,7 @@ func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithErrorGettingUse
 	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserRoleControllerTestSuite) TestCreateUser_WhereUserAlreadyHasRoleForClient_ReturnsClientError() {
@@ -75,7 +75,7 @@ func (suite *UserRoleControllerTestSuite) TestCreateUser_WhereUserAlreadyHasRole
 	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "user", "already has a role", "client")
+	suite.CustomClientError(cerr, "user", "already has a role", "client")
 }
 
 func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithErrorCreatingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
@@ -89,7 +89,7 @@ func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithErrorCreatingUs
 	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithNoErrors_ReturnsNoError() {
@@ -103,7 +103,7 @@ func (suite *UserRoleControllerTestSuite) TestCreateUserRole_WithNoErrors_Return
 	cerr := suite.UserRoleController.CreateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRoleByClientUIDAndUsername", role.ClientUID, role.Username)
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateUserRole", role)
@@ -118,7 +118,7 @@ func (suite *UserRoleControllerTestSuite) TestGetUserRolesWithLesserRankByClient
 
 	//assert
 	suite.Nil(clients)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserRoleControllerTestSuite) TestGetUserRolesWithLesserRankByClientUID_WithNoErrors_ReturnsUserRoles() {
@@ -134,7 +134,7 @@ func (suite *UserRoleControllerTestSuite) TestGetUserRolesWithLesserRankByClient
 
 	//assert
 	suite.Equal(roles, resultRoles)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRolesWithLesserRankByClientUID", clientUID, rank)
 }
 
@@ -153,7 +153,7 @@ func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithErrorUpdatingUs
 	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithFalseResultUpdatingUserRole_ReturnsClientError() {
@@ -165,7 +165,7 @@ func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithFalseResultUpda
 	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "no role found", role.Username, role.Role)
+	suite.CustomClientError(cerr, "no role found", role.Username, role.Role)
 }
 
 func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithNoErrors_ReturnsNoError() {
@@ -177,7 +177,7 @@ func (suite *UserRoleControllerTestSuite) TestUpdateUserRole_WithNoErrors_Return
 	cerr := suite.UserRoleController.UpdateUserRole(&suite.CRUDMock, role)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserRole", role)
 }
 
@@ -189,7 +189,7 @@ func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithErrorDeletingUs
 	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, "username", uuid.New())
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithFalseResultDeletingUserRole_ReturnsClientError() {
@@ -203,7 +203,7 @@ func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithFalseResultDele
 	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "no role found", username, clientUID.String())
+	suite.CustomClientError(cerr, "no role found", username, clientUID.String())
 }
 
 func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsNoError() {
@@ -217,7 +217,7 @@ func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithNoErrors_Return
 	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUserRole", username, clientUID)
 }
 

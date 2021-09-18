@@ -2,7 +2,6 @@ package integration_test
 
 import (
 	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -18,7 +17,7 @@ func (suite *UserCRUDTestSuite) TestCreateUser_WithInvalidUser_ReturnsError() {
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user model")
+	suite.ContainsSubstrings(err.Error(), "error", "user model")
 }
 
 func (suite *UserCRUDTestSuite) TestCreateUser_WithNilPasswordHash_ReturnsError() {
@@ -27,7 +26,7 @@ func (suite *UserCRUDTestSuite) TestCreateUser_WithNilPasswordHash_ReturnsError(
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "password hash", "cannot be nil")
+	suite.ContainsSubstrings(err.Error(), "password hash", "cannot be nil")
 }
 
 func (suite *UserCRUDTestSuite) TestGetUsersWithLesserRank_GetsTheUsersWithLesserRankOrderedByUsername() {
@@ -74,7 +73,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUser_WithInvalidUser_ReturnsError() {
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "user model")
+	suite.ContainsSubstrings(err.Error(), "error", "user model")
 }
 
 func (suite *UserCRUDTestSuite) TestUpdateUser_WhereUserIsNotFound_ReturnsFalseResult() {
@@ -109,7 +108,7 @@ func (suite *UserCRUDTestSuite) TestUpdateUserPassword_WithNilHash_ReturnsError(
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "password hash", "cannot be nil")
+	suite.ContainsSubstrings(err.Error(), "password hash", "cannot be nil")
 }
 
 func (suite *UserCRUDTestSuite) TestUpdateUserPassword_WhereUserIsNotFound_ReturnsFalseResult() {

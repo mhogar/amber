@@ -2,12 +2,11 @@ package controllers_test
 
 import (
 	datamocks "authserver/data/mocks"
-
-	"github.com/stretchr/testify/suite"
+	"authserver/testing/helpers"
 )
 
 type ControllerTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	CRUDMock datamocks.DataCRUD
 }
 

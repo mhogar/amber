@@ -3,13 +3,14 @@ package server_test
 import (
 	routermocks "authserver/router/mocks"
 	"authserver/server"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 )
 
 type ServerTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	RouterFactoryMock routermocks.RouterFactory
 }
 

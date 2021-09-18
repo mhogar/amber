@@ -2,7 +2,6 @@ package integration_test
 
 import (
 	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -19,7 +18,7 @@ func (suite *SessionCRUDTestSuite) TestSaveSession_WithInvalidSession_ReturnsErr
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "session model")
+	suite.ContainsSubstrings(err.Error(), "error", "session model")
 }
 
 func (suite *SessionCRUDTestSuite) TestGetSessionById_WhereSessionNotFound_ReturnsNilSession() {
