@@ -64,6 +64,6 @@ func Run(name string) error {
 		return err
 	}
 
-	//write to file (permissions read & write)
+	//write to file (permissions read and write)
 	return ioutil.WriteFile(filename, data, 0666)
 }

@@ -24,7 +24,8 @@ type MigrationCRUD interface {
 	GetMigrationByTimestamp(timestamp string) (*Migration, error)
 }
 
-func CreateNewMigration(timestamp string) *Migration {
+// CreateMigration creates a new migration model with the provided fields.
+func CreateMigration(timestamp string) *Migration {
 	return &Migration{
 		Timestamp: timestamp,
 	}
@@ -35,6 +36,7 @@ func CreateNewMigration(timestamp string) *Migration {
 func (m Migration) Validate() int {
 	code := ValidateMigrationValid
 
+	//validate timestamp
 	matched, _ := regexp.MatchString(`^\d{3}$`, m.Timestamp)
 	if !matched {
 		code |= ValidateMigrationInvalidTimestamp

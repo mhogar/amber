@@ -25,8 +25,8 @@ type RouterFactory interface {
 }
 
 type CoreRouterFactory struct {
-	CoreScopeFactory data.ScopeFactory
-	Handlers         handlers.Handlers
+	ScopeFactory data.ScopeFactory
+	Handlers     handlers.Handlers
 }
 
 func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
@@ -76,14 +76,15 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int,
 		var session *models.Session
 		var cerr common.CustomError
 
-		err := rf.CoreScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
+		err := rf.ScopeFactory.CreateDataExecutorScope(func(exec data.DataExecutor) error {
 			//authenticate the user if required
 			if authenticateUser {
 				session, cerr = rf.getSession(exec, req)
 				if cerr.Type == common.ErrorTypeClient {
 					sendErrorResponse(w, http.StatusUnauthorized, cerr.Error())
 					return nil
-				} else if cerr.Type == common.ErrorTypeInternal {
+				}
+				if cerr.Type == common.ErrorTypeInternal {
 					sendInternalErrorResponse(w)
 					return nil
 				}
@@ -96,7 +97,7 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int,
 			}
 
 			//handle route in transaction scope
-			return rf.CoreScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
+			return rf.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
 				status, data := handler(req, params, session, tx)
 
 				//handle special redirect case
@@ -124,7 +125,7 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int,
 	}
 }
 
-func (rf CoreRouterFactory) getSession(CRUD models.SessionCRUD, req *http.Request) (*models.Session, common.CustomError) {
+func (CoreRouterFactory) getSession(CRUD models.SessionCRUD, req *http.Request) (*models.Session, common.CustomError) {
 	//extract the token string from the authorization header
 	splitTokens := strings.Split(req.Header.Get("Authorization"), "Bearer ")
 	if len(splitTokens) != 2 {

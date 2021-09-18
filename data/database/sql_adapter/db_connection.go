@@ -6,18 +6,15 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-
-	"github.com/spf13/viper"
 )
 
 // OpenConnection opens the connection to SQL database server using the fields from the database config.
 // Initializes the adapter's context and cancel function, as well as its db instance.
 // Returns any errors.
 func (a *SQLAdapter) OpenConnection() error {
-	//load the database config
-	dbConfig := viper.Get("database").(config.DatabaseConfig)
+	dbConfig := config.GetDatabaseConfig()
 
-	//get conection string
+	//get connection string
 	connectionStr, ok := dbConfig.ConnectionStrings[a.DbKey]
 	if !ok {
 		return errors.New("no connection string found for database key " + a.DbKey)

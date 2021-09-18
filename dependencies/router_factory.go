@@ -6,15 +6,15 @@ import (
 )
 
 var createRouterFactoryOnce sync.Once
-var routerFactory router.CoreRouterFactory
+var routerFactory router.RouterFactory
 
-// ResolveRouterFactory resolves the CoreRouterFactory dependency.
-// Only the first call to this function will create a new CoreRouterFactory, after which it will be retrieved from memory.
+// ResolveRouterFactory resolves the RouterFactory dependency.
+// Only the first call to this function will create a new RouterFactory, after which it will be retrieved from memory.
 func ResolveRouterFactory() router.RouterFactory {
 	createRouterFactoryOnce.Do(func() {
 		routerFactory = router.CoreRouterFactory{
-			CoreScopeFactory: ResolveScopeFactory(),
-			Handlers:         ResolveHandlers(),
+			ScopeFactory: ResolveScopeFactory(),
+			Handlers:     ResolveHandlers(),
 		}
 	})
 	return routerFactory

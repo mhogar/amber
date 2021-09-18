@@ -50,8 +50,8 @@ func (suite *RouterTestSuite) SetupTest() {
 	suite.TokenId = ""
 
 	rf := router.CoreRouterFactory{
-		CoreScopeFactory: &suite.ScopeFactoryMock,
-		Handlers:         &suite.HandlersMock,
+		ScopeFactory: &suite.ScopeFactoryMock,
+		Handlers:     &suite.HandlersMock,
 	}
 	suite.Router = rf.CreateRouter()
 	suite.Server = httptest.NewServer(suite.Router)

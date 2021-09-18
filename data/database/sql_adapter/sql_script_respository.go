@@ -1,6 +1,6 @@
 package sqladapter
 
-// SQLScriptRepository is an interface for encapsulating other sql script repository.
+// SQLScriptRepository is an interface for encapsulating other sql script repositories.
 type SQLScriptRepository interface {
 	SessionScriptRepository
 	ClientScriptRepository

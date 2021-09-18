@@ -14,7 +14,7 @@ type MigrationTestSuite struct {
 }
 
 func (suite *MigrationTestSuite) SetupTest() {
-	suite.Migration = models.CreateNewMigration(
+	suite.Migration = models.CreateMigration(
 		"001",
 	)
 }
@@ -24,7 +24,7 @@ func (suite *MigrationTestSuite) TestCreateNewMigration_CreatesMigrationWithSupp
 	timestamp := "this is a timestamp"
 
 	//act
-	migration := models.CreateNewMigration(timestamp)
+	migration := models.CreateMigration(timestamp)
 
 	//assert
 	suite.Require().NotNil(migration)

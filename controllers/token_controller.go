@@ -32,7 +32,8 @@ func (c CoreTokenController) CreateTokenRedirectURL(CRUD TokenControllerCRUD, cl
 	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, password)
 	if cerr.Type == common.ErrorTypeClient {
 		return "", common.ClientError("invalid username and/or password, or user is not assigned to the client")
-	} else if cerr.Type != common.ErrorTypeNone {
+	}
+	if cerr.Type != common.ErrorTypeNone {
 		return "", cerr
 	}
 

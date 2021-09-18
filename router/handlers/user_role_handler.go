@@ -11,6 +11,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type UserRoleDataResponse struct {
+	PostUserRoleBody
+}
+
 func (h CoreHandlers) GetUserRoles(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the client id
 	clientID, err := uuid.Parse(params.ByName("id"))
@@ -34,10 +38,6 @@ func (h CoreHandlers) GetUserRoles(_ *http.Request, params httprouter.Params, se
 		data[index] = h.newUserRoleDataResponse(role)
 	}
 	return common.NewSuccessDataResponse(data)
-}
-
-type UserRoleDataResponse struct {
-	PostUserRoleBody
 }
 
 type PostUserRoleBody struct {

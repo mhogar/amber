@@ -15,7 +15,6 @@ type SessionDataResponse struct {
 	Username string `json:"username"`
 }
 
-// PostSessionBody is the struct the body of requests to PostSession should be parsed into.
 type PostSessionBody struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -40,7 +39,7 @@ func (h CoreHandlers) PostSession(req *http.Request, _ httprouter.Params, _ *mod
 		return common.NewInternalServerErrorResponse()
 	}
 
-	return newSessionDataResponse(session)
+	return h.newSessionDataResponse(session)
 }
 
 func (h CoreHandlers) DeleteSession(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
@@ -56,7 +55,7 @@ func (h CoreHandlers) DeleteSession(_ *http.Request, _ httprouter.Params, sessio
 	return common.NewSuccessResponse()
 }
 
-func newSessionDataResponse(session *models.Session) (int, common.DataResponse) {
+func (CoreHandlers) newSessionDataResponse(session *models.Session) (int, common.DataResponse) {
 	return common.NewSuccessDataResponse(SessionDataResponse{
 		Token:    session.Token.String(),
 		Username: session.Username,

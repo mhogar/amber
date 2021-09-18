@@ -92,7 +92,8 @@ func (CoreUserRoleController) validateUserRole(role *models.UserRole) common.Cus
 
 	if verr&models.ValidateUserRoleEmptyRole != 0 {
 		return common.ClientError("role cannot be empty")
-	} else if verr&models.ValidateUserRoleRoleTooLong != 0 {
+	}
+	if verr&models.ValidateUserRoleRoleTooLong != 0 {
 		return common.ClientError(fmt.Sprint("role cannot be longer than ", models.UserRoleRoleMaxLength, " characters"))
 	}
 

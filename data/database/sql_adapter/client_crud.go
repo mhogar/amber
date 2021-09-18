@@ -38,9 +38,8 @@ func (crud *SQLCRUD) DropClientTable() error {
 	return err
 }
 
-// CreateClient validates the client model is valid and inserts a new row into the client table.
-// Returns any errors.
 func (crud *SQLCRUD) CreateClient(client *models.Client) error {
+	//validate tbe client model
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
 		return errors.New(fmt.Sprint("error validating client model: ", verr))
@@ -84,8 +83,6 @@ func (crud *SQLCRUD) GetClients() ([]*models.Client, error) {
 	return clients, nil
 }
 
-// GetClientByUID gets the row in the client table with the matching uid, and creates a new client model using its data.
-// Returns the model and any errors.
 func (crud *SQLCRUD) GetClientByUID(uid uuid.UUID) (*models.Client, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetClientByUIDScript(), uid)
@@ -99,9 +96,8 @@ func (crud *SQLCRUD) GetClientByUID(uid uuid.UUID) (*models.Client, error) {
 	return readClientData(rows)
 }
 
-// UpdateClient validates the client model is valid and updates the row in the client table.
-// Returns result of whether the client was found, and any errors.
 func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
+	//validate the client model
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
 		return false, errors.New(fmt.Sprint("error validating client model: ", verr))
@@ -120,8 +116,6 @@ func (crud *SQLCRUD) UpdateClient(client *models.Client) (bool, error) {
 	return count > 0, nil
 }
 
-// DeleteUser deletes the row in the user table with the matching uid.
-// Returns result of whether the client was found, and any errors.
 func (crud *SQLCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteClientScript(), uid)

@@ -23,17 +23,20 @@ func (suite *CustomSuite) ContainsSubstrings(str string, expectedSubStrs ...stri
 	}
 }
 
+// CustomNoError asserts the provided custom error has type none.
 func (suite *CustomSuite) CustomNoError(err common.CustomError) {
 	suite.Require().NotNil(err)
 	suite.Equal(common.ErrorTypeNone, err.Type)
 }
 
+// CustomNoError asserts the provided custom error has type client and its message contains the all expected sub strings.
 func (suite *CustomSuite) CustomClientError(err common.CustomError, expectedSubStrs ...string) {
 	suite.Require().NotNil(err)
 	suite.Equal(common.ErrorTypeClient, err.Type)
 	suite.ContainsSubstrings(err.Error(), expectedSubStrs...)
 }
 
+// CustomNoError asserts the provided custom error has type internal and an internal error message.
 func (suite *CustomSuite) CustomInternalError(err common.CustomError) {
 	suite.Require().NotNil(err)
 	suite.Equal(common.ErrorTypeInternal, err.Type)
