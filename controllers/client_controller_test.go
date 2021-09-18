@@ -28,7 +28,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client name", "cannot be empty")
+		suite.CustomClientError(cerr, "client name", "cannot be empty")
 	})
 
 	suite.Run("NameGreaterThanMax_ReturnsClientError", func() {
@@ -39,7 +39,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client name", "cannot be longer", fmt.Sprint(models.ClientNameMaxLength))
+		suite.CustomClientError(cerr, "client name", "cannot be longer", fmt.Sprint(models.ClientNameMaxLength))
 	})
 
 	suite.Run("EmptyRedirectUrl_ReturnsClientError", func() {
@@ -50,7 +50,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be empty")
+		suite.CustomClientError(cerr, "client redirect url", "cannot be empty")
 	})
 
 	suite.Run("RedirectUrlGreaterThanMax_ReturnsClientError", func() {
@@ -61,7 +61,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
+		suite.CustomClientError(cerr, "client redirect url", "cannot be longer", fmt.Sprint(models.ClientRedirectUrlMaxLength))
 	})
 
 	suite.Run("InvalidRedirectUrl_ReturnsClientError", func() {
@@ -72,7 +72,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client redirect url", "invalid url")
+		suite.CustomClientError(cerr, "client redirect url", "invalid url")
 	})
 
 	suite.Run("InvalidTokenType_ReturnsClientError", func() {
@@ -83,7 +83,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client token type", "invalid")
+		suite.CustomClientError(cerr, "client token type", "invalid")
 	})
 
 	suite.Run("EmptyKeyUri_ReturnsClientError", func() {
@@ -94,7 +94,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client key uri", "cannot be empty")
+		suite.CustomClientError(cerr, "client key uri", "cannot be empty")
 	})
 
 	suite.Run("KeyUriGreaterThanMax_ReturnsClientError", func() {
@@ -105,7 +105,7 @@ func (suite *ClientControllerTestSuite) runValidateClientTestCases(validateFunc 
 		cerr := validateFunc(client)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "client key uri", "cannot be longer", fmt.Sprint(models.ClientKeyUriMaxLength))
+		suite.CustomClientError(cerr, "client key uri", "cannot be longer", fmt.Sprint(models.ClientKeyUriMaxLength))
 	})
 }
 
@@ -124,7 +124,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithErrorSavingClient_R
 	cerr := suite.ClientController.CreateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoError() {
@@ -137,7 +137,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoE
 
 	//assert
 	suite.Require().NotNil(client)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
 }
 
@@ -150,7 +150,7 @@ func (suite *ClientControllerTestSuite) TestGetClients_WithErrorGettingClients_R
 
 	//assert
 	suite.Nil(clients)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *ClientControllerTestSuite) TestGetClients_WithNoErrors_ReturnsClients() {
@@ -163,7 +163,7 @@ func (suite *ClientControllerTestSuite) TestGetClients_WithNoErrors_ReturnsClien
 
 	//assert
 	suite.Equal(clients, resultClients)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClients")
 }
 
@@ -182,7 +182,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithErrorUpdatingClient
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdatingClient_ReturnsClientError() {
@@ -194,7 +194,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithFalseResultUpdating
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "client with id", client.UID.String(), "not found")
+	suite.CustomClientError(cerr, "client with id", client.UID.String(), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoError() {
@@ -206,7 +206,7 @@ func (suite *ClientControllerTestSuite) TestUpdateClient_WithNoErrors_ReturnsNoE
 	cerr := suite.ClientController.UpdateClient(&suite.CRUDMock, client)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateClient", client)
 }
 
@@ -218,7 +218,7 @@ func (suite *ClientControllerTestSuite) TestDeleteClient_WithErrorDeletingClient
 	cerr := suite.ClientController.DeleteClient(&suite.CRUDMock, uuid.Nil)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithFalseResultDeletingClient_ReturnsClientError() {
@@ -230,7 +230,7 @@ func (suite *ClientControllerTestSuite) TestDeleteClient_WithFalseResultDeleting
 	cerr := suite.ClientController.DeleteClient(&suite.CRUDMock, uid)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "client with id", uid.String(), "not found")
+	suite.CustomClientError(cerr, "client with id", uid.String(), "not found")
 }
 
 func (suite *ClientControllerTestSuite) TestDeleteClient_WithNoErrors_ReturnsNoError() {
@@ -242,7 +242,7 @@ func (suite *ClientControllerTestSuite) TestDeleteClient_WithNoErrors_ReturnsNoE
 	cerr := suite.ClientController.DeleteClient(&suite.CRUDMock, uid)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteClient", uid)
 }
 

@@ -3,13 +3,14 @@ package jwthelpers_test
 import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/models"
+	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
 )
 
 type TokenFactorySelectorTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	TokenFactorySelector jwthelpers.CoreTokenFactorySelector
 }
 

@@ -11,7 +11,7 @@ import (
 )
 
 type UserRoleTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	UserRole *models.UserRole
 }
 

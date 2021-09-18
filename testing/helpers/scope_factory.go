@@ -5,11 +5,10 @@ import (
 	"authserver/data/mocks"
 
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 )
 
 type ScopeFactorySuite struct {
-	suite.Suite
+	CustomSuite
 	ScopeFactoryMock mocks.ScopeFactory
 	DataExecutorMock mocks.DataExecutor
 	TransactionMock  mocks.Transaction

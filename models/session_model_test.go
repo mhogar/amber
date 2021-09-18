@@ -4,13 +4,14 @@ import (
 	"testing"
 
 	"authserver/models"
+	"authserver/testing/helpers"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 )
 
 type SessionTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	Session *models.Session
 }
 

@@ -5,6 +5,7 @@ import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/controllers/jwt_helpers/mocks"
 	loadermocks "authserver/loaders/mocks"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 )
 
 type DefaultTokenFactoryTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	DataLoaderMock  loadermocks.RawDataLoader
 	TokenSignerMock mocks.TokenSigner
 	TokenFactory    jwthelpers.DefaultTokenFactory

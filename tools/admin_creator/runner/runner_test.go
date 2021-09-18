@@ -13,7 +13,7 @@ import (
 )
 
 type AdminCreatorTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	helpers.ScopeFactorySuite
 	ControllersMock controllermocks.Controllers
 }

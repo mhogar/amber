@@ -5,13 +5,13 @@ import (
 	"authserver/data"
 	"authserver/dependencies"
 	"authserver/models"
+	"authserver/testing/helpers"
 
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/suite"
 )
 
 type CRUDTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	Adapter data.DataAdapter
 	Tx      data.Transaction
 }

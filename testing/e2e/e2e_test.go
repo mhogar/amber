@@ -10,7 +10,6 @@ import (
 	"net/url"
 
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/suite"
 )
 
 type UserCredentials struct {
@@ -19,7 +18,7 @@ type UserCredentials struct {
 }
 
 type E2ETestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	Server *httptest.Server
 
 	AdminToken string
@@ -62,9 +61,9 @@ func (suite *E2ETestSuite) SendRequest(req *http.Request) *http.Response {
 }
 
 func (suite *E2ETestSuite) SendJSONRequest(method string, endpoint string, bearerToken string, body interface{}) *http.Response {
-	return suite.SendRequest(helpers.CreateJSONRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body))
+	return suite.SendRequest(suite.CreateJSONRequest(method, suite.Server.URL+endpoint, bearerToken, body))
 }
 
 func (suite *E2ETestSuite) SendFormRequest(method string, endpoint string, bearerToken string, body url.Values) *http.Response {
-	return suite.SendRequest(helpers.CreateFormRequest(&suite.Suite, method, suite.Server.URL+endpoint, bearerToken, body))
+	return suite.SendRequest(suite.CreateFormRequest(method, suite.Server.URL+endpoint, bearerToken, body))
 }

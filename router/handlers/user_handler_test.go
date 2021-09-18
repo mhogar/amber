@@ -4,7 +4,6 @@ import (
 	"authserver/common"
 	"authserver/models"
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -29,7 +28,7 @@ func (suite *UserHandlerTestSuite) TestGetUsers_WithClientErrorGettingUsers_Retu
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestGetUsers_WithInternalErrorGettingUsers_ReturnsInternalServerError() {
@@ -42,7 +41,7 @@ func (suite *UserHandlerTestSuite) TestGetUsers_WithInternalErrorGettingUsers_Re
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestGetUsers_WithNoErrors_ReturnsUserData() {
@@ -60,7 +59,7 @@ func (suite *UserHandlerTestSuite) TestGetUsers_WithNoErrors_ReturnsUserData() {
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, []handlers.UserDataResponse{
+	suite.SuccessDataResponse(res, []handlers.UserDataResponse{
 		{
 			Username: users[0].Username,
 			PutUserBody: handlers.PutUserBody{
@@ -80,14 +79,14 @@ func (suite *UserHandlerTestSuite) TestGetUsers_WithNoErrors_ReturnsUserData() {
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithSessionRankLessThanUser_ReturnsForbidden() {
@@ -99,14 +98,14 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithSessionRankLessThanUser_Retu
 		Password: "password",
 		Rank:     10,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	//act
 	status, res := suite.CoreHandlers.PostUser(req, nil, session, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusForbidden, status)
-	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.InsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_ReturnsBadRequest() {
@@ -118,7 +117,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_Retu
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	message := "create user error"
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
@@ -128,7 +127,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithClientErrorCreatingUser_Retu
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_ReturnsInternalServerError() {
@@ -140,7 +139,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
@@ -149,7 +148,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithInternalErrorCreatingUser_Re
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsUserData() {
@@ -161,7 +160,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsUserData() {
 		Password: "password",
 		Rank:     0,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	user := models.CreateUser(body.Username, body.Rank, nil)
 	suite.ControllersMock.On("CreateUser", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(user, common.NoError())
@@ -171,7 +170,7 @@ func (suite *UserHandlerTestSuite) TestPostUser_WithNoErrors_ReturnsUserData() {
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserDataResponse{
+	suite.SuccessDataResponse(res, handlers.UserDataResponse{
 		Username: user.Username,
 		PutUserBody: handlers.PutUserBody{
 			Rank: user.Rank,
@@ -190,7 +189,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithMissingUsername_ReturnsBadReq
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+	suite.ErrorResponse(res, "username not provided")
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithInvalidJSONBody_ReturnsBadRequest() {
@@ -201,14 +200,14 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInvalidJSONBody_ReturnsBadReq
 			Value: "username",
 		},
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PutUser(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
@@ -224,7 +223,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorVerifyingUserRank_
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -234,7 +233,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorVerifyingUserRank_
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
@@ -250,7 +249,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorVerifyingUserRan
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -259,7 +258,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorVerifyingUserRan
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
@@ -275,7 +274,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithFalseResultVerifyingUserRank_
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -284,7 +283,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithFalseResultVerifyingUserRank_
 
 	//assert
 	suite.Require().Equal(http.StatusForbidden, status)
-	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.InsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithSessionRankLessThanNewUserRank_ReturnsForbidden() {
@@ -300,7 +299,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithSessionRankLessThanNewUserRan
 	body := handlers.PutUserBody{
 		Rank: 6,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -309,7 +308,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithSessionRankLessThanNewUserRan
 
 	//assert
 	suite.Require().Equal(http.StatusForbidden, status)
-	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.InsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_ReturnsBadRequest() {
@@ -325,7 +324,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_Retur
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -337,7 +336,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithClientErrorCreatingUser_Retur
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_ReturnsInternalServerError() {
@@ -353,7 +352,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUser", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
@@ -363,7 +362,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithInternalErrorCreatingUser_Ret
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
@@ -379,7 +378,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 	body := handlers.PutUserBody{
 		Rank: 1,
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 	user := models.CreateUser(params[0].Value, body.Rank, nil)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
@@ -390,7 +389,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.UserDataResponse{
+	suite.SuccessDataResponse(res, handlers.UserDataResponse{
 		Username: user.Username,
 		PutUserBody: handlers.PutUserBody{
 			Rank: user.Rank,
@@ -403,7 +402,7 @@ func (suite *UserHandlerTestSuite) TestPutUser_WithNoErrors_ReturnsUserData() {
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInvalidJSONBody_ReturnsBadRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	session := models.CreateNewSession("username", 0)
 
@@ -412,7 +411,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInvalidJSONBody_Return
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorUpdatingUserPassword_ReturnsBadRequest() {
@@ -421,7 +420,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorUpdatingUse
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -433,7 +432,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorUpdatingUse
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorUpdatingUserPassword_ReturnsInternalServerError() {
@@ -442,7 +441,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorUpdatingU
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -453,7 +452,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorUpdatingU
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorDeletingAllOtherUserSessions_ReturnsBadRequest() {
@@ -462,7 +461,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorDeletingAll
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -476,7 +475,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithClientErrorDeletingAll
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorDeletingAllOtherUserSessions_ReturnsInternalServerError() {
@@ -485,7 +484,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorDeletingA
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -497,7 +496,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithInternalErrorDeletingA
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSuccess() {
@@ -506,7 +505,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSucces
 		OldPassword: "old password",
 		NewPassword: "new password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession("username", 0)
 
@@ -518,7 +517,7 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSucces
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPasswordWithAuth", &suite.CRUDMock, session.Username, body.OldPassword, body.NewPassword)
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteAllOtherUserSessions", &suite.CRUDMock, session.Username, session.Token)
@@ -527,14 +526,14 @@ func (suite *UserHandlerTestSuite) TestUpdatePassword_WithNoErrors_ReturnsSucces
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithMissingUsername_ReturnsBadRequest() {
 	//arrange
 	params := []httprouter.Param{}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, nil)
+	req := suite.CreateDummyJSONRequest(nil)
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+	suite.ErrorResponse(res, "username not provided")
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_ReturnsBadRequest() {
@@ -545,14 +544,14 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInvalidJSONBody_Re
 			Value: "username",
 		},
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PatchUserPassword(req, params, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
@@ -568,7 +567,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorVerifyi
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	message := "verify user rank error"
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.ClientError(message))
@@ -578,7 +577,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorVerifyi
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
@@ -594,7 +593,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorVerif
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.InternalError())
 
@@ -603,7 +602,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorVerif
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
@@ -619,7 +618,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithFalseResultVerifyi
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(false, common.NoError())
 
@@ -628,7 +627,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithFalseResultVerifyi
 
 	//assert
 	suite.Require().Equal(http.StatusForbidden, status)
-	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.InsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatingUserPassword_ReturnsBadRequest() {
@@ -644,7 +643,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 
@@ -656,7 +655,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorUpdatin
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdatingUserPassword_ReturnsInternalServerError() {
@@ -672,7 +671,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.InternalError())
@@ -682,7 +681,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorUpdat
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletingAllUserSessions_ReturnsBadRequest() {
@@ -698,7 +697,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
@@ -711,7 +710,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithClientErrorDeletin
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDeletingAllUserSessions_ReturnsInternalServerError() {
@@ -727,7 +726,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
@@ -738,7 +737,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithInternalErrorDelet
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSuccess() {
@@ -754,7 +753,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 	body := handlers.PatchUserPasswordBody{
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("VerifyUserRank", mock.Anything, mock.Anything, mock.Anything).Return(true, common.NoError())
 	suite.ControllersMock.On("UpdateUserPassword", mock.Anything, mock.Anything, mock.Anything).Return(common.NoError())
@@ -765,7 +764,7 @@ func (suite *UserHandlerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsSu
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
 	suite.ControllersMock.AssertCalled(suite.T(), "UpdateUserPassword", &suite.CRUDMock, params[0].Value, body.Password)
@@ -781,7 +780,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithMissingUsername_ReturnsBad
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "username not provided")
+	suite.ErrorResponse(res, "username not provided")
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorVerifyingUserRank_ReturnsBadRequest() {
@@ -802,7 +801,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorVerifyingUserRa
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorVerifyingUserRank_ReturnsInternalServerError() {
@@ -822,7 +821,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorVerifyingUser
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithFalseResultVerifyingUserRank_ReturnsForbidden() {
@@ -844,7 +843,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithFalseResultVerifyingUserRa
 
 	//assert
 	suite.Require().Equal(http.StatusForbidden, status)
-	helpers.AssertInsufficientPermissionsErrorResponse(&suite.Suite, res)
+	suite.InsufficientPermissionsErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_ReturnsBadRequest() {
@@ -867,7 +866,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithClientErrorDeletingUser_Re
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_ReturnsInternalServerError() {
@@ -888,7 +887,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithInternalErrorDeletingUser_
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() {
@@ -909,7 +908,7 @@ func (suite *UserHandlerTestSuite) TestDeleteUser_WithNoErrors_ReturnsSuccess() 
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUser", &suite.CRUDMock, params[0].Value)

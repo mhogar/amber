@@ -3,6 +3,7 @@ package data_test
 import (
 	"authserver/data"
 	"authserver/data/mocks"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type ScopeFactoryTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	DataAdapterMock  mocks.DataAdapter
 	DataExecutorMock mocks.DataExecutor
 	TransactionMock  mocks.Transaction

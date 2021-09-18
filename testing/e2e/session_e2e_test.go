@@ -2,7 +2,6 @@ package e2e_test
 
 import (
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -19,7 +18,7 @@ func (suite *E2ETestSuite) SendCreateSessionRequest(username string, password st
 
 func (suite *E2ETestSuite) Login(creds UserCredentials) string {
 	res := suite.SendCreateSessionRequest(creds.Username, creds.Password)
-	return helpers.ParseDataResponseOK(&suite.Suite, res)["token"].(string)
+	return suite.ParseDataResponseOK(res)["token"].(string)
 }
 
 func (suite *E2ETestSuite) SendDeleteSessionRequest(token string) *http.Response {
@@ -28,7 +27,7 @@ func (suite *E2ETestSuite) SendDeleteSessionRequest(token string) *http.Response
 
 func (suite *E2ETestSuite) Logout(token string) {
 	res := suite.SendDeleteSessionRequest(token)
-	helpers.ParseAndAssertOKSuccessResponse(&suite.Suite, res)
+	suite.ParseAndAssertOKSuccessResponse(res)
 }
 
 type SessionE2ETestSuite struct {
@@ -37,17 +36,17 @@ type SessionE2ETestSuite struct {
 
 func (suite *SessionE2ETestSuite) TestCreateSession_WhereUserNotFound_ReturnsBadRequest() {
 	res := suite.SendCreateSessionRequest("DNE", "")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "invalid username and/or password")
 }
 
 func (suite *SessionE2ETestSuite) TestCreateSession_WithIncorrectPassword_ReturnsBadRequest() {
 	res := suite.SendCreateSessionRequest(suite.Admin.Username, "incorrect")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusBadRequest, "invalid username and/or password")
+	suite.ParseAndAssertErrorResponse(res, http.StatusBadRequest, "invalid username and/or password")
 }
 
 func (suite *SessionE2ETestSuite) TestDeleteSession_WithInvalidSession_ReturnsUnauthorized() {
 	res := suite.SendDeleteSessionRequest("")
-	helpers.ParseAndAssertErrorResponse(&suite.Suite, res, http.StatusUnauthorized)
+	suite.ParseAndAssertErrorResponse(res, http.StatusUnauthorized)
 }
 
 func TestSessionE2ETestSuite(t *testing.T) {

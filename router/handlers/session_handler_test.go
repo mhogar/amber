@@ -4,7 +4,6 @@ import (
 	"authserver/common"
 	"authserver/models"
 	"authserver/router/handlers"
-	"authserver/testing/helpers"
 	"net/http"
 	"testing"
 
@@ -18,14 +17,14 @@ type SessionHandlerTestSuite struct {
 
 func (suite *SessionHandlerTestSuite) TestPostSession_WithInvalidJSONBody_ReturnsInvalidRequest() {
 	//arrange
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, "invalid")
+	req := suite.CreateDummyJSONRequest("invalid")
 
 	//act
 	status, res := suite.CoreHandlers.PostSession(req, nil, nil, &suite.CRUDMock)
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, "invalid json body")
+	suite.ErrorResponse(res, "invalid json body")
 }
 
 func (suite *SessionHandlerTestSuite) TestPostSession_WithClientErrorCreatingSession_ReturnsBadRequest() {
@@ -34,7 +33,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithClientErrorCreatingSes
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	message := "create session error"
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(message))
@@ -44,7 +43,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithClientErrorCreatingSes
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *SessionHandlerTestSuite) TestPostSession_WithInternalErrorCreatingSession_ReturnsInternalServerError() {
@@ -53,7 +52,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithInternalErrorCreatingS
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
@@ -62,7 +61,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithInternalErrorCreatingS
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessionData() {
@@ -71,7 +70,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 		Username: "username",
 		Password: "password",
 	}
-	req := helpers.CreateDummyJSONRequest(&suite.Suite, body)
+	req := suite.CreateDummyJSONRequest(body)
 
 	session := models.CreateNewSession(body.Username, 0)
 	suite.ControllersMock.On("CreateSession", mock.Anything, mock.Anything, mock.Anything).Return(session, common.NoError())
@@ -81,7 +80,7 @@ func (suite *SessionHandlerTestSuite) TestPostSession_WithNoErrors_ReturnsSessio
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessDataResponse(&suite.Suite, res, handlers.SessionDataResponse{
+	suite.SuccessDataResponse(res, handlers.SessionDataResponse{
 		Token:    session.Token.String(),
 		Username: body.Username,
 	})
@@ -101,7 +100,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithClientErrorDeletingS
 
 	//assert
 	suite.Require().Equal(http.StatusBadRequest, status)
-	helpers.AssertErrorResponse(&suite.Suite, res, message)
+	suite.ErrorResponse(res, message)
 }
 
 func (suite *SessionHandlerTestSuite) TestDeleteSession_WithInternalErrorDeletingSession_ReturnsInternalServerError() {
@@ -115,7 +114,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithInternalErrorDeletin
 
 	//assert
 	suite.Require().Equal(http.StatusInternalServerError, status)
-	helpers.AssertInternalServerErrorResponse(&suite.Suite, res)
+	suite.InternalServerErrorResponse(res)
 }
 
 func (suite *SessionHandlerTestSuite) TestDeleteSession_WithNoErrors_ReturnsSuccess() {
@@ -129,7 +128,7 @@ func (suite *SessionHandlerTestSuite) TestDeleteSession_WithNoErrors_ReturnsSucc
 
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
-	helpers.AssertSuccessResponse(&suite.Suite, res)
+	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "DeleteSession", &suite.CRUDMock, session.Token)
 }

@@ -2,7 +2,6 @@ package integration_test
 
 import (
 	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
 
 	"github.com/google/uuid"
@@ -22,7 +21,7 @@ func (suite *ClientCRUDTestSuite) TestCreateClient_WithInvalidClient_ReturnsErro
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
+	suite.ContainsSubstrings(err.Error(), "error", "client model")
 }
 
 func (suite *ClientCRUDTestSuite) TestGetClients_GetsClientsOrderedByName() {
@@ -71,7 +70,7 @@ func (suite *ClientCRUDTestSuite) TestUpdateClient_WithInvalidClient_ReturnsErro
 
 	//assert
 	suite.Require().Error(err)
-	helpers.AssertContainsSubstrings(&suite.Suite, err.Error(), "error", "client model")
+	suite.ContainsSubstrings(err.Error(), "error", "client model")
 }
 
 func (suite *ClientCRUDTestSuite) TestUpdateClient_WhereClientIsNotFound_ReturnsFalseResult() {

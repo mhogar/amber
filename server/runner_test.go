@@ -3,6 +3,7 @@ package server_test
 import (
 	"authserver/server"
 	"authserver/server/mocks"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 )
 
 type RunnerTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	ServerMock mocks.Server
 	Runner     *server.Runner
 }

@@ -47,7 +47,7 @@ func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func
 		cerr := validateFunc(user)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be empty")
+		suite.CustomClientError(cerr, "username", "cannot be empty")
 	})
 
 	suite.Run("UsernameTooLong_ReturnsClientError", func() {
@@ -58,7 +58,7 @@ func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func
 		cerr := validateFunc(user)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "username", "cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
+		suite.CustomClientError(cerr, "username", "cannot be longer", fmt.Sprint(models.UserUsernameMaxLength))
 	})
 
 	suite.Run("InvalidRank_ReturnsClientError", func() {
@@ -69,7 +69,7 @@ func (suite *UserControllerTestSuite) runValidateUserTestCases(validateFunc func
 		cerr := validateFunc(user)
 
 		//assert
-		helpers.AssertClientError(&suite.Suite, cerr, "rank", "invalid")
+		suite.CustomClientError(cerr, "rank", "invalid")
 	})
 }
 
@@ -91,7 +91,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorGettingUserByUsern
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_ReturnsClientError() {
@@ -103,7 +103,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNonUniqueUsername_Retur
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "username", "already in use")
+	suite.CustomClientError(cerr, "username", "already in use")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCriteria_ReturnsClientError() {
@@ -116,7 +116,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WherePasswordDoesNotMeetCri
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "password", "not", "minimum criteria")
+	suite.CustomClientError(cerr, "password", "not", "minimum criteria")
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword_ReturnsInternalError() {
@@ -130,7 +130,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorHashingNewPassword
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithErrorCreatingUser_ReturnsInternalError() {
@@ -145,7 +145,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithErrorCreatingUser_Retur
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError() {
@@ -175,7 +175,7 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	suite.Equal(hash, user.PasswordHash)
 	suite.Equal(rank, user.Rank)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithErrorGettingUsersWithLesserRank_ReturnsInternalError() {
@@ -187,7 +187,7 @@ func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithErrorGettin
 
 	//assert
 	suite.Nil(users)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithNoErrors_ReturnsUsers() {
@@ -201,7 +201,7 @@ func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithNoErrors_Re
 
 	//assert
 	suite.Equal(users, resultUsers)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUsersWithLesserRank", rank)
 }
 
@@ -223,7 +223,7 @@ func (suite *UserControllerTestSuite) TestUpdateUser_WithErrorUpdatingUser_Retur
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUser_WithFalseResultUpdatingUser_ReturnsClientError() {
@@ -236,7 +236,7 @@ func (suite *UserControllerTestSuite) TestUpdateUser_WithFalseResultUpdatingUser
 
 	//assert
 	suite.Nil(user)
-	helpers.AssertClientError(&suite.Suite, cerr, "user with username", username, "not found")
+	suite.CustomClientError(cerr, "user with username", username, "not found")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUser_WithNoErrors_ReturnsNoError() {
@@ -254,7 +254,7 @@ func (suite *UserControllerTestSuite) TestUpdateUser_WithNoErrors_ReturnsNoError
 	suite.Equal(username, user.Username)
 	suite.Equal(rank, user.Rank)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUser", user)
 }
 
@@ -267,7 +267,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WhereNewPasswordDoe
 	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "password", "not", "minimum criteria")
+	suite.CustomClientError(cerr, "password", "not", "minimum criteria")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNewPassword_ReturnsInternalError() {
@@ -280,7 +280,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorHashingNew
 	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUserPassword_ReturnsInternalError() {
@@ -294,7 +294,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithErrorUpdatingUs
 	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_ReturnsNoError() {
@@ -316,7 +316,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "HashPassword", password)
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserPassword", username, passwordHash)
 
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithClientErrorAuthenticatingUser_ReturnsClientError() {
@@ -327,7 +327,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithClientE
 	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "old password", "incorrect")
+	suite.CustomClientError(cerr, "old password", "incorrect")
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithNonClientErrorAuthenticatingUser_ReturnsError() {
@@ -338,7 +338,7 @@ func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithNonClie
 	cerr := suite.UserController.UpdateUserPasswordWithAuth(&suite.CRUDMock, "username", "old password", "new password")
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithNoErrors_ReturnsResultFromUpdateUserPassword() {
@@ -371,7 +371,7 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithErrorDeletingUser_Retur
 	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser_ReturnsClientError() {
@@ -383,7 +383,7 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithFalseResultDeletingUser
 	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, username)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "user with username", username, "not found")
+	suite.CustomClientError(cerr, "user with username", username, "not found")
 }
 
 func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError() {
@@ -396,7 +396,7 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError
 
 	//assert
 	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUser", user.Username)
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestVerifyUserRank_WithErrorGettingUserByUsername_ReturnsInternalError() {
@@ -407,7 +407,7 @@ func (suite *UserControllerTestSuite) TestVerifyUserRank_WithErrorGettingUserByU
 	_, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, "username", 0)
 
 	//assert
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestVerifyUserRank_WhereUserNotFounc_ReturnsClientError() {
@@ -418,7 +418,7 @@ func (suite *UserControllerTestSuite) TestVerifyUserRank_WhereUserNotFounc_Retur
 	_, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, "username", 0)
 
 	//assert
-	helpers.AssertClientError(&suite.Suite, cerr, "user", "not found")
+	suite.CustomClientError(cerr, "user", "not found")
 }
 
 func (suite *UserControllerTestSuite) TestVerifyUserRank_WithNoErrors_TestCases() {
@@ -434,7 +434,7 @@ func (suite *UserControllerTestSuite) TestVerifyUserRank_WithNoErrors_TestCases(
 		res, cerr := suite.UserController.VerifyUserRank(&suite.CRUDMock, user.Username, rank)
 
 		//assert
-		helpers.AssertNoError(&suite.Suite, cerr)
+		suite.CustomNoError(cerr)
 		suite.Equal(expectedResult, res)
 	}
 

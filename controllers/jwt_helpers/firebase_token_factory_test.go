@@ -5,6 +5,7 @@ import (
 	jwthelpers "authserver/controllers/jwt_helpers"
 	"authserver/controllers/jwt_helpers/mocks"
 	loadermocks "authserver/loaders/mocks"
+	"authserver/testing/helpers"
 	"errors"
 	"testing"
 
@@ -16,7 +17,7 @@ import (
 )
 
 type FirebaseTokenFactoryTestSuite struct {
-	suite.Suite
+	helpers.CustomSuite
 	JSONLoaderMock  loadermocks.JSONLoader
 	TokenSignerMock mocks.TokenSigner
 	TokenFactory    jwthelpers.FirebaseTokenFactory

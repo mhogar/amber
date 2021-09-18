@@ -6,7 +6,6 @@ import (
 	jwtmocks "authserver/controllers/jwt_helpers/mocks"
 	"authserver/controllers/mocks"
 	"authserver/models"
-	"authserver/testing/helpers"
 	"errors"
 	"net/url"
 	"testing"
@@ -50,7 +49,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGetti
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNotFound_ReturnsClientError() {
@@ -66,7 +65,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNot
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertClientError(&suite.Suite, cerr, "client with id", clientUID.String(), "not found")
+	suite.CustomClientError(cerr, "client with id", clientUID.String(), "not found")
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithClientErrorAuthenticatingUserWithPassword_ReturnsClientError() {
@@ -83,7 +82,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithClientErro
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password", "not assigned", "client")
+	suite.CustomClientError(cerr, "invalid", "username", "password", "not assigned", "client")
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNonClientErrorAuthenticatingUserWithPassword_ReturnsError() {
@@ -100,7 +99,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNonClientE
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGettingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
@@ -118,7 +117,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGetti
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleForClientNotFound_ReturnsClientError() {
@@ -136,7 +135,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleF
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertClientError(&suite.Suite, cerr, "invalid", "username", "password", "not assigned", "client")
+	suite.CustomClientError(cerr, "invalid", "username", "password", "not assigned", "client")
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFactoryForTokenTypeNotFound_ReturnsInternalError() {
@@ -155,7 +154,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreatingToken_ReturnsInternalError() {
@@ -175,7 +174,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsingRedirectUrl_ReturnsInternalError() {
@@ -195,7 +194,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 
 	//assert
 	suite.Empty(tokenURL)
-	helpers.AssertInternalError(&suite.Suite, cerr)
+	suite.CustomInternalError(cerr)
 }
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_ReturnsTokenRedirectURL() {
@@ -215,7 +214,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNoErrors_R
 	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, password)
 
 	//assert
-	helpers.AssertNoError(&suite.Suite, cerr)
+	suite.CustomNoError(cerr)
 	suite.Require().NotEmpty(tokenURL)
 
 	url, err := url.Parse(tokenURL)
