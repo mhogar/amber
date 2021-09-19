@@ -38,14 +38,10 @@ func (suite *TokenControllerTestSuite) SetupTest() {
 
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGettingClientByUID_ReturnsInternalError() {
 	//arrange
-	clientUID := uuid.New()
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, clientUID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, uuid.New(), "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -55,13 +51,10 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGetti
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNotFound_ReturnsClientError() {
 	//arrange
 	clientUID := uuid.New()
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(nil, nil)
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, clientUID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, clientUID, "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -71,14 +64,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereClientNot
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithClientErrorAuthenticatingUserWithPassword_ReturnsClientError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	username := "username"
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.ClientError(""))
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -88,14 +79,12 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithClientErro
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNonClientErrorAuthenticatingUserWithPassword_ReturnsError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	username := "username"
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.InternalError())
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -105,15 +94,13 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithNonClientE
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGettingUserRoleByUsernameAndClientUID_ReturnsInternalError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	username := "username"
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -123,15 +110,13 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorGetti
 func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereUserRoleForClientNotFound_ReturnsClientError() {
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
-	username := "username"
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
 	suite.CRUDMock.On("GetUserRoleByClientUIDAndUsername", mock.Anything, mock.Anything).Return(nil, nil)
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, "username", "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -142,7 +127,6 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
@@ -150,7 +134,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WhereTokenFact
 	suite.TokenFactorySelectorMock.On("Select", mock.Anything).Return(nil)
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -161,7 +145,6 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 	//arrange
 	client := models.CreateNewClient("name", "redirect.com", 0, "key.pem")
 	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
@@ -170,7 +153,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorCreat
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", errors.New(""))
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, "password")
 
 	//assert
 	suite.Empty(tokenURL)
@@ -181,7 +164,6 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 	//arrange
 	client := models.CreateNewClient("name", "invalid_\n_url", 0, "key.pem")
 	userRole := models.CreateUserRole(uuid.Nil, "username", "role")
-	password := "password"
 
 	suite.CRUDMock.On("GetClientByUID", mock.Anything).Return(client, nil)
 	suite.ControllerMock.On("AuthenticateUserWithPassword", mock.Anything, mock.Anything, mock.Anything).Return(nil, common.NoError())
@@ -190,7 +172,7 @@ func (suite *TokenControllerTestSuite) TestCreateTokenRedirectURL_WithErrorParsi
 	suite.TokenFactoryMock.On("CreateToken", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return("", nil)
 
 	//act
-	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, password)
+	tokenURL, cerr := suite.TokenController.CreateTokenRedirectURL(&suite.CRUDMock, client.UID, userRole.Username, "password")
 
 	//assert
 	suite.Empty(tokenURL)

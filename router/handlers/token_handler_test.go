@@ -21,13 +21,13 @@ func (suite *TokenHandlerTestSuite) SetupSuite() {
 	viper.Set("app_name", "App Name")
 }
 
-func (suite *TokenHandlerTestSuite) AssertTokenViewRenderedWithData(clientID string, errSubStrings ...string) {
-	suite.RendererMock.AssertCalled(suite.T(), "RenderView", "token.gohtml", mock.Anything)
-
+func (suite *TokenHandlerTestSuite) TokenViewRenderedWithData(clientID string, errSubStrings ...string) {
 	data := suite.RenderViewData.(handlers.TokenViewData)
 	suite.Equal(viper.GetString("app_name"), data.AppName)
 	suite.Equal(clientID, data.ClientID)
 	suite.ContainsSubstrings(data.Error, errSubStrings...)
+
+	suite.RendererMock.AssertCalled(suite.T(), "RenderView", "token.gohtml", mock.Anything)
 }
 
 func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {
@@ -41,7 +41,7 @@ func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	suite.AssertRenderViewResult(res)
-	suite.AssertTokenViewRenderedWithData(clientID)
+	suite.TokenViewRenderedWithData(clientID)
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithErrorParsingClientId_RendersTokenViewWithError() {
@@ -60,7 +60,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithErrorParsingClientId_Rende
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	suite.AssertRenderViewResult(res)
-	suite.AssertTokenViewRenderedWithData(clientID, "client_id", "not provided", "invalid format")
+	suite.TokenViewRenderedWithData(clientID, "client_id", "not provided", "invalid format")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRedirectURL_RendersTokenViewWithError() {
@@ -82,7 +82,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithClientErrorCreatingTokenRe
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	suite.AssertRenderViewResult(res)
-	suite.AssertTokenViewRenderedWithData(clientID, message)
+	suite.TokenViewRenderedWithData(clientID, message)
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingTokenRedirectURL_RendersTokenViewWithError() {
@@ -103,7 +103,7 @@ func (suite *TokenHandlerTestSuite) TestPostToken_WithInternalErrorCreatingToken
 	//assert
 	suite.Require().Equal(http.StatusOK, status)
 	suite.AssertRenderViewResult(res)
-	suite.AssertTokenViewRenderedWithData(clientID, "internal error")
+	suite.TokenViewRenderedWithData(clientID, "internal error")
 }
 
 func (suite *TokenHandlerTestSuite) TestPostToken_WithNoErrors_ReturnsRedirect() {

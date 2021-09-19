@@ -245,7 +245,6 @@ func (suite *RouterAuthTestSuite) TestRoute_WithNoBearerToken_ReturnsUnauthorize
 
 func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_ReturnsUnauthorized() {
 	//arrange
-
 	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, "invalid", nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
@@ -261,7 +260,6 @@ func (suite *RouterAuthTestSuite) TestRoute_WithBearerTokenInInvalidFormat_Retur
 
 func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsInternalServerError() {
 	//arrange
-
 	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
@@ -278,7 +276,6 @@ func (suite *RouterAuthTestSuite) TestRoute_WithErrorGettingSessionByID_ReturnsI
 
 func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_ReturnsUnauthorized() {
 	//arrange
-
 	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 
 	suite.SetupScopeFactoryMock_CreateDataExecutorScope(nil)
@@ -295,7 +292,6 @@ func (suite *RouterAuthTestSuite) TestRoute_WhereSessionWithIDisNotFound_Returns
 
 func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_ReturnsForbidden() {
 	//arrange
-
 	req := suite.CreateJSONRequest(suite.Method, suite.Server.URL+suite.Route, suite.TokenId, nil)
 	session := models.CreateNewSession("username", suite.MinRank-1)
 

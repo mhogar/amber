@@ -28,13 +28,10 @@ func (suite *AuthControllerTestSuite) SetupTest() {
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithErrorGettingUserByUsername_ReturnsInternalError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, errors.New(""))
 
 	//act
-	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, username, password)
+	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
 	suite.Nil(user)
@@ -43,13 +40,10 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithError
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WhereUserWithUsernameIsNotFound_ReturnsClientError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(nil, nil)
 
 	//act
-	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, username, password)
+	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
 	suite.Nil(user)
@@ -58,14 +52,11 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WhereUser
 
 func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WherePasswordDoesNotMatch_ReturnsClientError() {
 	//arrange
-	username := "username"
-	password := "password"
-
 	suite.CRUDMock.On("GetUserByUsername", mock.Anything).Return(&models.User{}, nil)
 	suite.PasswordHasherMock.On("ComparePasswords", mock.Anything, mock.Anything).Return(errors.New(""))
 
 	//act
-	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, username, password)
+	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, "username", "password")
 
 	//assert
 	suite.Nil(user)
@@ -84,11 +75,11 @@ func (suite *AuthControllerTestSuite) TestAuthenticateUserWithPassword_WithNoErr
 	user, cerr := suite.AuthController.AuthenticateUserWithPassword(&suite.CRUDMock, existingUser.Username, password)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", existingUser.Username)
-	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", existingUser.PasswordHash, password)
-
 	suite.Equal(existingUser, user)
 	suite.CustomNoError(cerr)
+
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", existingUser.Username)
+	suite.PasswordHasherMock.AssertCalled(suite.T(), "ComparePasswords", existingUser.PasswordHash, password)
 }
 
 func TestAuthControllerTestSuite(t *testing.T) {

@@ -60,11 +60,11 @@ func (suite *AdminCreatorTestSuite) TestRun_WithNoErrors_ReturnsNoErrors() {
 	err := runner.Run(&suite.ScopeFactoryMock, &suite.ControllersMock, username, password, rank)
 
 	//assert
+	suite.NoError(err)
+
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateTransactionScope", &suite.DataExecutorMock, mock.Anything)
 	suite.ControllersMock.AssertCalled(suite.T(), "CreateUser", &suite.TransactionMock, username, password, rank)
-
-	suite.NoError(err)
 }
 
 func TestAdminCreatorTestSuite(t *testing.T) {

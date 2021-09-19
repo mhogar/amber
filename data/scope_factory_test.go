@@ -30,7 +30,7 @@ func (suite *ScopeFactoryTestSuite) SetupTest() {
 
 func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_WithErrorSettingUpDataAdapter_ReturnsError() {
 	//arrange
-	message := "Setup error"
+	message := "setup error"
 	suite.DataAdapterMock.On("Setup").Return(errors.New(message))
 
 	//act
@@ -45,7 +45,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_WithErrorSetting
 
 func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_ReturnsResultFromBody() {
 	//arrange
-	message := "Body error"
+	message := "body error"
 
 	suite.DataAdapterMock.On("Setup").Return(nil)
 	suite.DataAdapterMock.On("CleanUp").Return(nil)
@@ -68,7 +68,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateDataExecutorScope_ReturnsResultFro
 
 func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorCreatingTransaction_ReturnsError() {
 	//arrange
-	message := "CreateTransaction error"
+	message := "create transaction error"
 	suite.DataExecutorMock.On("CreateTransaction").Return(nil, errors.New(message))
 
 	//act
@@ -83,7 +83,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorCreating
 
 func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorFromBody_ReturnsErrorAndRollsBackTransaction() {
 	//arrange
-	message := "Body error"
+	message := "body error"
 
 	suite.DataExecutorMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
 	suite.TransactionMock.On("Rollback").Return(nil)
@@ -121,7 +121,7 @@ func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithFailureFromBo
 
 func (suite *ScopeFactoryTestSuite) TestCreateTransactionScope_WithErrorCommitingTransaction_ReturnsError() {
 	//arrange
-	message := "Commit error"
+	message := "commit error"
 
 	suite.DataExecutorMock.On("CreateTransaction").Return(&suite.TransactionMock, nil)
 	suite.TransactionMock.On("Rollback").Return(nil)

@@ -165,17 +165,16 @@ func (suite *UserControllerTestSuite) TestCreateUser_WithNoErrors_ReturnsNoError
 	user, cerr := suite.UserController.CreateUser(&suite.CRUDMock, username, password, rank)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
-	suite.PasswordCriteriaValidatorMock.AssertCalled(suite.T(), "ValidatePasswordCriteria", password)
-	suite.PasswordHasherMock.AssertCalled(suite.T(), "HashPassword", password)
-	suite.CRUDMock.AssertCalled(suite.T(), "CreateUser", user)
-
 	suite.Require().NotNil(user)
 	suite.Equal(username, user.Username)
 	suite.Equal(hash, user.PasswordHash)
 	suite.Equal(rank, user.Rank)
-
 	suite.CustomNoError(cerr)
+
+	suite.CRUDMock.AssertCalled(suite.T(), "GetUserByUsername", username)
+	suite.PasswordCriteriaValidatorMock.AssertCalled(suite.T(), "ValidatePasswordCriteria", password)
+	suite.PasswordHasherMock.AssertCalled(suite.T(), "HashPassword", password)
+	suite.CRUDMock.AssertCalled(suite.T(), "CreateUser", user)
 }
 
 func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithErrorGettingUsersWithLesserRank_ReturnsInternalError() {
@@ -202,6 +201,7 @@ func (suite *UserControllerTestSuite) TestGetUsersWithLesserRank_WithNoErrors_Re
 	//assert
 	suite.Equal(users, resultUsers)
 	suite.CustomNoError(cerr)
+
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUsersWithLesserRank", rank)
 }
 
@@ -253,8 +253,8 @@ func (suite *UserControllerTestSuite) TestUpdateUser_WithNoErrors_ReturnsNoError
 	suite.Require().NotNil(user)
 	suite.Equal(username, user.Username)
 	suite.Equal(rank, user.Rank)
-
 	suite.CustomNoError(cerr)
+
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUser", user)
 }
 
@@ -312,11 +312,11 @@ func (suite *UserControllerTestSuite) TestUpdateUserPassword_WithNoErrors_Return
 	cerr := suite.UserController.UpdateUserPassword(&suite.CRUDMock, username, password)
 
 	//assert
+	suite.CustomNoError(cerr)
+
 	suite.PasswordCriteriaValidatorMock.AssertCalled(suite.T(), "ValidatePasswordCriteria", password)
 	suite.PasswordHasherMock.AssertCalled(suite.T(), "HashPassword", password)
 	suite.CRUDMock.AssertCalled(suite.T(), "UpdateUserPassword", username, passwordHash)
-
-	suite.CustomNoError(cerr)
 }
 
 func (suite *UserControllerTestSuite) TestUpdateUserPasswordWithAuth_WithClientErrorAuthenticatingUser_ReturnsClientError() {
@@ -395,8 +395,8 @@ func (suite *UserControllerTestSuite) TestDeleteUser_WithNoErrors_ReturnsNoError
 	cerr := suite.UserController.DeleteUser(&suite.CRUDMock, user.Username)
 
 	//assert
-	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUser", user.Username)
 	suite.CustomNoError(cerr)
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUser", user.Username)
 }
 
 func (suite *UserControllerTestSuite) TestVerifyUserRank_WithErrorGettingUserByUsername_ReturnsInternalError() {

@@ -41,12 +41,12 @@ func (suite *MigrationRunnerTestSuite) TestRun_WithDownFalse_RunsUpMigrationAndR
 	err := runner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, false)
 
 	//assert
+	suite.NoError(err)
+
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
 	suite.MigrationRunnerFactoryMock.AssertCalled(suite.T(), "CreateMigrationRunner", &suite.DataExecutorMock)
 	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateUp")
 	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateDown")
-
-	suite.NoError(err)
 }
 
 func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAndReturnsResult() {
@@ -63,12 +63,12 @@ func (suite *MigrationRunnerTestSuite) TestRun_WithDownTrue_RunsDownMigrationAnd
 	err := runner.Run(&suite.ScopeFactoryMock, &suite.MigrationRunnerFactoryMock, true)
 
 	//assert
+	suite.NoError(err)
+
 	suite.ScopeFactoryMock.AssertCalled(suite.T(), "CreateDataExecutorScope", mock.Anything)
 	suite.MigrationRunnerFactoryMock.AssertCalled(suite.T(), "CreateMigrationRunner", &suite.DataExecutorMock)
 	suite.MigrationRunnerMock.AssertCalled(suite.T(), "MigrateDown")
 	suite.MigrationRunnerMock.AssertNotCalled(suite.T(), "MigrateUp")
-
-	suite.NoError(err)
 }
 
 func TestMigrationRunnerTestSuite(t *testing.T) {

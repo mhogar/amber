@@ -27,7 +27,6 @@ func (suite *RunnerTestSuite) SetupTest() {
 func (suite *RunnerTestSuite) TestRun_WithErrorStartingServer_ReturnsError() {
 	//arrange
 	message := "Start mock error"
-
 	suite.ServerMock.On("Start").Return(errors.New(message))
 
 	//act

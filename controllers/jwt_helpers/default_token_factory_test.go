@@ -35,16 +35,11 @@ func (suite *DefaultTokenFactoryTestSuite) SetupTest() {
 
 func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingPrivateKey_ReturnsError() {
 	//arrange
-	uri := "key.json"
-	clientUID := uuid.New()
-	username := "username"
-	role := "role"
-
 	message := "load private key error"
 	suite.DataLoaderMock.On("Load", mock.Anything).Return(nil, errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username, role)
+	token, err := suite.TokenFactory.CreateToken("key.json", uuid.New(), "username", "role")
 
 	//assert
 	suite.Empty(token)
@@ -56,18 +51,13 @@ func (suite *DefaultTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToken
 	//arrange
 	viper.Set("token", config.TokenConfig{})
 
-	uri := "key.json"
-	clientUID := uuid.New()
-	username := "username"
-	role := "role"
-
 	suite.DataLoaderMock.On("Load", mock.Anything).Return(nil, nil)
 
 	message := "sign token error"
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return("", errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, clientUID, username, role)
+	token, err := suite.TokenFactory.CreateToken("key.json", uuid.New(), "username", "role")
 
 	//assert
 	suite.Empty(token)
