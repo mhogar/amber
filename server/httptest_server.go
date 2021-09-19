@@ -1,8 +1,9 @@
 package server
 
 import (
-	"authserver/router"
 	"net/http/httptest"
+
+	"github.com/mhogar/amber/router"
 )
 
 // HTTPTestServer is a wrapper for an httptest server that implements the server interface.

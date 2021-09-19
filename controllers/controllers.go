@@ -1,8 +1,8 @@
 package controllers
 
 import (
-	"authserver/common"
-	"authserver/models"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/models"
 
 	"github.com/google/uuid"
 )

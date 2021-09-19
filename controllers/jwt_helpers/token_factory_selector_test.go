@@ -1,10 +1,11 @@
 package jwthelpers_test
 
 import (
-	jwthelpers "authserver/controllers/jwt_helpers"
-	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
+
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )

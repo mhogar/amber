@@ -1,10 +1,11 @@
 package e2e_test
 
 import (
-	"authserver/router/handlers"
 	"net/http"
 	"path"
 	"testing"
+
+	"github.com/mhogar/amber/router/handlers"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"

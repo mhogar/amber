@@ -4,9 +4,9 @@ import (
 	"log"
 	"net/http"
 
-	"authserver/common"
-	"authserver/data"
-	"authserver/models"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/models"
 
 	"github.com/julienschmidt/httprouter"
 )

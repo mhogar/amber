@@ -1,7 +1,7 @@
 package postgres
 
 import (
-	"authserver/data/database/sql_adapter/postgres/scripts"
+	"github.com/mhogar/amber/data/database/sql_adapter/postgres/scripts"
 
 	//import the postgres driver
 	_ "github.com/lib/pq"

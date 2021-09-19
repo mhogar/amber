@@ -1,11 +1,12 @@
 package sqladapter
 
 import (
-	"authserver/common"
-	"authserver/config"
 	"context"
 	"database/sql"
 	"errors"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
 )
 
 // OpenConnection opens the connection to SQL database server using the fields from the database config.

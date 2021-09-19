@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	handlerspkg "authserver/router/handlers"
 	"sync"
+
+	handlerspkg "github.com/mhogar/amber/router/handlers"
 )
 
 var createHandlersOnce sync.Once

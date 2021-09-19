@@ -1,11 +1,12 @@
 package data_test
 
 import (
-	"authserver/data"
-	"authserver/data/mocks"
-	"authserver/testing/helpers"
 	"errors"
 	"testing"
+
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/data/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )

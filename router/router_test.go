@@ -1,16 +1,17 @@
 package router_test
 
 import (
-	"authserver/common"
-	"authserver/config"
-	"authserver/models"
-	"authserver/router"
-	handlermocks "authserver/router/handlers/mocks"
-	"authserver/testing/helpers"
 	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router"
+	handlermocks "github.com/mhogar/amber/router/handlers/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"

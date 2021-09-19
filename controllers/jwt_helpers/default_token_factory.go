@@ -1,10 +1,11 @@
 package jwthelpers
 
 import (
-	"authserver/common"
-	"authserver/config"
-	"authserver/loaders"
 	"time"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/loaders"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

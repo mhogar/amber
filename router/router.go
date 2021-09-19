@@ -1,14 +1,15 @@
 package router
 
 import (
-	"authserver/common"
-	"authserver/config"
-	"authserver/data"
-	"authserver/models"
-	"authserver/router/handlers"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/handlers"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"

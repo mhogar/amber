@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"log"
 
-	"authserver/common"
-	passwordhelpers "authserver/controllers/password_helpers"
-	"authserver/models"
+	"github.com/mhogar/amber/common"
+	passwordhelpers "github.com/mhogar/amber/controllers/password_helpers"
+	"github.com/mhogar/amber/models"
 )
 
 type CoreUserController struct {

@@ -1,6 +1,6 @@
 package database
 
-import "authserver/common"
+import "github.com/mhogar/amber/common"
 
 type DBConnection interface {
 	// OpenConnection opens the connection to the database. Returns any errors.

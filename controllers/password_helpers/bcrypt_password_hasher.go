@@ -1,7 +1,7 @@
 package passwordhelpers
 
 import (
-	"authserver/common"
+	"github.com/mhogar/amber/common"
 
 	"golang.org/x/crypto/bcrypt"
 )

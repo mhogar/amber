@@ -1,9 +1,10 @@
 package dependencies
 
 import (
-	"authserver/data"
-	sqladapter "authserver/data/database/sql_adapter"
 	"sync"
+
+	"github.com/mhogar/amber/data"
+	sqladapter "github.com/mhogar/amber/data/database/sql_adapter"
 
 	"github.com/spf13/viper"
 )

@@ -1,11 +1,12 @@
 package main
 
 import (
-	"authserver/data/database/sql_adapter/postgres"
 	"database/sql"
 	"flag"
 	"fmt"
 	"log"
+
+	"github.com/mhogar/amber/data/database/sql_adapter/postgres"
 )
 
 func main() {

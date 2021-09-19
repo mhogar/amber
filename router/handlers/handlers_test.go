@@ -1,11 +1,11 @@
 package handlers_test
 
 import (
-	controllermocks "authserver/controllers/mocks"
-	datamocks "authserver/data/mocks"
-	"authserver/router/handlers"
-	renderermocks "authserver/router/renderer/mocks"
-	"authserver/testing/helpers"
+	controllermocks "github.com/mhogar/amber/controllers/mocks"
+	datamocks "github.com/mhogar/amber/data/mocks"
+	"github.com/mhogar/amber/router/handlers"
+	renderermocks "github.com/mhogar/amber/router/renderer/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/mock"
 )

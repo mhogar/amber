@@ -1,11 +1,12 @@
 package handlers_test
 
 import (
-	"authserver/common"
-	"authserver/router/handlers"
 	"net/http"
 	"net/url"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/router/handlers"
 
 	"github.com/google/uuid"
 	"github.com/spf13/viper"

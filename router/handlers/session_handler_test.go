@@ -1,11 +1,12 @@
 package handlers_test
 
 import (
-	"authserver/common"
-	"authserver/models"
-	"authserver/router/handlers"
 	"net/http"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/handlers"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

@@ -1,11 +1,12 @@
 package controllers_test
 
 import (
-	"authserver/controllers"
-	"authserver/controllers/password_helpers/mocks"
-	"authserver/models"
 	"errors"
 	"testing"
+
+	"github.com/mhogar/amber/controllers"
+	"github.com/mhogar/amber/controllers/password_helpers/mocks"
+	"github.com/mhogar/amber/models"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

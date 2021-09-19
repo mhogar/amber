@@ -1,11 +1,12 @@
 package renderer
 
 import (
-	"authserver/config"
 	"bytes"
 	"log"
 	"path"
 	"text/template"
+
+	"github.com/mhogar/amber/config"
 )
 
 type Renderer interface {

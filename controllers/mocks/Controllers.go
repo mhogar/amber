@@ -3,12 +3,12 @@
 package mocks
 
 import (
-	common "authserver/common"
-	controllers "authserver/controllers"
+	common "github.com/mhogar/amber/common"
+	controllers "github.com/mhogar/amber/controllers"
 
 	mock "github.com/stretchr/testify/mock"
 
-	models "authserver/models"
+	models "github.com/mhogar/amber/models"
 
 	uuid "github.com/google/uuid"
 )

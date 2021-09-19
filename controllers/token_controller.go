@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"authserver/common"
-	jwthelpers "authserver/controllers/jwt_helpers"
 	"fmt"
 	"log"
 	"net/url"
+
+	"github.com/mhogar/amber/common"
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
 
 	"github.com/google/uuid"
 )

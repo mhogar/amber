@@ -1,11 +1,11 @@
 package integration_test
 
 import (
-	"authserver/config"
-	"authserver/data"
-	"authserver/dependencies"
-	"authserver/models"
-	"authserver/testing/helpers"
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/dependencies"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/spf13/viper"
 )

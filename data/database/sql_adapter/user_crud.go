@@ -1,11 +1,12 @@
 package sqladapter
 
 import (
-	"authserver/common"
-	"authserver/models"
 	"database/sql"
 	"errors"
 	"fmt"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/models"
 )
 
 // CreateUserTable creates the user table in the database.

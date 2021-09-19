@@ -1,11 +1,12 @@
 package config
 
 import (
-	"authserver/common"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"github.com/mhogar/amber/common"
 
 	"gopkg.in/yaml.v3"
 

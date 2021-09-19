@@ -1,10 +1,11 @@
 package server_test
 
 import (
-	routermocks "authserver/router/mocks"
-	"authserver/server"
-	"authserver/testing/helpers"
 	"testing"
+
+	routermocks "github.com/mhogar/amber/router/mocks"
+	"github.com/mhogar/amber/server"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )

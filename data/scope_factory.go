@@ -1,7 +1,7 @@
 package data
 
 import (
-	"authserver/common"
+	"github.com/mhogar/amber/common"
 )
 
 type ScopeFactory interface {

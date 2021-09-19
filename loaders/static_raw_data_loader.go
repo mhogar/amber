@@ -1,10 +1,11 @@
 package loaders
 
 import (
-	"authserver/common"
-	"authserver/config"
 	"io/ioutil"
 	"path"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
 )
 
 type StaticRawDataLoader struct{}

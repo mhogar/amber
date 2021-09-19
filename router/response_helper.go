@@ -1,9 +1,10 @@
 package router
 
 import (
-	"authserver/common"
 	"encoding/json"
 	"net/http"
+
+	"github.com/mhogar/amber/common"
 )
 
 func sendRawResponse(w http.ResponseWriter, status int, res []byte) {

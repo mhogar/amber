@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	passwordhelpers "authserver/controllers/password_helpers"
+	passwordhelpers "github.com/mhogar/amber/controllers/password_helpers"
 
 	mock "github.com/stretchr/testify/mock"
 )
