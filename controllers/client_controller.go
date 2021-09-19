@@ -82,19 +82,26 @@ func (CoreClientController) validateClient(client *models.Client) common.CustomE
 
 	if verr&models.ValidateClientEmptyName != 0 {
 		return common.ClientError("client name cannot be empty")
-	} else if verr&models.ValidateClientNameTooLong != 0 {
+	}
+	if verr&models.ValidateClientNameTooLong != 0 {
 		return common.ClientError(fmt.Sprint("client name cannot be longer than ", models.ClientNameMaxLength, " characters"))
-	} else if verr&models.ValidateClientEmptyRedirectUrl != 0 {
+	}
+	if verr&models.ValidateClientEmptyRedirectUrl != 0 {
 		return common.ClientError("client redirect url cannot be empty")
-	} else if verr&models.ValidateClientRedirectUrlTooLong != 0 {
+	}
+	if verr&models.ValidateClientRedirectUrlTooLong != 0 {
 		return common.ClientError(fmt.Sprint("client redirect url cannot be longer than ", models.ClientRedirectUrlMaxLength, " characters"))
-	} else if verr&models.ValidateClientInvalidRedirectUrl != 0 {
+	}
+	if verr&models.ValidateClientInvalidRedirectUrl != 0 {
 		return common.ClientError("client redirect url is an invalid url")
-	} else if verr&models.ValidateClientInvalidTokenType != 0 {
+	}
+	if verr&models.ValidateClientInvalidTokenType != 0 {
 		return common.ClientError("client token type is invalid")
-	} else if verr&models.ValidateClientEmptyKeyUri != 0 {
+	}
+	if verr&models.ValidateClientEmptyKeyUri != 0 {
 		return common.ClientError("client key uri cannot be empty")
-	} else if verr&models.ValidateClientKeyUriTooLong != 0 {
+	}
+	if verr&models.ValidateClientKeyUriTooLong != 0 {
 		return common.ClientError(fmt.Sprint("client key uri cannot be longer than ", models.ClientKeyUriMaxLength, " characters"))
 	}
 

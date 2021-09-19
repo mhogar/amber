@@ -24,11 +24,10 @@ func (suite *ServerTestSuite) TestCreateHTTPServerRunner_CreatesRunnerUsingHTTPS
 
 	//act
 	runner := server.CreateHTTPServerRunner(&suite.RouterFactoryMock)
-	_, ok := runner.Server.(*server.HTTPServer)
 
 	//assert
+	suite.IsType(&server.HTTPServer{}, runner.Server)
 	suite.RouterFactoryMock.AssertCalled(suite.T(), "CreateRouter")
-	suite.True(ok, "Runner's server should be an http server")
 }
 
 func (suite *ServerTestSuite) TestCreateHTTPTestServerRunner_CreatesRunnerUsingHTTPTestServer() {
@@ -37,11 +36,10 @@ func (suite *ServerTestSuite) TestCreateHTTPTestServerRunner_CreatesRunnerUsingH
 
 	//act
 	runner := server.CreateHTTPTestServerRunner(&suite.RouterFactoryMock)
-	_, ok := runner.Server.(*server.HTTPTestServer)
 
 	//assert
+	suite.IsType(&server.HTTPTestServer{}, runner.Server)
 	suite.RouterFactoryMock.AssertCalled(suite.T(), "CreateRouter")
-	suite.True(ok, "Runner's server should be an httptest server")
 }
 
 func TestServerTestSuite(t *testing.T) {

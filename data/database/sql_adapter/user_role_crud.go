@@ -39,7 +39,7 @@ func (crud *SQLCRUD) DropUserRoleTable() error {
 }
 
 func (crud *SQLCRUD) CreateUserRole(role *models.UserRole) error {
-	//validate the model
+	//validate the user-role model
 	verr := role.Validate()
 	if verr != models.ValidateUserRoleValid {
 		return errors.New(fmt.Sprint("error validating user-role model:", verr))
@@ -100,7 +100,7 @@ func (crud *SQLCRUD) GetUserRoleByClientUIDAndUsername(clientUID uuid.UUID, user
 }
 
 func (crud *SQLCRUD) UpdateUserRole(role *models.UserRole) (bool, error) {
-	//validate the model
+	//validate the user-role model
 	verr := role.Validate()
 	if verr != models.ValidateUserRoleValid {
 		return false, errors.New(fmt.Sprint("error validating user-role model:", verr))

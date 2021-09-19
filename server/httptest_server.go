@@ -10,6 +10,7 @@ type HTTPTestServer struct {
 	*httptest.Server
 }
 
+// CreateHTTPTestServerRunner creates a new Runner using an HTTPTestServer.
 func CreateHTTPTestServerRunner(routerFactory router.RouterFactory) Runner {
 	return Runner{
 		Server: &HTTPTestServer{

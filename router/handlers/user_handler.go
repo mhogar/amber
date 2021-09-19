@@ -11,7 +11,13 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type UserDataResponse struct {
+	Username string `json:"username"`
+	PutUserBody
+}
+
 func (h CoreHandlers) GetUsers(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+	//get the users
 	users, cerr := h.Controllers.GetUsersWithLesserRank(CRUD, session.Rank)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
@@ -20,17 +26,12 @@ func (h CoreHandlers) GetUsers(_ *http.Request, _ httprouter.Params, session *mo
 		return common.NewInternalServerErrorResponse()
 	}
 
-	//retrun the data
+	//return the data
 	data := make([]UserDataResponse, len(users))
 	for index, user := range users {
 		data[index] = h.newUserDataResponse(user)
 	}
 	return common.NewSuccessDataResponse(data)
-}
-
-type UserDataResponse struct {
-	Username string `json:"username"`
-	PutUserBody
 }
 
 type PostUserBody struct {

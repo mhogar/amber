@@ -6,7 +6,7 @@ type DBConnection interface {
 	// OpenConnection opens the connection to the database. Returns any errors.
 	OpenConnection() error
 
-	// CloseConnection closes the connection to the database and cleanup associated resources. Returns any errors.
+	// CloseConnection closes the connection to the database and cleans up associated resources. Returns any errors.
 	CloseConnection() error
 
 	// Ping pings the database to verify it can be reached.

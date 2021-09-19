@@ -12,9 +12,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// Config is a struct with fields needed for configuring the application.
 type Config struct {
-	AppName                string                 `yaml:"app_name"`
+	// AppName is a client facing name to refer to the app as.
+	AppName string `yaml:"app_name"`
+
 	TokenConfig            TokenConfig            `yaml:"token"`
 	PermissionConfig       PermissionConfig       `yaml:"permissions"`
 	DatabaseConfig         DatabaseConfig         `yaml:"database"`
@@ -59,7 +60,8 @@ type PasswordCriteriaConfig struct {
 	RequireSymbol bool `yaml:"require_symbol"`
 }
 
-// InitConfig sets the default config values and binds environment variables. Should be called at the start of the application.
+// InitConfig sets the default config values and binds environment variables.
+// Should be called at the start of the application.
 func InitConfig(dir string) error {
 	//set defaults
 	viper.SetDefault("db_key", "core")
@@ -110,10 +112,22 @@ func GetAppName() string {
 	return viper.GetString("app_name")
 }
 
+// GetTokenConfig gets the token config object.
 func GetTokenConfig() TokenConfig {
 	return viper.Get("token").(TokenConfig)
 }
 
+// GetPermissionConfig gets the permissions config object.
 func GetPermissionConfig() PermissionConfig {
 	return viper.Get("permission").(PermissionConfig)
+}
+
+// GetDatabaseConfig gets the database config object.
+func GetDatabaseConfig() DatabaseConfig {
+	return viper.Get("database").(DatabaseConfig)
+}
+
+// GetPasswordCriteriaConfig gets the password criteria config object.
+func GetPasswordCriteriaConfig() PasswordCriteriaConfig {
+	return viper.Get("password_criteria").(PasswordCriteriaConfig)
 }

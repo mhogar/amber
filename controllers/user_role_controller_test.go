@@ -135,6 +135,7 @@ func (suite *UserRoleControllerTestSuite) TestGetUserRolesWithLesserRankByClient
 	//assert
 	suite.Equal(roles, resultRoles)
 	suite.CustomNoError(cerr)
+
 	suite.CRUDMock.AssertCalled(suite.T(), "GetUserRolesWithLesserRankByClientUID", clientUID, rank)
 }
 

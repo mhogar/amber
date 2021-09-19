@@ -63,6 +63,7 @@ type ClientCRUD interface {
 	DeleteClient(uid uuid.UUID) (bool, error)
 }
 
+// CreateClient creates a new client model with the provided fields.
 func CreateClient(uid uuid.UUID, name string, redirectUrl string, tokenType int, keyUri string) *Client {
 	return &Client{
 		UID:         uid,
@@ -73,6 +74,7 @@ func CreateClient(uid uuid.UUID, name string, redirectUrl string, tokenType int,
 	}
 }
 
+// CreateNewClient generates a new uid then creates a new client model with the uid and provided fields.
 func CreateNewClient(name string, redirectUrl string, tokenType int, keyUri string) *Client {
 	return CreateClient(uuid.New(), name, redirectUrl, tokenType, keyUri)
 }
@@ -82,16 +84,19 @@ func CreateNewClient(name string, redirectUrl string, tokenType int, keyUri stri
 func (c *Client) Validate() int {
 	code := ValidateClientValid
 
+	//validate uid
 	if c.UID == uuid.Nil {
 		code |= ValidateClientNilUID
 	}
 
+	//validate name
 	if c.Name == "" {
 		code |= ValidateClientEmptyName
 	} else if len(c.Name) > ClientNameMaxLength {
 		code |= ValidateClientNameTooLong
 	}
 
+	//validate redirect url
 	if c.RedirectUrl == "" {
 		code |= ValidateClientEmptyRedirectUrl
 	} else if len(c.RedirectUrl) > ClientRedirectUrlMaxLength {
@@ -103,10 +108,12 @@ func (c *Client) Validate() int {
 		}
 	}
 
+	//validate token type
 	if c.TokenType < ClientTokenTypeDefault || c.TokenType > ClientTokenTypeFirebase {
 		code |= ValidateClientInvalidTokenType
 	}
 
+	//validate key uri
 	if c.KeyUri == "" {
 		code |= ValidateClientEmptyKeyUri
 	} else if len(c.KeyUri) > ClientKeyUriMaxLength {

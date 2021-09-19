@@ -38,9 +38,8 @@ func (crud *SQLCRUD) DropSessionTable() error {
 	return err
 }
 
-// SaveSession validates the session model is valid and inserts a new row into the session table.
-// Returns any errors.
 func (crud *SQLCRUD) SaveSession(session *models.Session) error {
+	//validate the session model
 	verr := session.Validate()
 	if verr != models.ValidateSessionValid {
 		return errors.New(fmt.Sprint("error validating session model:", verr))
@@ -57,8 +56,6 @@ func (crud *SQLCRUD) SaveSession(session *models.Session) error {
 	return nil
 }
 
-// GetSessionByToken gets the row in the session table with the matching token, and creates a new session model using its data.
-// Returns the model and any errors.
 func (crud *SQLCRUD) GetSessionByToken(token uuid.UUID) (*models.Session, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	rows, err := crud.Executor.QueryContext(ctx, crud.SQLDriver.GetSessionByTokenScript(), token)
@@ -72,8 +69,6 @@ func (crud *SQLCRUD) GetSessionByToken(token uuid.UUID) (*models.Session, error)
 	return readSessionData(rows)
 }
 
-// DeleteSession deletes the row in the session table with the matching token.
-// Returns result of whether the session was found, and any errors.
 func (crud *SQLCRUD) DeleteSession(token uuid.UUID) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteSessionScript(), token)
@@ -87,8 +82,6 @@ func (crud *SQLCRUD) DeleteSession(token uuid.UUID) (bool, error) {
 	return count > 0, nil
 }
 
-// DeleteAllUserSessions deletes all the rows in the session table with the matching username.
-// Returns any errors.
 func (crud *SQLCRUD) DeleteAllUserSessions(username string) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllUserSessionsScript(), username)
@@ -101,8 +94,6 @@ func (crud *SQLCRUD) DeleteAllUserSessions(username string) error {
 	return nil
 }
 
-// DeleteAllOtherUserSessions deletes all the rows in the session table with the matching user token, and not the session token.
-// Returns any errors.
 func (crud *SQLCRUD) DeleteAllOtherUserSessions(username string, token uuid.UUID) error {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	_, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteAllOtherUserSessionsScript(), token, username)

@@ -42,6 +42,7 @@ type UserCRUD interface {
 	DeleteUser(username string) (bool, error)
 }
 
+// CreateUser creates a new user model with the provided fields.
 func CreateUser(username string, rank int, passwordHash []byte) *User {
 	return &User{
 		Username:     username,
@@ -55,12 +56,14 @@ func CreateUser(username string, rank int, passwordHash []byte) *User {
 func (u *User) Validate() int {
 	code := ValidateUserValid
 
+	//validate username
 	if u.Username == "" {
 		code |= ValidateUserEmptyUsername
 	} else if len(u.Username) > UserUsernameMaxLength {
 		code |= ValidateUserUsernameTooLong
 	}
 
+	//validate rank
 	if u.Rank < 0 {
 		code |= ValidateUserInvalidRank
 	}

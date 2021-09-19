@@ -11,6 +11,7 @@ type HTTPServer struct {
 	http.Server
 }
 
+// CreateHTTPServerRunner creates a new Runner using an HTTPServer.
 func CreateHTTPServerRunner(routerFactory router.RouterFactory) Runner {
 	return Runner{
 		Server: &HTTPServer{

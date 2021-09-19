@@ -24,7 +24,7 @@ func (CoreRenderer) RenderView(name string, data interface{}) []byte {
 	var buffer bytes.Buffer
 	err := t.Execute(&buffer, data)
 	if err != nil {
-		log.Panicf("error rendering get %s template", name)
+		log.Panicf("error rendering %s template", name)
 	}
 
 	return buffer.Bytes()

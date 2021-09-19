@@ -37,6 +37,7 @@ func (crud *SQLCRUD) DropUserTable() error {
 }
 
 func (crud *SQLCRUD) CreateUser(user *models.User) error {
+	//validate the user model
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
 		return errors.New(fmt.Sprint("error validating user model:", verr))
@@ -99,6 +100,7 @@ func (crud *SQLCRUD) GetUserByUsername(username string) (*models.User, error) {
 }
 
 func (crud *SQLCRUD) UpdateUser(user *models.User) (bool, error) {
+	//validate the user model
 	verr := user.Validate()
 	if verr != models.ValidateUserValid {
 		return false, errors.New(fmt.Sprint("error validating user model:", verr))

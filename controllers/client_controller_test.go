@@ -138,6 +138,7 @@ func (suite *ClientControllerTestSuite) TestCreateClient_WithNoErrors_ReturnsNoE
 	//assert
 	suite.Require().NotNil(client)
 	suite.CustomNoError(cerr)
+
 	suite.CRUDMock.AssertCalled(suite.T(), "CreateClient", client)
 }
 
@@ -164,6 +165,7 @@ func (suite *ClientControllerTestSuite) TestGetClients_WithNoErrors_ReturnsClien
 	//assert
 	suite.Equal(clients, resultClients)
 	suite.CustomNoError(cerr)
+
 	suite.CRUDMock.AssertCalled(suite.T(), "GetClients")
 }
 

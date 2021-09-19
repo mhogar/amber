@@ -42,11 +42,11 @@ func (suite *ConfigPasswordCriteriaValidatorTestSuite) TestValidatePasswordCrite
 	expectedStatus = passwordhelpers.ValidatePasswordCriteriaTooShort
 	suite.Run("PaswordOneLessThanMinLength_ReturnsValidatePasswordCriteriaTooShort", testCase)
 
-	password = "aaaa"
+	password += "a"
 	expectedStatus = passwordhelpers.ValidatePasswordCriteriaValid
 	suite.Run("PaswordEqualToMinLength_ReturnsValidatePasswordCriteriaValid", testCase)
 
-	password = "aaaaa"
+	password += "a"
 	expectedStatus = passwordhelpers.ValidatePasswordCriteriaValid
 	suite.Run("PaswordGreaterThanMinLength_ReturnsValidatePasswordCriteriaValid", testCase)
 }

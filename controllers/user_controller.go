@@ -123,11 +123,12 @@ func (c CoreUserController) UpdateUserPassword(CRUD UserControllerCRUD, username
 }
 
 func (c CoreUserController) UpdateUserPasswordWithAuth(CRUD UserControllerCRUD, username string, oldPassword string, newPassword string) common.CustomError {
-	//authenticate user first with their old password
+	//authenticate user with their old password
 	_, cerr := c.AuthController.AuthenticateUserWithPassword(CRUD, username, oldPassword)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.ClientError("old password is incorrect")
-	} else if cerr.Type != common.ErrorTypeNone {
+	}
+	if cerr.Type != common.ErrorTypeNone {
 		return cerr
 	}
 
@@ -174,9 +175,11 @@ func (CoreUserController) validateUser(user *models.User) common.CustomError {
 
 	if verr&models.ValidateUserEmptyUsername != 0 {
 		return common.ClientError("username cannot be empty")
-	} else if verr&models.ValidateUserUsernameTooLong != 0 {
+	}
+	if verr&models.ValidateUserUsernameTooLong != 0 {
 		return common.ClientError(fmt.Sprint("username cannot be longer than ", models.UserUsernameMaxLength, " characters"))
-	} else if verr&models.ValidateUserInvalidRank != 0 {
+	}
+	if verr&models.ValidateUserInvalidRank != 0 {
 		return common.ClientError("rank is invalid")
 	}
 

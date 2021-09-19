@@ -37,10 +37,11 @@ func (a *SQLAdapter) GetExecutor() data.DataExecutor {
 	}
 }
 
-func CreateSQLAdpater(dbKey string, SQLDriver SQLDriver) *SQLAdapter {
+// CreateSQLAdpater creates a new SQLAdapter with the provided db key and driver.
+func CreateSQLAdpater(dbKey string, driver SQLDriver) *SQLAdapter {
 	adapter := &SQLAdapter{
 		DbKey:     dbKey,
-		SQLDriver: SQLDriver,
+		SQLDriver: driver,
 	}
 	adapter.Connection = adapter
 

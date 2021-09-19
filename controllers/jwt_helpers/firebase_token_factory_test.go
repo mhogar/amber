@@ -35,15 +35,11 @@ func (suite *FirebaseTokenFactoryTestSuite) SetupTest() {
 
 func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorLoadingJSON_ReturnsError() {
 	//arrange
-	uri := "key.json"
-	username := "username"
-	role := "role"
-
 	message := "load service json error"
 	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, uuid.Nil, username, role)
+	token, err := suite.TokenFactory.CreateToken("key.json", uuid.New(), "username", "role")
 
 	//assert
 	suite.Empty(token)
@@ -55,17 +51,13 @@ func (suite *FirebaseTokenFactoryTestSuite) TestCreateToken_WithErrorSigningToke
 	//arrange
 	viper.Set("token", config.TokenConfig{})
 
-	uri := "key.json"
-	username := "username"
-	role := "role"
-
 	suite.JSONLoaderMock.On("Load", mock.Anything, mock.Anything).Return(nil)
 
 	message := "sign token error"
 	suite.TokenSignerMock.On("SignToken", mock.Anything, mock.Anything).Return("", errors.New(message))
 
 	//act
-	token, err := suite.TokenFactory.CreateToken(uri, uuid.Nil, username, role)
+	token, err := suite.TokenFactory.CreateToken("key.json", uuid.New(), "username", "role")
 
 	//assert
 	suite.Empty(token)

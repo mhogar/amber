@@ -1,13 +1,13 @@
 package jwthelpers
 
 import (
-	"authserver/models"
 	"authserver/loaders"
+	"authserver/models"
 )
 
 type TokenFactorySelector interface {
 	// Select selects the TokenFactory based on the provided tokenType.
-	// Returns the TokenFactory, or nilif the type is unknown.
+	// Returns the TokenFactory, or nil if the type is unknown.
 	Select(tokenType int) TokenFactory
 }
 

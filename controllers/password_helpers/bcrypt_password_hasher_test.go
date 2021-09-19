@@ -18,9 +18,20 @@ func (suite *BCryptPasswordHasherTestSuite) SetupTest() {
 }
 
 func (suite *BCryptPasswordHasherTestSuite) TestHashPassword_WithNoError_ReturnsHashAndNilError() {
+	//act
 	hash, err := suite.BCryptPasswordHasher.HashPassword("password")
+
+	//assert
 	suite.NotNil(hash)
 	suite.NoError(err)
+}
+
+func (suite *BCryptPasswordHasherTestSuite) TestComparePasswords_WherePasswordDoesNotMatchHash_ReturnsError() {
+	//act
+	err := suite.BCryptPasswordHasher.ComparePasswords([]byte("incorrect hash"), "password")
+
+	//assert
+	suite.Error(err)
 }
 
 func (suite *BCryptPasswordHasherTestSuite) TestComparePasswords_WherePasswordMatchesHash_ReturnsNilError() {
@@ -34,17 +45,6 @@ func (suite *BCryptPasswordHasherTestSuite) TestComparePasswords_WherePasswordMa
 
 	//assert
 	suite.NoError(err)
-}
-
-func (suite *BCryptPasswordHasherTestSuite) TestComparePasswords_WherePasswordDoesNotMatchHash_ReturnsError() {
-	//arrange
-	password := "password"
-
-	//act
-	err := suite.BCryptPasswordHasher.ComparePasswords([]byte("incorrect hash"), password)
-
-	//assert
-	suite.Error(err)
 }
 
 func TestBCryptPasswordHasherTestSuite(t *testing.T) {
