@@ -1,9 +1,10 @@
 package dependencies
 
 import (
-	sqladapter "authserver/data/database/sql_adapter"
-	"authserver/data/database/sql_adapter/postgres"
 	"sync"
+
+	sqladapter "github.com/mhogar/amber/data/database/sql_adapter"
+	"github.com/mhogar/amber/data/database/sql_adapter/postgres"
 )
 
 var createSQLDriverOnce sync.Once

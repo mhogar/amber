@@ -1,11 +1,12 @@
 package runner_test
 
 import (
-	"authserver/testing/helpers"
-	"authserver/tools/migration_runner/runner"
-	"authserver/tools/migration_runner/runner/mocks"
 	"errors"
 	"testing"
+
+	"github.com/mhogar/amber/testing/helpers"
+	"github.com/mhogar/amber/tools/migration_runner/runner"
+	"github.com/mhogar/amber/tools/migration_runner/runner/mocks"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

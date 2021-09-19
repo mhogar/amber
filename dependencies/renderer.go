@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	rendererpkg "authserver/router/renderer"
 	"sync"
+
+	rendererpkg "github.com/mhogar/amber/router/renderer"
 )
 
 var createRendererOnce sync.Once

@@ -1,10 +1,11 @@
 package sqladapter
 
 import (
-	"authserver/data"
-	"authserver/data/database"
 	"context"
 	"database/sql"
+
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/data/database"
 )
 
 type SQLDriver interface {

@@ -1,8 +1,8 @@
 package jwthelpers
 
 import (
-	"authserver/loaders"
-	"authserver/models"
+	"github.com/mhogar/amber/loaders"
+	"github.com/mhogar/amber/models"
 )
 
 type TokenFactorySelector interface {

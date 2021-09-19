@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	"authserver/data"
 	"sync"
+
+	"github.com/mhogar/amber/data"
 )
 
 var createScopeFactoryOnce sync.Once

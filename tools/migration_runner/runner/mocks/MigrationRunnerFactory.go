@@ -3,8 +3,8 @@
 package mocks
 
 import (
-	data "authserver/data"
-	runner "authserver/tools/migration_runner/runner"
+	data "github.com/mhogar/amber/data"
+	runner "github.com/mhogar/amber/tools/migration_runner/runner"
 
 	mock "github.com/stretchr/testify/mock"
 )

@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	controllerspkg "authserver/controllers"
 	"sync"
+
+	controllerspkg "github.com/mhogar/amber/controllers"
 )
 
 var createControllersOnce sync.Once

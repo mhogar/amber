@@ -1,7 +1,7 @@
 package runner
 
 import (
-	"authserver/data"
+	"github.com/mhogar/amber/data"
 
 	"github.com/mhogar/migrationrunner"
 )

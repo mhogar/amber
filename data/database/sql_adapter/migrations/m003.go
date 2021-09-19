@@ -1,9 +1,9 @@
 package migrations
 
 import (
-	"authserver/common"
-	"authserver/data"
-	sqladapter "authserver/data/database/sql_adapter"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/data"
+	sqladapter "github.com/mhogar/amber/data/database/sql_adapter"
 
 	"github.com/mhogar/migrationrunner"
 )

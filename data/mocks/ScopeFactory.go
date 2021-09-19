@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	data "authserver/data"
+	data "github.com/mhogar/amber/data"
 
 	mock "github.com/stretchr/testify/mock"
 )

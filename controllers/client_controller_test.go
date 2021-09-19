@@ -1,13 +1,14 @@
 package controllers_test
 
 import (
-	"authserver/common"
-	"authserver/controllers"
-	"authserver/models"
-	"authserver/testing/helpers"
 	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/controllers"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"

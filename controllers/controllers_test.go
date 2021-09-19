@@ -1,8 +1,8 @@
 package controllers_test
 
 import (
-	datamocks "authserver/data/mocks"
-	"authserver/testing/helpers"
+	datamocks "github.com/mhogar/amber/data/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 )
 
 type ControllerTestSuite struct {

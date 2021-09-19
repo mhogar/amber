@@ -1,11 +1,12 @@
 package handlers
 
 import (
-	"authserver/controllers"
-	"authserver/data"
-	"authserver/models"
-	"authserver/router/renderer"
 	"net/http"
+
+	"github.com/mhogar/amber/controllers"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/renderer"
 
 	"github.com/julienschmidt/httprouter"
 )

@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	jwthelpers "authserver/controllers/jwt_helpers"
 	"sync"
+
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
 )
 
 var createTokenFactorySelectorOnce sync.Once

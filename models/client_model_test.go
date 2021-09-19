@@ -1,9 +1,10 @@
 package models_test
 
 import (
-	"authserver/models"
-	"authserver/testing/helpers"
 	"testing"
+
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"

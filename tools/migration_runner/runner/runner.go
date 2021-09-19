@@ -1,8 +1,8 @@
 package runner
 
 import (
-	"authserver/common"
-	"authserver/data"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/data"
 )
 
 // Run runs the migration runner. Returns any errors.

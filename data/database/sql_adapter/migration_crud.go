@@ -1,10 +1,11 @@
 package sqladapter
 
 import (
-	"authserver/common"
-	"authserver/models"
 	"errors"
 	"fmt"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/models"
 )
 
 // Setup creates the migration table if it does not already exist.

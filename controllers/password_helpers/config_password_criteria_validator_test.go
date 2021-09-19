@@ -1,10 +1,11 @@
 package passwordhelpers_test
 
 import (
-	"authserver/config"
-	passwordhelpers "authserver/controllers/password_helpers"
-	"authserver/testing/helpers"
 	"testing"
+
+	"github.com/mhogar/amber/config"
+	passwordhelpers "github.com/mhogar/amber/controllers/password_helpers"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"

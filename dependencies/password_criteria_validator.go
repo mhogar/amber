@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	passwordhelpers "authserver/controllers/password_helpers"
 	"sync"
+
+	passwordhelpers "github.com/mhogar/amber/controllers/password_helpers"
 )
 
 var createPasswordCriteriaValidatorOnce sync.Once

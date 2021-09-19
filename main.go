@@ -1,12 +1,13 @@
 package main
 
 import (
-	"authserver/common"
-	"authserver/dependencies"
-	"authserver/server"
 	"log"
 
-	"authserver/config"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/dependencies"
+	"github.com/mhogar/amber/server"
+
+	"github.com/mhogar/amber/config"
 )
 
 func main() {

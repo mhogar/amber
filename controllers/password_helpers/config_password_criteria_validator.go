@@ -1,9 +1,10 @@
 package passwordhelpers
 
 import (
-	"authserver/config"
 	"fmt"
 	"regexp"
+
+	"github.com/mhogar/amber/config"
 )
 
 type ConfigPasswordCriteriaValidator struct{}

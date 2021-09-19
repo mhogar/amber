@@ -1,11 +1,12 @@
 package loaders
 
 import (
-	"authserver/common"
-	"authserver/config"
 	"encoding/json"
 	"os"
 	"path"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
 )
 
 type StaticJSONLoader struct{}

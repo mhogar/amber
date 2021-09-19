@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	"authserver/loaders"
 	"sync"
+
+	"github.com/mhogar/amber/loaders"
 )
 
 var createRawDataLoaderOnce sync.Once

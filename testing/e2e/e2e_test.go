@@ -1,13 +1,14 @@
 package e2e_test
 
 import (
-	"authserver/config"
-	"authserver/dependencies"
-	"authserver/server"
-	"authserver/testing/helpers"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/dependencies"
+	"github.com/mhogar/amber/server"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/spf13/viper"
 )

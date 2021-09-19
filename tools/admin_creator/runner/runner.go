@@ -1,9 +1,9 @@
 package runner
 
 import (
-	"authserver/common"
-	"authserver/controllers"
-	"authserver/data"
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/controllers"
+	"github.com/mhogar/amber/data"
 )
 
 // Run runs the admin creator and returns any errors.

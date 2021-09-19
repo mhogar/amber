@@ -1,12 +1,13 @@
 package runner_test
 
 import (
-	"authserver/common"
-	controllermocks "authserver/controllers/mocks"
-	"authserver/models"
-	"authserver/testing/helpers"
-	"authserver/tools/admin_creator/runner"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	controllermocks "github.com/mhogar/amber/controllers/mocks"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
+	"github.com/mhogar/amber/tools/admin_creator/runner"
 
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"

@@ -1,9 +1,10 @@
 package dependencies
 
 import (
-	"authserver/data"
-	"authserver/data/database/sql_adapter/migrations"
 	"sync"
+
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/data/database/sql_adapter/migrations"
 )
 
 var createMigrationRepositoryFactoryOnce sync.Once

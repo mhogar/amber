@@ -1,8 +1,9 @@
 package integration_test
 
 import (
-	"authserver/models"
 	"testing"
+
+	"github.com/mhogar/amber/models"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"

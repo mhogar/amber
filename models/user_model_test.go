@@ -3,8 +3,8 @@ package models_test
 import (
 	"testing"
 
-	"authserver/models"
-	"authserver/testing/helpers"
+	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )

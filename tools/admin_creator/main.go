@@ -1,11 +1,12 @@
 package main
 
 import (
-	"authserver/config"
-	"authserver/dependencies"
-	"authserver/tools/admin_creator/runner"
 	"flag"
 	"log"
+
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/dependencies"
+	"github.com/mhogar/amber/tools/admin_creator/runner"
 
 	"github.com/spf13/viper"
 )

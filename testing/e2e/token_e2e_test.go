@@ -1,12 +1,13 @@
 package e2e_test
 
 import (
-	jwthelpers "authserver/controllers/jwt_helpers"
-	"authserver/dependencies"
-	"authserver/models"
 	"net/http"
 	"net/url"
 	"testing"
+
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
+	"github.com/mhogar/amber/dependencies"
+	"github.com/mhogar/amber/models"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

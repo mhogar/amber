@@ -1,9 +1,10 @@
 package server
 
 import (
-	"authserver/router"
 	"fmt"
 	"net/http"
+
+	"github.com/mhogar/amber/router"
 )
 
 // HTTPServer is a wrapper for an http server that implements the server interface.

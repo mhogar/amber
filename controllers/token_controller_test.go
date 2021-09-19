@@ -1,14 +1,15 @@
 package controllers_test
 
 import (
-	"authserver/common"
-	"authserver/controllers"
-	jwtmocks "authserver/controllers/jwt_helpers/mocks"
-	"authserver/controllers/mocks"
-	"authserver/models"
 	"errors"
 	"net/url"
 	"testing"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/controllers"
+	jwtmocks "github.com/mhogar/amber/controllers/jwt_helpers/mocks"
+	"github.com/mhogar/amber/controllers/mocks"
+	"github.com/mhogar/amber/models"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"

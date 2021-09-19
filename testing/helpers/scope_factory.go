@@ -1,8 +1,8 @@
 package helpers
 
 import (
-	"authserver/data"
-	"authserver/data/mocks"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/data/mocks"
 
 	"github.com/stretchr/testify/mock"
 )

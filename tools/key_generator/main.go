@@ -1,8 +1,6 @@
 package main
 
 import (
-	"authserver/common"
-	"authserver/config"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/x509"
@@ -12,6 +10,9 @@ import (
 	"log"
 	"os"
 	"path"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
 )
 
 func main() {

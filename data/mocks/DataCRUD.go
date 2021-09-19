@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	models "authserver/models"
+	models "github.com/mhogar/amber/models"
 
 	mock "github.com/stretchr/testify/mock"
 

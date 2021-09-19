@@ -1,13 +1,14 @@
 package jwthelpers_test
 
 import (
-	"authserver/config"
-	jwthelpers "authserver/controllers/jwt_helpers"
-	"authserver/controllers/jwt_helpers/mocks"
-	loadermocks "authserver/loaders/mocks"
-	"authserver/testing/helpers"
 	"errors"
 	"testing"
+
+	"github.com/mhogar/amber/config"
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
+	"github.com/mhogar/amber/controllers/jwt_helpers/mocks"
+	loadermocks "github.com/mhogar/amber/loaders/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"

@@ -1,10 +1,11 @@
 package sqladapter
 
 import (
-	"authserver/common"
-	"authserver/data"
 	"context"
 	"database/sql"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/data"
 )
 
 type contextExecutor interface {

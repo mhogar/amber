@@ -1,13 +1,14 @@
 package main
 
 import (
-	"authserver/config"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"strings"
 	"text/template"
+
+	"github.com/mhogar/amber/config"
 )
 
 type tmplData struct {

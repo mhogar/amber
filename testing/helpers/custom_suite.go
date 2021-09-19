@@ -1,13 +1,14 @@
 package helpers
 
 import (
-	"authserver/common"
 	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/mhogar/amber/common"
 
 	"github.com/stretchr/testify/suite"
 )

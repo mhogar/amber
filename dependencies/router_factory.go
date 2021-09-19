@@ -1,8 +1,9 @@
 package dependencies
 
 import (
-	"authserver/router"
 	"sync"
+
+	"github.com/mhogar/amber/router"
 )
 
 var createRouterFactoryOnce sync.Once

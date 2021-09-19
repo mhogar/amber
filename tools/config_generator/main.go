@@ -1,13 +1,14 @@
 package main
 
 import (
-	"authserver/config"
 	"errors"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+
+	"github.com/mhogar/amber/config"
 
 	"gopkg.in/yaml.v3"
 )

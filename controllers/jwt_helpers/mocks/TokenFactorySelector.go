@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	jwthelpers "authserver/controllers/jwt_helpers"
+	jwthelpers "github.com/mhogar/amber/controllers/jwt_helpers"
 
 	mock "github.com/stretchr/testify/mock"
 )

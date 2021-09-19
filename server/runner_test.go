@@ -1,11 +1,12 @@
 package server_test
 
 import (
-	"authserver/server"
-	"authserver/server/mocks"
-	"authserver/testing/helpers"
 	"errors"
 	"testing"
+
+	"github.com/mhogar/amber/server"
+	"github.com/mhogar/amber/server/mocks"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )

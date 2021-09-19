@@ -1,12 +1,13 @@
 package handlers
 
 import (
-	"authserver/common"
-	"authserver/config"
-	"authserver/data"
-	"authserver/models"
 	"log"
 	"net/http"
+
+	"github.com/mhogar/amber/common"
+	"github.com/mhogar/amber/config"
+	"github.com/mhogar/amber/data"
+	"github.com/mhogar/amber/models"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"

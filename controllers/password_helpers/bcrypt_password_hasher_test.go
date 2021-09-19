@@ -1,9 +1,10 @@
 package passwordhelpers_test
 
 import (
-	passwordhelpers "authserver/controllers/password_helpers"
-	"authserver/testing/helpers"
 	"testing"
+
+	passwordhelpers "github.com/mhogar/amber/controllers/password_helpers"
+	"github.com/mhogar/amber/testing/helpers"
 
 	"github.com/stretchr/testify/suite"
 )
