@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/mhogar/amber/router"
 )
@@ -14,10 +15,16 @@ type HTTPServer struct {
 
 // CreateHTTPServerRunner creates a new Runner using an HTTPServer.
 func CreateHTTPServerRunner(routerFactory router.RouterFactory) Runner {
+	//get port from env variable (default 8080)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	return Runner{
 		Server: &HTTPServer{
 			Server: http.Server{
-				Addr:    ":8080",
+				Addr:    ":" + port,
 				Handler: routerFactory.CreateRouter(),
 			},
 		},

@@ -1,0 +1,18 @@
+.git
+.vscode
+.github
+
+# binaries
+amber
+
+# tools directory
+tools
+
+# testing keys
+static/keys/test.private.pem
+static/keys/test.public.pem
+static/keys/firebase-test.json
+
+# local and test config
+config.local.yml
+config.test.yml
