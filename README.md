@@ -2,29 +2,17 @@
 
 Amber is a micro-service for user management and authentication. Manage all your users in one place, then provide secure and centralized authentication across all your client applications.
 
-## How it Works
+## Usage
 
-Amber is built as a REST API so you can best interact with it in whatever way you wish. For details view the [API Documentation](https://github.com/mhogar/amber/wiki/API-Documentation).
+### API
 
-### Users
+Amber is built as a REST API so it can better be integrated into any desired system. For details view the [Postman API Documentation](https://documenter.getpostman.com/view/11281814/UUxtEqag).
 
-Users are the core of the system. Each user requires a unique username, a password, and a rank that defines their permission level. To manage a user (create, update, delete), the logged-in user must have a greater rank than the user being managed.
+### Authenticating for a Client
 
-Amber provides no registration endpoints, so new users must be created using another user of a higher rank. See the setup section below for details on creating the first max admin user.
+On top of the REST API, Amber provides a login view to ensure the correct handling of user credentials when authenticating. Clients should provide a link to the view, which can be found at `/token?client_id=...` (providing their correct client id in URL). Upon successful authentication, the view will automatically redirect to the URL configured in the client with the appended token.
 
-### Clients
-
-Clients define third-party applications that can authenticate using the system. Amber does not allow just any application to authenticate, and every client that wishes to do so must be explicitly configured in the system. A user must have a minimum (configurable) rank to manage clients.
-
-### User-Roles
-
-After a client has been created, users must be explicitly assigned to it for them to authenticate with the client. When assigning a user, a role string for that user will also need to be set. This string is arbitrary and it is up to the client to decide how to interpret it, but it is intended to dictate what "role" the user has in that application.
-
-### Tokens
-
-To ensure the correct handling of user credentials, a view is provided for collecting credentials and authenticating a user for a client. Simply provide the client id as a URL parameter when accessing the view, and upon successful authentication, the view will automatically redirect to the URL configured in the client with the appended token.
-
-Tokens are JWTs and provide information about the user including their username and role. They should not be used directly as session tokens, but instead processed by the application to create a new session using their encoded data. Different token types can be configured for a client depending on its needs.
+Tokens are JWTs and provide information about the user including their username and role. They should not be used directly as session tokens, but instead processed by the application to create a new session using their encoded data.
 
 ## Building and Tools
 
