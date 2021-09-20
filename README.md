@@ -10,7 +10,7 @@ Amber is built as a REST API so it can better be integrated into any desired sys
 
 ### Authenticating for a Client
 
-On top of the REST API, Amber provides a login view to ensure the correct handling of user credentials when authenticating. Clients should provide a link to the view, which can be found at `/token?client_id=...` (providing their correct client id in URL). Upon successful authentication, the view will automatically redirect to the URL configured in the client with the appended token.
+On top of the REST API, Amber provides a login view to ensure the correct handling of user credentials when authenticating. Clients should provide a link to the view, which can be found at `/token?client_id=...` (providing their correct client id). Upon successful authentication, the view will automatically redirect to the URL configured in the client with the appended token.
 
 Tokens are JWTs and provide information about the user including their username and role. They should not be used directly as session tokens, but instead processed by the application to create a new session using their encoded data.
 
