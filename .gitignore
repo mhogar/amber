@@ -1,5 +1,7 @@
 .vscode/
-config.local.yml
+
+config.*.yml
+!config.test.yml
 
 static/keys/*
 !static/keys/test.private.pem
