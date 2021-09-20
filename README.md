@@ -40,8 +40,8 @@ Amber also provides several helper tools, all of which are located in the `tools
 
 The following checklist should be followed when running the application for the first time in a new environment.
 1. __Create the Config File__: This can be done manually or with the Config Generator tool. The name of the file should be `config.env.yml` where `env` is the desired environment.
+1. __Add Keys__: Add the required key files to the static directory. They can either be generated using the Key Generator tool or provided from another source. Note: three key files are already present in the static directory. DO NOT USE THESE IN PRODUCTION. They are for testing only and are not safe since they are checked in using the source control.
 1. __Run Migrations__: Use the Migration Runner tool to run the data migrations.
 1. __Create the Max Admin__: Use the Admin Creator tool to create a max admin. Note: you should later change the password using the API since passing a password via the command line with the tool may not be safe.
-1. __Add Keys__: Add the required key files to the static directory. They can either be generated using the Key Generator tool or provided from another source. Note: three key files are already present in the static directory. DO NOT USE THESE IN PRODUCTION. They are for testing only and are not safe since they are checked in using the source control.
 
 Once the setup has been completed, the server can be run. Set the environment variable `CFG_ENV` to whatever environment you are running in. Its name should directly match the `env` part of the config file name created earlier. The default environment is "local".
