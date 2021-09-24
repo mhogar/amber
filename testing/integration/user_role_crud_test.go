@@ -18,7 +18,7 @@ func (suite *UserRoleCRUDTestSuite) TestCreateUserRole_WithInvalidUserRole_Retur
 	role := models.CreateUserRole(uuid.Nil, "", "")
 
 	//act
-	err := suite.Tx.CreateUserRole(role)
+	err := suite.Executor.CreateUserRole(role)
 
 	//assert
 	suite.Require().Error(err)
@@ -40,7 +40,7 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRolesWithLesserRankByClientUID_Ge
 	suite.SaveUserRole(models.CreateUserRole(client2.UID, user1.Username, "role"))
 
 	//act
-	roles, err := suite.Tx.GetUserRolesWithLesserRankByClientUID(client1.UID, 2)
+	roles, err := suite.Executor.GetUserRolesWithLesserRankByClientUID(client1.UID, 2)
 
 	//assert
 	suite.NoError(err)
@@ -48,11 +48,19 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRolesWithLesserRankByClientUID_Ge
 	suite.Require().Len(roles, 2)
 	suite.EqualValues(roles[0], role1)
 	suite.EqualValues(roles[1], role2)
+
+	//clean up
+	suite.DeleteUser(user1)
+	suite.DeleteUser(user2)
+	suite.DeleteUser(user3)
+
+	suite.DeleteClient(client1)
+	suite.DeleteClient(client2)
 }
 
 func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_WhereUserRoleNotFound_ReturnsNilUserRole() {
 	//act
-	role, err := suite.Tx.GetUserRoleByClientUIDAndUsername(uuid.New(), "DNE")
+	role, err := suite.Executor.GetUserRoleByClientUIDAndUsername(uuid.New(), "DNE")
 
 	//assert
 	suite.NoError(err)
@@ -66,16 +74,20 @@ func (suite *UserRoleCRUDTestSuite) TestGetUserRoleByUsernameAndClientUID_GetsUs
 	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
-	resultRole, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, user.Username)
+	resultRole, err := suite.Executor.GetUserRoleByClientUIDAndUsername(role.ClientUID, user.Username)
 
 	//assert
 	suite.NoError(err)
 	suite.EqualValues(role, resultRole)
+
+	//clean up
+	suite.DeleteUser(user)
+	suite.DeleteClient(client)
 }
 
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_ReturnsError() {
 	//act
-	_, err := suite.Tx.UpdateUserRole(models.CreateUserRole(uuid.Nil, "", ""))
+	_, err := suite.Executor.UpdateUserRole(models.CreateUserRole(uuid.Nil, "", ""))
 
 	//assert
 	suite.Require().Error(err)
@@ -84,7 +96,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WithInvalidUserRole_Retur
 
 func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_WhereUserRoleIsNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.UpdateUserRole(models.CreateUserRole(uuid.New(), "DNE", "role"))
+	res, err := suite.Executor.UpdateUserRole(models.CreateUserRole(uuid.New(), "DNE", "role"))
 
 	//assert
 	suite.False(res)
@@ -99,20 +111,24 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_UpdatesUserRole() {
 
 	//act
 	role.Role = "new role"
-	res, err := suite.Tx.UpdateUserRole(role)
+	res, err := suite.Executor.UpdateUserRole(role)
 
 	//assert
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultRole, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
+	resultRole, err := suite.Executor.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
 	suite.NoError(err)
 	suite.EqualValues(role, resultRole)
+
+	//clean up
+	suite.DeleteUser(user)
+	suite.DeleteClient(client)
 }
 
 func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_WhereUserRoleNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Tx.DeleteUserRole("DNE", uuid.New())
+	res, err := suite.Executor.DeleteUserRole("DNE", uuid.New())
 
 	//assert
 	suite.False(res)
@@ -126,15 +142,19 @@ func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_DeletesUserRole() {
 	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
-	res, err := suite.Tx.DeleteUserRole(role.Username, role.ClientUID)
+	res, err := suite.Executor.DeleteUserRole(role.Username, role.ClientUID)
 
 	//assert
 	suite.True(res)
 	suite.Require().NoError(err)
 
-	resultUser, err := suite.Tx.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
+	resultUser, err := suite.Executor.GetUserRoleByClientUIDAndUsername(role.ClientUID, role.Username)
 	suite.NoError(err)
 	suite.Nil(resultUser)
+
+	//clean up
+	suite.DeleteUser(user)
+	suite.DeleteClient(client)
 }
 
 func TestUserRoleCRUDTestSuite(t *testing.T) {
