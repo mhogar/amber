@@ -17,9 +17,13 @@ type Config struct {
 	// AppName is a client facing name to refer to the app as.
 	AppName string `yaml:"app_name"`
 
+	// DataAdapter is the name of the data adapter the app will use.
+	DataAdapter string `yaml:"data_adapter"`
+
 	TokenConfig            TokenConfig            `yaml:"token"`
 	PermissionConfig       PermissionConfig       `yaml:"permissions"`
 	DatabaseConfig         DatabaseConfig         `yaml:"database"`
+	FirestoreConfig        FirestoreConfig        `yaml:"firestore"`
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
 }
 
@@ -41,6 +45,14 @@ type DatabaseConfig struct {
 	ConnectionStrings map[string]string `yaml:"connection_strings"`
 
 	// Timeout is the default timeout all database requests should use.
+	Timeout int `yaml:"timeout"`
+}
+
+type FirestoreConfig struct {
+	// ServiceFile is the file location for the firebase service account json.
+	ServiceFile string `yaml:"service_file"`
+
+	// Timeout is the default timeout all firestore requests should use.
 	Timeout int `yaml:"timeout"`
 }
 
@@ -71,6 +83,7 @@ func InitConfig(dir string) error {
 	//bind environment variables
 	viper.SetEnvPrefix("cfg")
 	viper.BindEnv("env")
+	viper.BindEnv("data_adapter")
 
 	//calc the root dir using the provided path and the current working directory
 	wd, err := os.Getwd()
@@ -95,9 +108,11 @@ func InitConfig(dir string) error {
 	//set the config
 	viper.Set("root_dir", rootDir)
 	viper.Set("app_name", cfg.AppName)
+	viper.SetDefault("data_adapter", cfg.DataAdapter)
 	viper.Set("token", cfg.TokenConfig)
 	viper.Set("permission", cfg.PermissionConfig)
 	viper.Set("database", cfg.DatabaseConfig)
+	viper.Set("firestore", cfg.FirestoreConfig)
 	viper.Set("password_criteria", cfg.PasswordCriteriaConfig)
 
 	return nil
@@ -126,6 +141,11 @@ func GetPermissionConfig() PermissionConfig {
 // GetDatabaseConfig gets the database config object.
 func GetDatabaseConfig() DatabaseConfig {
 	return viper.Get("database").(DatabaseConfig)
+}
+
+// GetFirestoreConfig gets the firestore config object.
+func GetFirestoreConfig() FirestoreConfig {
+	return viper.Get("firestore").(FirestoreConfig)
 }
 
 // GetPasswordCriteriaConfig gets the password criteria config object.

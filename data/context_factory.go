@@ -1,4 +1,4 @@
-package sqladapter
+package data
 
 import (
 	"context"

@@ -16,7 +16,7 @@ type contextExecutor interface {
 type SQLCRUD struct {
 	Executor       contextExecutor
 	SQLDriver      SQLDriver
-	ContextFactory ContextFactory
+	ContextFactory data.ContextFactory
 }
 
 type SQLTransaction struct {

@@ -12,9 +12,9 @@ const UserUsernameMaxLength = 30
 
 // User represents the user model.
 type User struct {
-	Username     string
-	Rank         int
-	PasswordHash []byte
+	Username     string `firestore:"username"`
+	Rank         int    `firestore:"rank"`
+	PasswordHash []byte `firestore:"password_hash"`
 }
 
 type UserCRUD interface {

@@ -35,7 +35,8 @@ func Run(name string) error {
 
 	//create the config struct
 	cfg := config.Config{
-		AppName: "Amber",
+		AppName:     "Amber",
+		DataAdapter: "database",
 		TokenConfig: config.TokenConfig{
 			DefaultIssuer: "amber",
 			Lifetime:      60,
@@ -49,6 +50,10 @@ func Run(name string) error {
 				"integration": "",
 			},
 			Timeout: 3000,
+		},
+		FirestoreConfig: config.FirestoreConfig{
+			ServiceFile: "",
+			Timeout:     3000,
 		},
 		PasswordCriteriaConfig: config.PasswordCriteriaConfig{
 			MinLength:        8,

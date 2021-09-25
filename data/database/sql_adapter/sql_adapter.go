@@ -21,7 +21,7 @@ type SQLAdapter struct {
 
 	DB             *sql.DB
 	SQLDriver      SQLDriver
-	ContextFactory ContextFactory
+	ContextFactory data.ContextFactory
 
 	// DbKey is the key that will be used to resolve the database's connection string.
 	DbKey string
