@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/mhogar/amber/config"
@@ -24,6 +25,7 @@ func (suite *CRUDTestSuite) SetupSuite() {
 
 	viper.Set("db_key", "integration")
 	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:3000")
+	fmt.Println("Data Adapter: " + config.GetDataAdapter())
 
 	//-- create and setup the adapter --
 	suite.Adapter = dependencies.ResolveDataAdapter()

@@ -1,9 +1,11 @@
 package e2e_test
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"os"
 
 	"github.com/mhogar/amber/config"
 	"github.com/mhogar/amber/dependencies"
@@ -30,8 +32,9 @@ func (suite *E2ETestSuite) SetupSuite() {
 	err := config.InitConfig("../..")
 	suite.Require().NoError(err)
 
-	//set db key
 	viper.Set("db_key", "integration")
+	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:3000")
+	fmt.Println("Data Adapter: " + config.GetDataAdapter())
 
 	//create the test server
 	runner := server.CreateHTTPTestServerRunner(dependencies.ResolveRouterFactory())

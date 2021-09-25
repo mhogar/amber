@@ -92,17 +92,20 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllUserSessions_WithNoSessionsToDel
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllUserSessions_DeletesAllSessionsWithUsername() {
 	//arrange
-	user := suite.SaveUser(models.CreateUser("username", 0, []byte("password")))
-	session1 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
-	session2 := suite.SaveSession(models.CreateNewSession(user.Username, 0))
+	user1 := suite.SaveUser(models.CreateUser("user1", 0, []byte("password")))
+	user2 := suite.SaveUser(models.CreateUser("user2", 0, []byte("password")))
+
+	session1 := suite.SaveSession(models.CreateNewSession(user1.Username, 0))
+	session2 := suite.SaveSession(models.CreateNewSession(user1.Username, 0))
+	session3 := suite.SaveSession(models.CreateNewSession(user2.Username, 0))
 
 	//act
-	err := suite.Executor.DeleteAllUserSessions(user.Username)
+	err := suite.Executor.DeleteAllUserSessions(user1.Username)
 
 	//assert
 	suite.Require().NoError(err)
 
-	//session2 was deleted
+	//session1 was deleted
 	resultSession, err := suite.Executor.GetSessionByToken(session1.Token)
 	suite.NoError(err)
 	suite.Nil(resultSession)
@@ -112,8 +115,14 @@ func (suite *SessionCRUDTestSuite) TestDeleteAllUserSessions_DeletesAllSessionsW
 	suite.NoError(err)
 	suite.Nil(resultSession)
 
+	//can still find session3
+	resultSession, err = suite.Executor.GetSessionByToken(session3.Token)
+	suite.NoError(err)
+	suite.EqualValues(session3, resultSession)
+
 	//clean up
-	suite.DeleteUser(user)
+	suite.DeleteUser(user1)
+	suite.DeleteUser(user2)
 }
 
 func (suite *SessionCRUDTestSuite) TestDeleteAllOtherUserSessions_WithNoSessionsToDelete_ReturnsNilError() {

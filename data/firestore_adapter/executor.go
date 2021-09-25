@@ -1,8 +1,6 @@
 package firestoreadapter
 
 import (
-	"context"
-
 	"cloud.google.com/go/firestore"
 	"github.com/mhogar/amber/data"
 )
@@ -21,17 +19,26 @@ func (exec *FirestoreExecutor) CreateTransaction() (data.Transaction, error) {
 	return tx, nil
 }
 
-func (*FirestoreExecutor) Create(ctx context.Context, ref *firestore.DocumentRef, data interface{}) error {
+func (exec *FirestoreExecutor) Create(ref *firestore.DocumentRef, data interface{}) error {
+	ctx, cancel := exec.ContextFactory.CreateStandardTimeoutContext()
 	_, err := ref.Create(ctx, data)
+	cancel()
+
 	return err
 }
 
-func (*FirestoreExecutor) Update(ctx context.Context, ref *firestore.DocumentRef, updates []firestore.Update) error {
+func (exec *FirestoreExecutor) Update(ref *firestore.DocumentRef, updates []firestore.Update) error {
+	ctx, cancel := exec.ContextFactory.CreateStandardTimeoutContext()
 	_, err := ref.Update(ctx, updates)
+	cancel()
+
 	return err
 }
 
-func (*FirestoreExecutor) Delete(ctx context.Context, ref *firestore.DocumentRef) error {
+func (exec *FirestoreExecutor) Delete(ref *firestore.DocumentRef) error {
+	ctx, cancel := exec.ContextFactory.CreateStandardTimeoutContext()
 	_, err := ref.Delete(ctx)
+	cancel()
+
 	return err
 }

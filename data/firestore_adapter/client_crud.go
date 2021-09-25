@@ -16,9 +16,8 @@ func (crud *FirestoreCRUD) CreateClient(client *models.Client) error {
 		return errors.New(fmt.Sprint("error validating client model: ", verr))
 	}
 
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	err := crud.DocWriter.Create(ctx, crud.Client.Collection("clients").Doc(client.UID.String()), client)
-	cancel()
+	//create client
+	err := crud.DocWriter.Create(crud.Client.Collection("clients").Doc(client.UID.String()), client)
 
 	if err != nil {
 		return common.ChainError("error creating client", err)

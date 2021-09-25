@@ -21,10 +21,8 @@ func (crud *FirestoreCRUD) CreateUser(user *models.User) error {
 		return errors.New("password hash cannot be nil")
 	}
 
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	err := crud.DocWriter.Create(ctx, crud.Client.Collection("users").Doc(user.Username), user)
-	cancel()
-
+	//create user
+	err := crud.DocWriter.Create(crud.Client.Collection("users").Doc(user.Username), user)
 	if err != nil {
 		return common.ChainError("error creating user", err)
 	}
@@ -37,7 +35,8 @@ func (crud *FirestoreCRUD) GetUsersWithLesserRank(rank int) ([]*models.User, err
 	itr := crud.Client.Collection("users").
 		Where("rank", "<", rank).
 		OrderBy("rank", firestore.Asc).
-		OrderBy("username", firestore.Asc).Documents(ctx)
+		OrderBy("username", firestore.Asc).
+		Documents(ctx)
 
 	defer cancel()
 	defer itr.Stop()
@@ -92,13 +91,10 @@ func (crud *FirestoreCRUD) UpdateUser(user *models.User) (bool, error) {
 	}
 
 	//update fields
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	err = crud.DocWriter.Update(ctx, doc.Ref, []firestore.Update{
+	err = crud.DocWriter.Update(doc.Ref, []firestore.Update{
 		{Path: "username", Value: user.Username},
 		{Path: "rank", Value: user.Rank},
 	})
-	cancel()
-
 	if err != nil {
 		return true, common.ChainError("error updating user", err)
 	}
@@ -121,12 +117,9 @@ func (crud *FirestoreCRUD) UpdateUserPassword(username string, hash []byte) (boo
 	}
 
 	//update fields
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	err = crud.DocWriter.Update(ctx, doc.Ref, []firestore.Update{
+	err = crud.DocWriter.Update(doc.Ref, []firestore.Update{
 		{Path: "password_hash", Value: hash},
 	})
-	cancel()
-
 	if err != nil {
 		return false, common.ChainError("error updating user password", err)
 	}
@@ -145,12 +138,15 @@ func (crud *FirestoreCRUD) DeleteUser(username string) (bool, error) {
 	}
 
 	//delete user
-	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	err = crud.DocWriter.Delete(ctx, doc.Ref)
-	cancel()
-
+	err = crud.DocWriter.Delete(doc.Ref)
 	if err != nil {
 		return false, common.ChainError("error deleting user", err)
+	}
+
+	//delete all user sessions
+	err = crud.DeleteAllUserSessions(username)
+	if err != nil {
+		return false, common.ChainError("error deleting user sessions", err)
 	}
 
 	return true, nil

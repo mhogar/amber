@@ -1,8 +1,6 @@
 package firestoreadapter
 
 import (
-	"context"
-
 	"cloud.google.com/go/firestore"
 	"github.com/mhogar/amber/common"
 )
@@ -12,17 +10,17 @@ type FirestoreTransaction struct {
 	Batch *firestore.WriteBatch
 }
 
-func (tx *FirestoreTransaction) Create(_ context.Context, ref *firestore.DocumentRef, data interface{}) error {
+func (tx *FirestoreTransaction) Create(ref *firestore.DocumentRef, data interface{}) error {
 	tx.Batch.Create(ref, data)
 	return nil
 }
 
-func (tx *FirestoreTransaction) Update(_ context.Context, ref *firestore.DocumentRef, updates []firestore.Update) error {
+func (tx *FirestoreTransaction) Update(ref *firestore.DocumentRef, updates []firestore.Update) error {
 	tx.Batch.Update(ref, updates)
 	return nil
 }
 
-func (tx *FirestoreTransaction) Delete(_ context.Context, ref *firestore.DocumentRef) error {
+func (tx *FirestoreTransaction) Delete(ref *firestore.DocumentRef) error {
 	tx.Batch.Delete(ref)
 	return nil
 }

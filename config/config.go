@@ -128,6 +128,11 @@ func GetAppName() string {
 	return viper.GetString("app_name")
 }
 
+// GetDataAdapter gets the data adapter currently selected for the app.
+func GetDataAdapter() string {
+	return viper.GetString("data_adapter")
+}
+
 // GetTokenConfig gets the token config object.
 func GetTokenConfig() TokenConfig {
 	return viper.Get("token").(TokenConfig)
