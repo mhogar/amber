@@ -23,7 +23,7 @@ func (crud *FirestoreCRUD) CreateMigration(timestamp string) error {
 	}
 
 	//create the migration
-	err := crud.DocWriter.Create(crud.Client.Collection("migrations").Doc(timestamp), migration)
+	err := crud.DocWriter.Create(crud.getMigrationDocRef(timestamp), migration)
 	if err != nil {
 		return common.ChainError("error creating migration", err)
 	}
@@ -90,9 +90,13 @@ func (crud *FirestoreCRUD) DeleteMigrationByTimestamp(timestamp string) error {
 	return nil
 }
 
+func (crud *FirestoreCRUD) getMigrationDocRef(timestamp string) *firestore.DocumentRef {
+	return crud.Client.Collection("migrations").Doc(timestamp)
+}
+
 func (crud *FirestoreCRUD) getMigration(timestamp string) (*firestore.DocumentSnapshot, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	doc, err := crud.Client.Collection("migrations").Doc(timestamp).Get(ctx)
+	doc, err := crud.getMigrationDocRef(timestamp).Get(ctx)
 	cancel()
 
 	//check migration was found

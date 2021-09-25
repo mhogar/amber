@@ -8,7 +8,7 @@ database:
     connection_strings:
         core: ""
         integration: postgres://postgres:password@localhost:5432/ci_test?sslmode=disable
-    timeout: 3000
+    timeout: 5000
 password_criteria:
     min_length: 8
     require_lower_case: true

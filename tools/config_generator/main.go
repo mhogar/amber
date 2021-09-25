@@ -49,11 +49,11 @@ func Run(name string) error {
 				"core":        "",
 				"integration": "",
 			},
-			Timeout: 3000,
+			Timeout: 5000,
 		},
 		FirestoreConfig: config.FirestoreConfig{
 			ServiceFile: "",
-			Timeout:     3000,
+			Timeout:     5000,
 		},
 		PasswordCriteriaConfig: config.PasswordCriteriaConfig{
 			MinLength:        8,

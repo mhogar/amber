@@ -74,7 +74,7 @@ func (c CoreUserRoleController) UpdateUserRole(CRUD UserRoleControllerCRUD, role
 
 func (c CoreUserRoleController) DeleteUserRole(CRUD UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError {
 	//delete the user-role
-	res, err := CRUD.DeleteUserRole(username, clientUID)
+	res, err := CRUD.DeleteUserRole(clientUID, username)
 	if err != nil {
 		log.Println("error deleting user-role", err)
 		return common.InternalError()

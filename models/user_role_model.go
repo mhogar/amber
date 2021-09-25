@@ -13,9 +13,9 @@ const UserRoleRoleMaxLength = 15
 
 // UserRole represents the user-role model.
 type UserRole struct {
-	ClientUID uuid.UUID
-	Username  string
-	Role      string
+	ClientUID uuid.UUID `firestore:"client_uid"`
+	Username  string    `firestore:"username"`
+	Role      string    `firestore:"role"`
 }
 
 type UserRoleCRUD interface {
@@ -34,9 +34,9 @@ type UserRoleCRUD interface {
 	// Returns result of whether the user-role was found and any errors.
 	UpdateUserRole(role *UserRole) (bool, error)
 
-	// DeleteUserRole deletes the user-role with the given username and client uid.
+	// DeleteUserRole deletes the user-role with the given client uid and username.
 	// Returns result of whether the user-role was found, and any errors.
-	DeleteUserRole(username string, clientUID uuid.UUID) (bool, error)
+	DeleteUserRole(clientUID uuid.UUID, username string) (bool, error)
 }
 
 // CreateUserRole creates a new user-role model with the provided fields.

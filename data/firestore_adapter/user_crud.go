@@ -22,7 +22,7 @@ func (crud *FirestoreCRUD) CreateUser(user *models.User) error {
 	}
 
 	//create user
-	err := crud.DocWriter.Create(crud.Client.Collection("users").Doc(user.Username), user)
+	err := crud.DocWriter.Create(crud.getUserDocRef(user.Username), user)
 	if err != nil {
 		return common.ChainError("error creating user", err)
 	}
@@ -143,6 +143,12 @@ func (crud *FirestoreCRUD) DeleteUser(username string) (bool, error) {
 		return false, common.ChainError("error deleting user", err)
 	}
 
+	//delete all user-roles
+	err = crud.DeleteAllUserRolesByUsername(username)
+	if err != nil {
+		return false, common.ChainError("error deleting user-roles", err)
+	}
+
 	//delete all user sessions
 	err = crud.DeleteAllUserSessions(username)
 	if err != nil {
@@ -152,9 +158,13 @@ func (crud *FirestoreCRUD) DeleteUser(username string) (bool, error) {
 	return true, nil
 }
 
+func (crud *FirestoreCRUD) getUserDocRef(username string) *firestore.DocumentRef {
+	return crud.Client.Collection("users").Doc(username)
+}
+
 func (crud *FirestoreCRUD) getUser(username string) (*firestore.DocumentSnapshot, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	doc, err := crud.Client.Collection("users").Doc(username).Get(ctx)
+	doc, err := crud.getUserDocRef(username).Get(ctx)
 	cancel()
 
 	//check user was found

@@ -128,7 +128,7 @@ func (suite *UserRoleCRUDTestSuite) TestUpdateUserRole_UpdatesUserRole() {
 
 func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_WhereUserRoleNotFound_ReturnsFalseResult() {
 	//act
-	res, err := suite.Executor.DeleteUserRole("DNE", uuid.New())
+	res, err := suite.Executor.DeleteUserRole(uuid.New(), "DNE")
 
 	//assert
 	suite.False(res)
@@ -142,7 +142,7 @@ func (suite *UserRoleCRUDTestSuite) TestDeleteUserRole_DeletesUserRole() {
 	role := suite.SaveUserRole(models.CreateUserRole(client.UID, user.Username, "role"))
 
 	//act
-	res, err := suite.Executor.DeleteUserRole(role.Username, role.ClientUID)
+	res, err := suite.Executor.DeleteUserRole(role.ClientUID, role.Username)
 
 	//assert
 	suite.True(res)

@@ -19,7 +19,7 @@ func (crud *FirestoreCRUD) CreateClient(client *models.Client) error {
 	}
 
 	//create client
-	err := crud.DocWriter.Create(crud.Client.Collection("clients").Doc(client.UID.String()), client)
+	err := crud.DocWriter.Create(crud.getClientDocRef(client.UID), client)
 	if err != nil {
 		return common.ChainError("error creating client", err)
 	}
@@ -110,12 +110,22 @@ func (crud *FirestoreCRUD) DeleteClient(uid uuid.UUID) (bool, error) {
 		return false, common.ChainError("error deleting client", err)
 	}
 
+	//delete all user-roles
+	err = crud.DeleteAllUserRolesByClientUID(uid)
+	if err != nil {
+		return false, common.ChainError("error deleting user-roles", err)
+	}
+
 	return true, nil
+}
+
+func (crud *FirestoreCRUD) getClientDocRef(uid uuid.UUID) *firestore.DocumentRef {
+	return crud.Client.Collection("clients").Doc(uid.String())
 }
 
 func (crud *FirestoreCRUD) getClient(uid uuid.UUID) (*firestore.DocumentSnapshot, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	doc, err := crud.Client.Collection("clients").Doc(uid.String()).Get(ctx)
+	doc, err := crud.getClientDocRef(uid).Get(ctx)
 	cancel()
 
 	//check client was found

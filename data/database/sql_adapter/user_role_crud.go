@@ -121,7 +121,7 @@ func (crud *SQLCRUD) UpdateUserRole(role *models.UserRole) (bool, error) {
 	return count > 0, nil
 }
 
-func (crud *SQLCRUD) DeleteUserRole(username string, clientUID uuid.UUID) (bool, error) {
+func (crud *SQLCRUD) DeleteUserRole(clientUID uuid.UUID, username string) (bool, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
 	res, err := crud.Executor.ExecContext(ctx, crud.SQLDriver.DeleteUserRoleScript(),
 		clientUID, username,
