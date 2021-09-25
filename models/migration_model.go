@@ -13,7 +13,7 @@ const (
 
 // Migration represents the migration model.
 type Migration struct {
-	Timestamp string
+	Timestamp string `firestore:"timestamp"`
 }
 
 type MigrationCRUD interface {
