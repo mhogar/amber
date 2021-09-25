@@ -90,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     env:
-      CFG_DATA_ADAPTER: postgres
+      CFG_DATA_ADAPTER: database
 
     services:
       postgres:

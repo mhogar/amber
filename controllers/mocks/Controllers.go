@@ -206,13 +206,13 @@ func (_m *Controllers) DeleteUser(CRUD controllers.UserControllerCRUD, username 
 	return r0
 }
 
-// DeleteUserRole provides a mock function with given fields: CRUD, username, clientUID
-func (_m *Controllers) DeleteUserRole(CRUD controllers.UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError {
-	ret := _m.Called(CRUD, username, clientUID)
+// DeleteUserRole provides a mock function with given fields: CRUD, clientUID, username
+func (_m *Controllers) DeleteUserRole(CRUD controllers.UserRoleControllerCRUD, clientUID uuid.UUID, username string) common.CustomError {
+	ret := _m.Called(CRUD, clientUID, username)
 
 	var r0 common.CustomError
-	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, string, uuid.UUID) common.CustomError); ok {
-		r0 = rf(CRUD, username, clientUID)
+	if rf, ok := ret.Get(0).(func(controllers.UserRoleControllerCRUD, uuid.UUID, string) common.CustomError); ok {
+		r0 = rf(CRUD, clientUID, username)
 	} else {
 		r0 = ret.Get(0).(common.CustomError)
 	}

@@ -764,7 +764,7 @@ func (suite *UserRoleHandlerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsSu
 	suite.SuccessResponse(res)
 
 	suite.ControllersMock.AssertCalled(suite.T(), "VerifyUserRank", &suite.CRUDMock, params[0].Value, session.Rank)
-	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUserRole", &suite.CRUDMock, params[0].Value, clientID)
+	suite.ControllersMock.AssertCalled(suite.T(), "DeleteUserRole", &suite.CRUDMock, clientID, params[0].Value)
 }
 
 func TestUserRoleHandlerTestSuite(t *testing.T) {

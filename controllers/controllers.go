@@ -104,9 +104,9 @@ type UserRoleController interface {
 	// Returns any errors.
 	UpdateUserRole(CRUD UserRoleControllerCRUD, role *models.UserRole) common.CustomError
 
-	// DeleteUserRole deletes the user-role with the given username and client uid.
+	// DeleteUserRole deletes the user-role with the given client uid and username.
 	// Returns any errors.
-	DeleteUserRole(CRUD UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError
+	DeleteUserRole(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, username string) common.CustomError
 }
 
 // AuthControllerCRUD encapsulates the CRUD operations required by the AuthController.
