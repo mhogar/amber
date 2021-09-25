@@ -45,6 +45,7 @@ func Run(name string) error {
 			MinClientRank: 5,
 		},
 		DatabaseConfig: config.DatabaseConfig{
+			Driver: "postgres",
 			ConnectionStrings: map[string]string{
 				"core":        "",
 				"integration": "",

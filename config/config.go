@@ -18,7 +18,7 @@ type Config struct {
 	AppName string `yaml:"app_name"`
 
 	// DataAdapter is the name of the data adapter the app will use.
-	DataAdapter string `yaml:"data_adapter"`
+	DataAdapter string `yaml:"data_adapter,omitempty"`
 
 	TokenConfig            TokenConfig            `yaml:"token"`
 	PermissionConfig       PermissionConfig       `yaml:"permissions"`
@@ -41,6 +41,9 @@ type PermissionConfig struct {
 }
 
 type DatabaseConfig struct {
+	// Driver is the database driver to use.
+	Driver string `yaml:"driver"`
+
 	// ConnectionStrings is a string map that maps db keys to the connection string of the database.
 	ConnectionStrings map[string]string `yaml:"connection_strings"`
 
@@ -50,7 +53,7 @@ type DatabaseConfig struct {
 
 type FirestoreConfig struct {
 	// ServiceFile is the file location for the firebase service account json.
-	ServiceFile string `yaml:"service_file"`
+	ServiceFile string `yaml:"service_file,omitempty"`
 
 	// Timeout is the default timeout all firestore requests should use.
 	Timeout int `yaml:"timeout"`
