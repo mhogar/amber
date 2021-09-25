@@ -1,9 +1,8 @@
 name: CI
 on: 
-  pull_request:
   push:
-    branches:
-      - master
+    branches: [master]
+  pull_request:
 env:
   CFG_ENV: test
   FIRESTORE_EMULATOR_HOST: localhost:3000
