@@ -72,11 +72,13 @@ func (a *FirestoreAdapter) CleanUp() error {
 }
 
 func (a *FirestoreAdapter) GetExecutor() data.DataExecutor {
-	return &FirestoreExecutor{
-		Client: a.Client,
+	exec := &FirestoreExecutor{
 		FirestoreCRUD: FirestoreCRUD{
 			Client:         a.Client,
 			ContextFactory: a.ContextFactory,
 		},
 	}
+	exec.FirestoreCRUD.DocWriter = exec
+
+	return exec
 }

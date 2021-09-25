@@ -22,7 +22,7 @@ func (crud *FirestoreCRUD) CreateUser(user *models.User) error {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Collection("users").Doc(user.Username).Create(ctx, user)
+	err := crud.DocWriter.Create(ctx, crud.Client.Collection("users").Doc(user.Username), user)
 	cancel()
 
 	if err != nil {
@@ -34,7 +34,7 @@ func (crud *FirestoreCRUD) CreateUser(user *models.User) error {
 
 func (crud *FirestoreCRUD) GetUsersWithLesserRank(rank int) ([]*models.User, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	itr := crud.Collection("users").
+	itr := crud.Client.Collection("users").
 		Where("rank", "<", rank).
 		OrderBy("rank", firestore.Asc).
 		OrderBy("username", firestore.Asc).Documents(ctx)
@@ -93,7 +93,7 @@ func (crud *FirestoreCRUD) UpdateUser(user *models.User) (bool, error) {
 
 	//update fields
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err = doc.Ref.Update(ctx, []firestore.Update{
+	err = crud.DocWriter.Update(ctx, doc.Ref, []firestore.Update{
 		{Path: "username", Value: user.Username},
 		{Path: "rank", Value: user.Rank},
 	})
@@ -122,7 +122,7 @@ func (crud *FirestoreCRUD) UpdateUserPassword(username string, hash []byte) (boo
 
 	//update fields
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err = doc.Ref.Update(ctx, []firestore.Update{
+	err = crud.DocWriter.Update(ctx, doc.Ref, []firestore.Update{
 		{Path: "password_hash", Value: hash},
 	})
 	cancel()
@@ -146,7 +146,7 @@ func (crud *FirestoreCRUD) DeleteUser(username string) (bool, error) {
 
 	//delete user
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err = doc.Ref.Delete(ctx)
+	err = crud.DocWriter.Delete(ctx, doc.Ref)
 	cancel()
 
 	if err != nil {
@@ -158,7 +158,7 @@ func (crud *FirestoreCRUD) DeleteUser(username string) (bool, error) {
 
 func (crud *FirestoreCRUD) getUser(username string) (*firestore.DocumentSnapshot, error) {
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	doc, err := crud.Collection("users").Doc(username).Get(ctx)
+	doc, err := crud.Client.Collection("users").Doc(username).Get(ctx)
 	cancel()
 
 	//check user was found

@@ -17,7 +17,7 @@ func (crud *FirestoreCRUD) CreateClient(client *models.Client) error {
 	}
 
 	ctx, cancel := crud.ContextFactory.CreateStandardTimeoutContext()
-	_, err := crud.Collection("clients").Doc(client.UID.String()).Create(ctx, client)
+	err := crud.DocWriter.Create(ctx, crud.Client.Collection("clients").Doc(client.UID.String()), client)
 	cancel()
 
 	if err != nil {
