@@ -15,6 +15,11 @@ func (tx *FirestoreTransaction) Create(ref *firestore.DocumentRef, data interfac
 	return nil
 }
 
+func (tx *FirestoreTransaction) Set(ref *firestore.DocumentRef, data interface{}) error {
+	tx.Batch.Set(ref, data)
+	return nil
+}
+
 func (tx *FirestoreTransaction) Update(ref *firestore.DocumentRef, updates []firestore.Update) error {
 	tx.Batch.Update(ref, updates)
 	return nil

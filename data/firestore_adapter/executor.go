@@ -27,6 +27,14 @@ func (exec *FirestoreExecutor) Create(ref *firestore.DocumentRef, data interface
 	return err
 }
 
+func (exec *FirestoreExecutor) Set(ref *firestore.DocumentRef, data interface{}) error {
+	ctx, cancel := exec.ContextFactory.CreateStandardTimeoutContext()
+	_, err := ref.Set(ctx, data)
+	cancel()
+
+	return err
+}
+
 func (exec *FirestoreExecutor) Update(ref *firestore.DocumentRef, updates []firestore.Update) error {
 	ctx, cancel := exec.ContextFactory.CreateStandardTimeoutContext()
 	_, err := ref.Update(ctx, updates)
