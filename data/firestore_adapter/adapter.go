@@ -3,6 +3,7 @@ package firestoreadapter
 import (
 	"context"
 	"os"
+	"path"
 
 	"cloud.google.com/go/firestore"
 	firebase "firebase.google.com/go/v4"
@@ -35,8 +36,10 @@ func (a *FirestoreAdapter) Setup() error {
 	if os.Getenv("FIRESTORE_EMULATOR_HOST") != "" {
 		a.Client, err = firestore.NewClient(ctx, "emulator-project-id")
 	} else {
+		credsFile := path.Join(config.GetAppRoot(), cfg.ServiceFile)
+
 		//create the firebase app
-		app, appErr := firebase.NewApp(a.ContextFactory.Context, nil, option.WithCredentialsFile(cfg.ServiceFile))
+		app, appErr := firebase.NewApp(a.ContextFactory.Context, nil, option.WithCredentialsFile(credsFile))
 		if appErr != nil {
 			return common.ChainError("error creating firebase app", appErr)
 		}
