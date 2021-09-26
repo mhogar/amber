@@ -22,8 +22,8 @@ type Config struct {
 
 	TokenConfig            TokenConfig            `yaml:"token"`
 	PermissionConfig       PermissionConfig       `yaml:"permissions"`
-	DatabaseConfig         DatabaseConfig         `yaml:"database"`
-	FirestoreConfig        FirestoreConfig        `yaml:"firestore"`
+	DatabaseConfig         DatabaseConfig         `yaml:"database,omitempty"`
+	FirestoreConfig        FirestoreConfig        `yaml:"firestore,omitempty"`
 	PasswordCriteriaConfig PasswordCriteriaConfig `yaml:"password_criteria"`
 }
 
