@@ -1,14 +1,16 @@
 app_name: Test App
 token:
-    default_issuer: "test"
+    default_issuer: test
     lifetime: 60
 permissions:
     min_client_rank: 5
 database:
+    driver: postgres
     connection_strings:
-        core: ""
         integration: postgres://postgres:password@localhost:5432/ci_test?sslmode=disable
-    timeout: 3000
+    timeout: 5000
+firestore:
+    timeout: 5000
 password_criteria:
     min_length: 8
     require_lower_case: true

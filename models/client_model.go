@@ -35,11 +35,11 @@ const ClientKeyUriMaxLength = 100
 
 // Client represents the client model.
 type Client struct {
-	UID         uuid.UUID
-	Name        string
-	RedirectUrl string
-	TokenType   int
-	KeyUri      string
+	UID         uuid.UUID `firestore:"uid"`
+	Name        string    `firestore:"name"`
+	RedirectUrl string    `firestore:"redirect_url"`
+	TokenType   int       `firestore:"token_type"`
+	KeyUri      string    `firestore:"key_uri"`
 }
 
 type ClientCRUD interface {

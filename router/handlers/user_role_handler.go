@@ -171,7 +171,7 @@ func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, 
 	}
 
 	//delete the user-role
-	cerr = h.Controllers.DeleteUserRole(CRUD, username, clientID)
+	cerr = h.Controllers.DeleteUserRole(CRUD, clientID, username)
 	if cerr.Type == common.ErrorTypeClient {
 		return common.NewBadRequestResponse(cerr.Error())
 	}

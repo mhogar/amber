@@ -35,7 +35,8 @@ func Run(name string) error {
 
 	//create the config struct
 	cfg := config.Config{
-		AppName: "Amber",
+		AppName:     "Amber",
+		DataAdapter: "database",
 		TokenConfig: config.TokenConfig{
 			DefaultIssuer: "amber",
 			Lifetime:      60,
@@ -44,11 +45,16 @@ func Run(name string) error {
 			MinClientRank: 5,
 		},
 		DatabaseConfig: config.DatabaseConfig{
+			Driver: "postgres",
 			ConnectionStrings: map[string]string{
 				"core":        "",
 				"integration": "",
 			},
-			Timeout: 3000,
+			Timeout: 5000,
+		},
+		FirestoreConfig: config.FirestoreConfig{
+			ServiceFile: "",
+			Timeout:     5000,
 		},
 		PasswordCriteriaConfig: config.PasswordCriteriaConfig{
 			MinLength:        8,

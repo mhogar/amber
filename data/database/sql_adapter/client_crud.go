@@ -40,7 +40,7 @@ func (crud *SQLCRUD) DropClientTable() error {
 }
 
 func (crud *SQLCRUD) CreateClient(client *models.Client) error {
-	//validate tbe client model
+	//validate the client model
 	verr := client.Validate()
 	if verr != models.ValidateClientValid {
 		return errors.New(fmt.Sprint("error validating client model: ", verr))

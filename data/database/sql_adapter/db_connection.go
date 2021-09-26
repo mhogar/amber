@@ -37,7 +37,7 @@ func (a *SQLAdapter) OpenConnection() error {
 
 // CloseConnection closes the connection to the SQL database server and resets its db instance.
 // The adapter also calls its cancel function to cancel any child requests that may still be running.
-// Niether the adapter's db instance or context should be used after calling this function.
+// Neither the adapter's db instance or context should be used after calling this function.
 // Returns any errors.
 func (a *SQLAdapter) CloseConnection() error {
 	err := a.DB.Close()

@@ -1,6 +1,9 @@
 package integration_test
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/mhogar/amber/config"
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/dependencies"
@@ -12,8 +15,8 @@ import (
 
 type CRUDTestSuite struct {
 	helpers.CustomSuite
-	Adapter data.DataAdapter
-	Tx      data.Transaction
+	Adapter  data.DataAdapter
+	Executor data.DataExecutor
 }
 
 func (suite *CRUDTestSuite) SetupSuite() {
@@ -21,55 +24,67 @@ func (suite *CRUDTestSuite) SetupSuite() {
 	suite.Require().NoError(err)
 
 	viper.Set("db_key", "integration")
+	os.Setenv("FIRESTORE_EMULATOR_HOST", "localhost:3000")
+	fmt.Println("Data Adapter: " + config.GetDataAdapter())
 
 	//-- create and setup the adapter --
 	suite.Adapter = dependencies.ResolveDataAdapter()
 
 	err = suite.Adapter.Setup()
 	suite.Require().NoError(err)
+
+	suite.Executor = suite.Adapter.GetExecutor()
 }
 
 func (suite *CRUDTestSuite) TearDownSuite() {
 	suite.Adapter.CleanUp()
 }
 
-func (suite *CRUDTestSuite) SetupTest() {
-	//start a new transaction for every test
-	tx, err := suite.Adapter.GetExecutor().CreateTransaction()
+func (suite *CRUDTestSuite) SaveMigration(timestamp string) string {
+	err := suite.Executor.CreateMigration(timestamp)
 	suite.Require().NoError(err)
 
-	suite.Tx = tx
+	return timestamp
 }
 
-func (suite *CRUDTestSuite) TearDownTest() {
-	//rollback the transaction after each test
-	err := suite.Tx.Rollback()
+func (suite *CRUDTestSuite) DeleteMigration(timestamp string) {
+	err := suite.Executor.DeleteMigrationByTimestamp(timestamp)
 	suite.Require().NoError(err)
 }
 
 func (suite *CRUDTestSuite) SaveUser(user *models.User) *models.User {
-	err := suite.Tx.CreateUser(user)
+	err := suite.Executor.CreateUser(user)
 	suite.Require().NoError(err)
 
 	return user
 }
 
+func (suite *CRUDTestSuite) DeleteUser(user *models.User) {
+	_, err := suite.Executor.DeleteUser(user.Username)
+	suite.Require().NoError(err)
+}
+
 func (suite *CRUDTestSuite) SaveClient(client *models.Client) *models.Client {
-	err := suite.Tx.CreateClient(client)
+	err := suite.Executor.CreateClient(client)
 	suite.Require().NoError(err)
 
 	return client
 }
 
+func (suite *CRUDTestSuite) DeleteClient(client *models.Client) {
+	_, err := suite.Executor.DeleteClient(client.UID)
+	suite.Require().NoError(err)
+}
+
 func (suite *CRUDTestSuite) SaveUserRole(role *models.UserRole) *models.UserRole {
-	err := suite.Tx.CreateUserRole(role)
+	err := suite.Executor.CreateUserRole(role)
 	suite.Require().NoError(err)
 
 	return role
 }
 
 func (suite *CRUDTestSuite) SaveSession(session *models.Session) *models.Session {
-	err := suite.Tx.SaveSession(session)
+	err := suite.Executor.SaveSession(session)
 	suite.Require().NoError(err)
 
 	return session

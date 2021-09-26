@@ -4,7 +4,6 @@ package mocks
 
 import (
 	models "github.com/mhogar/amber/models"
-
 	mock "github.com/stretchr/testify/mock"
 
 	uuid "github.com/google/uuid"
@@ -176,20 +175,20 @@ func (_m *DataCRUD) DeleteUser(username string) (bool, error) {
 	return r0, r1
 }
 
-// DeleteUserRole provides a mock function with given fields: username, clientUID
-func (_m *DataCRUD) DeleteUserRole(username string, clientUID uuid.UUID) (bool, error) {
-	ret := _m.Called(username, clientUID)
+// DeleteUserRole provides a mock function with given fields: clientUID, username
+func (_m *DataCRUD) DeleteUserRole(clientUID uuid.UUID, username string) (bool, error) {
+	ret := _m.Called(clientUID, username)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func(string, uuid.UUID) bool); ok {
-		r0 = rf(username, clientUID)
+	if rf, ok := ret.Get(0).(func(uuid.UUID, string) bool); ok {
+		r0 = rf(clientUID, username)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
-		r1 = rf(username, clientUID)
+	if rf, ok := ret.Get(1).(func(uuid.UUID, string) error); ok {
+		r1 = rf(clientUID, username)
 	} else {
 		r1 = ret.Error(1)
 	}

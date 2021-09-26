@@ -72,9 +72,9 @@ func (c CoreUserRoleController) UpdateUserRole(CRUD UserRoleControllerCRUD, role
 	return common.NoError()
 }
 
-func (c CoreUserRoleController) DeleteUserRole(CRUD UserRoleControllerCRUD, username string, clientUID uuid.UUID) common.CustomError {
+func (c CoreUserRoleController) DeleteUserRole(CRUD UserRoleControllerCRUD, clientUID uuid.UUID, username string) common.CustomError {
 	//delete the user-role
-	res, err := CRUD.DeleteUserRole(username, clientUID)
+	res, err := CRUD.DeleteUserRole(clientUID, username)
 	if err != nil {
 		log.Println("error deleting user-role", err)
 		return common.InternalError()
@@ -82,7 +82,7 @@ func (c CoreUserRoleController) DeleteUserRole(CRUD UserRoleControllerCRUD, user
 
 	//verify user-role was actually found
 	if !res {
-		return common.ClientError(fmt.Sprintf("no role found for user %s and client %s", username, clientUID.String()))
+		return common.ClientError(fmt.Sprintf("no role found for client %s and user %s", clientUID.String(), username))
 	}
 
 	return common.NoError()

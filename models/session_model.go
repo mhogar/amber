@@ -9,9 +9,9 @@ const (
 
 // Session represents the session model.
 type Session struct {
-	Token    uuid.UUID
-	Username string
-	Rank     int
+	Token    uuid.UUID `firestore:"token"`
+	Username string    `firestore:"username"`
+	Rank     int       `firestore:"rank"`
 }
 
 type SessionCRUD interface {

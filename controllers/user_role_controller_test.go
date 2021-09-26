@@ -188,7 +188,7 @@ func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithErrorDeletingUs
 	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(false, errors.New(""))
 
 	//act
-	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, "username", uuid.New())
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, uuid.New(), "username")
 
 	//assert
 	suite.CustomInternalError(cerr)
@@ -196,31 +196,31 @@ func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithErrorDeletingUs
 
 func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithFalseResultDeletingUserRole_ReturnsClientError() {
 	//arrange
-	username := "username"
 	clientUID := uuid.New()
+	username := "username"
 
 	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(false, nil)
 
 	//act
-	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, clientUID, username)
 
 	//assert
-	suite.CustomClientError(cerr, "no role found", username, clientUID.String())
+	suite.CustomClientError(cerr, "no role found", clientUID.String(), username)
 }
 
 func (suite *UserRoleControllerTestSuite) TestDeleteUserRole_WithNoErrors_ReturnsNoError() {
 	//arrange
-	username := "username"
 	clientUID := uuid.New()
+	username := "username"
 
 	suite.CRUDMock.On("DeleteUserRole", mock.Anything, mock.Anything).Return(true, nil)
 
 	//act
-	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, username, clientUID)
+	cerr := suite.UserRoleController.DeleteUserRole(&suite.CRUDMock, clientUID, username)
 
 	//assert
 	suite.CustomNoError(cerr)
-	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUserRole", username, clientUID)
+	suite.CRUDMock.AssertCalled(suite.T(), "DeleteUserRole", clientUID, username)
 }
 
 func TestUserRoleControllerTestSuite(t *testing.T) {
