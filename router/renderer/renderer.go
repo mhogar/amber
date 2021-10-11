@@ -18,8 +18,10 @@ type Renderer interface {
 type CoreRenderer struct{}
 
 func (CoreRenderer) RenderView(name string, data interface{}) []byte {
+	viewsDir := path.Join(config.GetAppRoot(), "views")
+
 	//parse the template
-	t := template.Must(template.ParseFiles(path.Join(config.GetAppRoot(), "views", name)))
+	t := template.Must(template.ParseFiles(path.Join(viewsDir, name), path.Join(viewsDir, "base.gohtml")))
 
 	//render the template
 	var buffer bytes.Buffer

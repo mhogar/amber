@@ -55,5 +55,5 @@ func (h CoreHandlers) renderTokenView(clientID string, errMessage string) (int, 
 	}
 
 	//render the view
-	return http.StatusOK, h.Renderer.RenderView("token.gohtml", data)
+	return http.StatusOK, h.Renderer.RenderView("token/index.gohtml", data)
 }
