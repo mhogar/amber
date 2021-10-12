@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"net/http"
+	"path"
 	"strings"
 
 	"github.com/mhogar/amber/common"
@@ -36,6 +37,9 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 		log.Println(info)
 		sendInternalErrorResponse(w)
 	}
+
+	//host public folder as file server
+	r.ServeFiles("/public/*filepath", http.Dir(path.Join(config.GetAppRoot(), "public")))
 
 	//user routes
 	r.GET("/users", rf.createHandler(rf.Handlers.GetUsers, ResponseTypeJSON, true, 0))
