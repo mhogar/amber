@@ -9,7 +9,6 @@ import (
 	"flag"
 	"log"
 	"os"
-	"path"
 
 	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/config"
@@ -61,7 +60,7 @@ func Run(name string, overwrite bool) error {
 }
 
 func saveKey(name string, overwrite bool, key interface{}, createPEMBlock createPEMBlockFunc) error {
-	filename := path.Join(config.GetAppRoot(), "static", "keys", name+".pem")
+	filename := config.GetAppRoot("static", "keys", name+".pem")
 
 	//check if the file already exists if we don't want to overwrite it
 	if !overwrite {

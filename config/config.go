@@ -122,8 +122,9 @@ func InitConfig(dir string) error {
 }
 
 // GetAppRoot gets the app root directory for the application.
-func GetAppRoot() string {
-	return viper.GetString("root_dir")
+// Joins the given path segements to the app root.
+func GetAppRoot(paths ...string) string {
+	return path.Join(viper.GetString("root_dir"), path.Join(paths...))
 }
 
 // GetAppName gets the name for the app.

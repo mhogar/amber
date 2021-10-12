@@ -3,7 +3,6 @@ package renderer
 import (
 	"bytes"
 	"log"
-	"path"
 	"text/template"
 
 	"github.com/mhogar/amber/config"
@@ -18,10 +17,8 @@ type Renderer interface {
 type CoreRenderer struct{}
 
 func (CoreRenderer) RenderView(name string, data interface{}) []byte {
-	viewsDir := path.Join(config.GetAppRoot(), "views")
-
 	//parse the template
-	t := template.Must(template.ParseFiles(path.Join(viewsDir, name), path.Join(viewsDir, "base.gohtml")))
+	t := template.Must(template.ParseFiles(config.GetAppRoot("views", name), config.GetAppRoot("views", "base.gohtml")))
 
 	//render the template
 	var buffer bytes.Buffer
