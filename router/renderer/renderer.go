@@ -2,29 +2,49 @@ package renderer
 
 import (
 	"bytes"
+	"html/template"
 	"log"
-	"text/template"
+	"net/http"
 
 	"github.com/mhogar/amber/config"
 )
 
+type TemplateData struct {
+	AppName string
+	BaseURL string
+	Data    interface{}
+}
+
 type Renderer interface {
-	// RenderView renders the view with the given name and data.
-	// Returns the raw rendered view, and panics on error.
-	RenderView(name string, data interface{}) []byte
+	// RenderView renders the provided templates with provided data.
+	// Returns the raw rendered view and panics on error.
+	RenderView(req *http.Request, data interface{}, templates ...string) []byte
 }
 
 type CoreRenderer struct{}
 
-func (CoreRenderer) RenderView(name string, data interface{}) []byte {
+func (CoreRenderer) RenderView(req *http.Request, data interface{}, templates ...string) []byte {
+	//create the data object
+	d := TemplateData{
+		AppName: config.GetAppName(),
+		BaseURL: "http://" + req.Host,
+		Data:    data,
+	}
+
+	//update the template paths
+	templates = append(templates, "base")
+	for index, t := range templates {
+		templates[index] = config.GetAppRoot("views", t+".gohtml")
+	}
+
 	//parse the template
-	t := template.Must(template.ParseFiles(config.GetAppRoot("views", name), config.GetAppRoot("views", "base.gohtml")))
+	t := template.Must(template.ParseFiles(templates...))
 
 	//render the template
 	var buffer bytes.Buffer
-	err := t.Execute(&buffer, data)
+	err := t.Execute(&buffer, d)
 	if err != nil {
-		log.Panicf("error rendering %s template", name)
+		log.Panicf("error rendering template(s)")
 	}
 
 	return buffer.Bytes()

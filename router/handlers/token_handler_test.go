@@ -9,7 +9,6 @@ import (
 	"github.com/mhogar/amber/router/handlers"
 
 	"github.com/google/uuid"
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 )
@@ -18,17 +17,12 @@ type TokenHandlerTestSuite struct {
 	HandlersTestSuite
 }
 
-func (suite *TokenHandlerTestSuite) SetupSuite() {
-	viper.Set("app_name", "App Name")
-}
-
 func (suite *TokenHandlerTestSuite) TokenViewRenderedWithData(clientID string, errSubStrings ...string) {
 	data := suite.RenderViewData.(handlers.TokenViewData)
-	suite.Equal(viper.GetString("app_name"), data.AppName)
 	suite.Equal(clientID, data.ClientID)
 	suite.ContainsSubstrings(data.Error, errSubStrings...)
 
-	suite.RendererMock.AssertCalled(suite.T(), "RenderView", "token.gohtml", mock.Anything)
+	suite.RendererMock.AssertCalled(suite.T(), "RenderView", mock.Anything, data, "token/index")
 }
 
 func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/mhogar/amber/common"
-	"github.com/mhogar/amber/config"
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/models"
 
@@ -14,8 +13,6 @@ import (
 )
 
 type TokenViewData struct {
-	BaseURL  string
-	AppName  string
 	ClientID string
 	Error    string
 }
@@ -50,12 +47,10 @@ func (h CoreHandlers) PostToken(req *http.Request, _ httprouter.Params, _ *model
 func (h CoreHandlers) renderTokenView(req *http.Request, clientID string, errMessage string) (int, interface{}) {
 	//fill in the data struct
 	data := TokenViewData{
-		BaseURL:  "http://" + req.Host,
-		AppName:  config.GetAppName(),
 		ClientID: clientID,
 		Error:    errMessage,
 	}
 
 	//render the view
-	return http.StatusOK, h.Renderer.RenderView("token/index.gohtml", data)
+	return http.StatusOK, h.Renderer.RenderView(req, data, "token/index")
 }
