@@ -1,4 +1,12 @@
-{{define "navbar"}}
+{{define "page"}}
+{{template "base" .}}
+{{end}}
+
+{{define "header"}}
+<link href="{{.BaseURL}}/public/styles/page.css" rel="stylesheet">
+{{end}}
+
+{{define "body"}}
 <nav class="navbar navbar-expand-md navbar-light fixed-top">
     <div class="container-fluid">
         <a href="/" class="navbar-brand">amber</a>
@@ -18,4 +26,5 @@
         </div>
     </div>
 </nav>
+{{template "page_body" .}}
 {{end}}

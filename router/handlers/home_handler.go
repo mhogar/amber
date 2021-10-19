@@ -13,5 +13,5 @@ func (h CoreHandlers) GetHome(req *http.Request, _ httprouter.Params, _ *models.
 }
 
 func (h CoreHandlers) renderHomeView(req *http.Request) (int, interface{}) {
-	return http.StatusOK, h.Renderer.RenderView(req, nil, "home/index", "partials/navbar")
+	return http.StatusOK, h.Renderer.RenderView(req, nil, "home/index", "partials/page")
 }

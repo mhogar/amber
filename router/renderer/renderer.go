@@ -32,7 +32,7 @@ func (CoreRenderer) RenderView(req *http.Request, data interface{}, templates ..
 	}
 
 	//update the template paths
-	templates = append(templates, "base")
+	templates = append(templates, "partials/base")
 	for index, t := range templates {
 		templates[index] = config.GetAppRoot("views", t+".gohtml")
 	}
