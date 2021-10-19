@@ -308,6 +308,15 @@ func (suite *RouterAuthTestSuite) TestRoute_WithSessionRankLessThanMinRank_Retur
 	suite.ParseAndAssertInsufficientPermissionsErrorResponse(res)
 }
 
+func TestGetHomeTestSuite(t *testing.T) {
+	suite.Run(t, &RouterTestSuite{
+		Method:       "GET",
+		Route:        "/",
+		Handler:      "GetHome",
+		ResponseType: router.ResponseTypeRaw,
+	})
+}
+
 func TestGetUsersTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{

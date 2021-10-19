@@ -134,6 +134,29 @@ func (_m *Handlers) GetClients(_a0 *http.Request, _a1 httprouter.Params, _a2 *mo
 	return r0, r1
 }
 
+// GetHome provides a mock function with given fields: _a0, _a1, _a2, _a3
+func (_m *Handlers) GetHome(_a0 *http.Request, _a1 httprouter.Params, _a2 *models.Session, _a3 data.DataCRUD) (int, interface{}) {
+	ret := _m.Called(_a0, _a1, _a2, _a3)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) int); ok {
+		r0 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 interface{}
+	if rf, ok := ret.Get(1).(func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) interface{}); ok {
+		r1 = rf(_a0, _a1, _a2, _a3)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(interface{})
+		}
+	}
+
+	return r0, r1
+}
+
 // GetToken provides a mock function with given fields: _a0, _a1, _a2, _a3
 func (_m *Handlers) GetToken(_a0 *http.Request, _a1 httprouter.Params, _a2 *models.Session, _a3 data.DataCRUD) (int, interface{}) {
 	ret := _m.Called(_a0, _a1, _a2, _a3)
