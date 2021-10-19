@@ -52,5 +52,5 @@ func (h CoreHandlers) renderTokenView(req *http.Request, clientID string, errMes
 	}
 
 	//render the view
-	return http.StatusOK, h.Renderer.RenderView(req, data, "token/index")
+	return http.StatusOK, h.Renderer.RenderView(req, data, "token/index", "partials/login_form")
 }
