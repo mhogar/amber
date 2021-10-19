@@ -2,8 +2,10 @@ package handlers_test
 
 import (
 	"net/http"
+	"testing"
 
 	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/suite"
 )
 
 type HomeHandlerTestSuite struct {
@@ -21,5 +23,9 @@ func (suite *HomeHandlerTestSuite) TestGetHome_RendersHomeView() {
 	suite.Require().Equal(http.StatusOK, status)
 	suite.AssertRenderViewResult(res)
 
-	suite.RendererMock.AssertCalled(suite.T(), "RenderView", mock.Anything, mock.Anything, "home/index")
+	suite.RendererMock.AssertCalled(suite.T(), "RenderView", mock.Anything, mock.Anything, "home/index", "partials/page")
+}
+
+func TestHomeHandlerTestSuite(t *testing.T) {
+	suite.Run(t, &HomeHandlerTestSuite{})
 }
