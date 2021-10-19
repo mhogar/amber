@@ -22,7 +22,7 @@ func (suite *TokenHandlerTestSuite) TokenViewRenderedWithData(clientID string, e
 	suite.Equal(clientID, data.ClientID)
 	suite.ContainsSubstrings(data.Error, errSubStrings...)
 
-	suite.RendererMock.AssertCalled(suite.T(), "RenderView", mock.Anything, data, "token/index")
+	suite.RendererMock.AssertCalled(suite.T(), "RenderView", mock.Anything, data, "token/index", "partials/login_form", "partials/alert")
 }
 
 func (suite *TokenHandlerTestSuite) TestGetToken_RendersTokenView() {

@@ -27,7 +27,7 @@ func (suite *HandlersTestSuite) SetupTest() {
 	suite.RendererMock = renderermocks.Renderer{}
 
 	suite.RenderViewResult = []byte("render view result")
-	suite.RendererMock.On("RenderView", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(suite.RenderViewResult).Run(func(args mock.Arguments) {
+	suite.RendererMock.On("RenderView", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(suite.RenderViewResult).Run(func(args mock.Arguments) {
 		suite.RenderViewData = args.Get(1)
 	})
 

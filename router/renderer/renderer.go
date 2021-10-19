@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/config"
 )
 
@@ -50,7 +51,7 @@ func (r CoreRenderer) RenderView(req *http.Request, data interface{}, templates 
 	var buffer bytes.Buffer
 	err := t.Execute(&buffer, d)
 	if err != nil {
-		log.Panicf("error rendering template(s)")
+		log.Panicf(common.ChainError("error rendering template(s)", err).Error())
 	}
 
 	return buffer.Bytes()

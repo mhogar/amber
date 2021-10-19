@@ -6,13 +6,9 @@
 <link href="{{.BaseURL}}/public/styles/login.css" rel="stylesheet">
 {{end}}
 
-{{define "action"}}/token{{end}}
+{{define "action"}}/login{{end}}
 
-{{define "login_form_title"}}Sign in with {{.AppName}}{{end}}
-
-{{define "hidden_fields"}}
-<input type="hidden" name="client_id" value="{{.Data.ClientID}}" />
-{{end}}
+{{define "login_form_title"}}Login{{end}}
 
 {{define "body"}}
 {{template "login_form" .}}

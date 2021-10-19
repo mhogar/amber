@@ -15,6 +15,9 @@ type Handlers interface {
 	// GetHome Handles GET requests to /.
 	GetHome(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 
+	// GetLogin Handles GET requests to /login.
+	GetLogin(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+
 	// GetUsers handles GET requests to /users.
 	GetUsers(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
 

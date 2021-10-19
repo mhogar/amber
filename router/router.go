@@ -43,6 +43,9 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	//home routes
 	r.GET("/", rf.createHandler(rf.Handlers.GetHome, ResponseTypeRaw, false, 0))
 
+	//login routes
+	r.GET("/login", rf.createHandler(rf.Handlers.GetLogin, ResponseTypeRaw, false, 0))
+
 	//user routes
 	r.GET("/users", rf.createHandler(rf.Handlers.GetUsers, ResponseTypeJSON, true, 0))
 	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, ResponseTypeJSON, true, 0))

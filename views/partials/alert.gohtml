@@ -1,0 +1,7 @@
+{{define "alert"}}
+{{if .Data.Error}}
+<div class="alert alert-danger" role="alert">
+    {{.Data.Error}}
+</div>
+{{end}}
+{{end}}

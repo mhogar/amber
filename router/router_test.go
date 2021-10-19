@@ -317,6 +317,15 @@ func TestGetHomeTestSuite(t *testing.T) {
 	})
 }
 
+func TestGetLoginTestSuite(t *testing.T) {
+	suite.Run(t, &RouterTestSuite{
+		Method:       "GET",
+		Route:        "/login",
+		Handler:      "GetLogin",
+		ResponseType: router.ResponseTypeRaw,
+	})
+}
+
 func TestGetUsersTestSuite(t *testing.T) {
 	suite.Run(t, &RouterAuthTestSuite{
 		RouterTestSuite: RouterTestSuite{
