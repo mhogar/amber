@@ -21,9 +21,11 @@ type Renderer interface {
 	RenderView(req *http.Request, data interface{}, templates ...string) []byte
 }
 
-type CoreRenderer struct{}
+type CoreRenderer struct {
+	Templates map[string]*template.Template
+}
 
-func (CoreRenderer) RenderView(req *http.Request, data interface{}, templates ...string) []byte {
+func (r CoreRenderer) RenderView(req *http.Request, data interface{}, templates ...string) []byte {
 	//create the data object
 	d := TemplateData{
 		AppName: config.GetAppName(),
@@ -37,8 +39,12 @@ func (CoreRenderer) RenderView(req *http.Request, data interface{}, templates ..
 		templates[index] = config.GetAppRoot("views", t+".gohtml")
 	}
 
-	//parse the template
-	t := template.Must(template.ParseFiles(templates...))
+	//fetch or parse the template
+	t, ok := r.Templates[templates[0]]
+	if !ok {
+		t = template.Must(template.ParseFiles(templates...))
+		r.Templates[templates[0]] = t
+	}
 
 	//render the template
 	var buffer bytes.Buffer
