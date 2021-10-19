@@ -1,6 +1,7 @@
 package dependencies
 
 import (
+	"html/template"
 	"sync"
 
 	rendererpkg "github.com/mhogar/amber/router/renderer"
@@ -13,7 +14,9 @@ var renderer rendererpkg.Renderer
 // Only the first call to this function will create a new Renderer, after which it will be retrieved from memory.
 func ResolveRenderer() rendererpkg.Renderer {
 	createRendererOnce.Do(func() {
-		renderer = rendererpkg.CoreRenderer{}
+		renderer = rendererpkg.CoreRenderer{
+			Templates: map[string]*template.Template{},
+		}
 	})
 	return renderer
 }

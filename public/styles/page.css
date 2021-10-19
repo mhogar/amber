@@ -1,0 +1,13 @@
+body {
+    padding-top: 4.5rem;
+}
+
+.wrapper {
+    max-width: 1680px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.navbar {
+    background-color: #FFBF00;
+}

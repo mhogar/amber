@@ -37,6 +37,12 @@ func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 		sendInternalErrorResponse(w)
 	}
 
+	//host public folder as file server
+	r.ServeFiles("/public/*filepath", http.Dir(config.GetAppRoot("public")))
+
+	//home routes
+	r.GET("/", rf.createHandler(rf.Handlers.GetHome, ResponseTypeRaw, false, 0))
+
 	//user routes
 	r.GET("/users", rf.createHandler(rf.Handlers.GetUsers, ResponseTypeJSON, true, 0))
 	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, ResponseTypeJSON, true, 0))

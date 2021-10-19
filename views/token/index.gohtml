@@ -1,0 +1,31 @@
+{{template "base" .}}
+
+{{define "title"}}Sign In{{end}}
+
+{{define "header"}}
+<link href="{{.BaseURL}}/public/styles/token.css" rel="stylesheet">
+{{end}}
+
+{{define "body"}}
+<div class="form-signin">
+    <form class="text-center" action="/token" method="post">
+        <h2 class="mb-3 fw-normal">Sign in with {{.AppName}}</h1>
+        {{if .Data.Error}}
+        <div class="alert alert-danger" role="alert">
+            {{.Data.Error}}
+        </div>
+        {{ end }}
+        <div class="form-floating">
+            <input type="username" class="form-control" id="username-input" name="username" placeholder="Username">
+            <label for="username-input">Username</label>
+        </div>
+        <div class="form-floating">
+            <input type="password" class="form-control" id="password-input" name="password" placeholder="Password">
+            <label for="password-input">Password</label>
+        </div>
+        <input type="hidden" name="client_id" value="{{.Data.ClientID}}" />
+        <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+        <p class="mt-5 mb-3 text-muted">Powered by Amber &copy; 2021</p>
+    </form>
+</div>
+{{end}}

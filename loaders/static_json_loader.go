@@ -3,7 +3,6 @@ package loaders
 import (
 	"encoding/json"
 	"os"
-	"path"
 
 	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/config"
@@ -15,7 +14,7 @@ type StaticJSONLoader struct{}
 // Returns any errors.
 func (StaticJSONLoader) Load(uri string, v interface{}) error {
 	//open the json file
-	file, err := os.Open(path.Join(config.GetAppRoot(), "static", uri))
+	file, err := os.Open(config.GetAppRoot("static", uri))
 	if err != nil {
 		return common.ChainError("error opening json file", err)
 	}
