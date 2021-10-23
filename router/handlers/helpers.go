@@ -1,19 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
-	"errors"
-	"io"
-	"log"
+	"net/http"
+	"path"
 )
 
-func parseJSONBody(r io.Reader, v interface{}) error {
-	decoder := json.NewDecoder(r)
-	err := decoder.Decode(v)
-	if err != nil {
-		log.Println(err)
-		return errors.New("invalid request body")
-	}
-
-	return nil
+func getBaseURL(req *http.Request, paths ...string) string {
+	return path.Join("http://"+req.Host, path.Join(paths...))
 }

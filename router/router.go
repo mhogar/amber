@@ -10,14 +10,11 @@ import (
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/models"
 	"github.com/mhogar/amber/router/handlers"
+	"github.com/mhogar/amber/router/parsers"
+	"github.com/mhogar/amber/router/writers"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
-)
-
-const (
-	ResponseTypeRaw  = iota
-	ResponseTypeJSON = iota
 )
 
 type RouterFactory interface {
@@ -27,61 +24,95 @@ type RouterFactory interface {
 
 type CoreRouterFactory struct {
 	ScopeFactory data.ScopeFactory
-	Handlers     handlers.Handlers
+	UIHandlers   handlers.UIHandlers
+	APIHandlers  handlers.APIHandlers
 }
 
 func (rf CoreRouterFactory) CreateRouter() *httprouter.Router {
 	r := httprouter.New()
-	r.PanicHandler = func(w http.ResponseWriter, _ *http.Request, info interface{}) {
-		log.Println(info)
-		sendInternalErrorResponse(w)
-	}
 
 	//host public folder as file server
 	r.ServeFiles("/public/*filepath", http.Dir(config.GetAppRoot("public")))
 
-	//home routes
-	r.GET("/", rf.createHandler(rf.Handlers.GetHome, ResponseTypeRaw, false, 0))
-
-	//login routes
-	r.GET("/login", rf.createHandler(rf.Handlers.GetLogin, ResponseTypeRaw, false, 0))
-
-	//user routes
-	r.GET("/users", rf.createHandler(rf.Handlers.GetUsers, ResponseTypeJSON, true, 0))
-	r.POST("/user", rf.createHandler(rf.Handlers.PostUser, ResponseTypeJSON, true, 0))
-	r.PUT("/user/:username", rf.createHandler(rf.Handlers.PutUser, ResponseTypeJSON, true, 0))
-	r.PATCH("/user/password", rf.createHandler(rf.Handlers.PatchPassword, ResponseTypeJSON, true, 0))
-	r.PATCH("/user/password/:username", rf.createHandler(rf.Handlers.PatchUserPassword, ResponseTypeJSON, true, 0))
-	r.DELETE("/user/:username", rf.createHandler(rf.Handlers.DeleteUser, ResponseTypeJSON, true, 0))
-
-	minClientRank := config.GetPermissionConfig().MinClientRank
-
-	//client routes
-	r.GET("/clients", rf.createHandler(rf.Handlers.GetClients, ResponseTypeJSON, true, minClientRank))
-	r.POST("/client", rf.createHandler(rf.Handlers.PostClient, ResponseTypeJSON, true, minClientRank))
-	r.PUT("/client/:id", rf.createHandler(rf.Handlers.PutClient, ResponseTypeJSON, true, minClientRank))
-	r.DELETE("/client/:id", rf.createHandler(rf.Handlers.DeleteClient, ResponseTypeJSON, true, minClientRank))
-
-	//user-role routes
-	r.GET("/client/:id/roles", rf.createHandler(rf.Handlers.GetUserRoles, ResponseTypeJSON, true, 0))
-	r.POST("/client/:id/role", rf.createHandler(rf.Handlers.PostUserRole, ResponseTypeJSON, true, 0))
-	r.PUT("/client/:id/role/:username", rf.createHandler(rf.Handlers.PutUserRole, ResponseTypeJSON, true, 0))
-	r.DELETE("/client/:id/role/:username", rf.createHandler(rf.Handlers.DeleteUserRole, ResponseTypeJSON, true, 0))
-
-	//session routes
-	r.POST("/session", rf.createHandler(rf.Handlers.PostSession, ResponseTypeJSON, false, 0))
-	r.DELETE("/session", rf.createHandler(rf.Handlers.DeleteSession, ResponseTypeJSON, true, 0))
-
 	//token routes
-	r.GET("/token", rf.createHandler(rf.Handlers.GetToken, ResponseTypeRaw, false, 0))
-	r.POST("/token", rf.createHandler(rf.Handlers.PostToken, ResponseTypeRaw, false, 0))
+	r.GET("/token", rf.createUIHandler(rf.UIHandlers.GetToken, false, 0))
+	r.POST("/token", rf.createUIHandler(rf.UIHandlers.PostToken, false, 0))
+
+	//other routes
+	rf.createUIRoutes(r)
+	rf.createAPIRoutes(r)
+
+	//set panic handler
+	rf.setPanicHandler(r, writers.NewJSONResponseWriter())
 
 	return r
 }
 
-type handlerFunc func(*http.Request, httprouter.Params, *models.Session, data.DataCRUD) (int, interface{})
+func (rf CoreRouterFactory) createUIRoutes(r *httprouter.Router) {
+	//home routes
+	r.GET("/", rf.createUIHandler(rf.UIHandlers.GetHome, false, 0))
 
-func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int, authenticateUser bool, minRank int) httprouter.Handle {
+	//login routes
+	r.GET("/login", rf.createUIHandler(rf.UIHandlers.GetLogin, false, 0))
+}
+
+func (rf CoreRouterFactory) createAPIRoutes(r *httprouter.Router) {
+	//user routes
+	r.GET("/api/users", rf.createAPIHandler(rf.APIHandlers.GetUsers, true, 0))
+	r.POST("/api/user", rf.createAPIHandler(rf.APIHandlers.PostUser, true, 0))
+	r.PUT("/api/user/:username", rf.createAPIHandler(rf.APIHandlers.PutUser, true, 0))
+	r.PATCH("/api/user/password", rf.createAPIHandler(rf.APIHandlers.PatchPassword, true, 0))
+	r.PATCH("/api/user/password/:username", rf.createAPIHandler(rf.APIHandlers.PatchUserPassword, true, 0))
+	r.DELETE("/api/user/:username", rf.createAPIHandler(rf.APIHandlers.DeleteUser, true, 0))
+
+	minClientRank := config.GetPermissionConfig().MinClientRank
+
+	//client routes
+	r.GET("/api/clients", rf.createAPIHandler(rf.APIHandlers.GetClients, true, minClientRank))
+	r.POST("/api/client", rf.createAPIHandler(rf.APIHandlers.PostClient, true, minClientRank))
+	r.PUT("/api/client/:id", rf.createAPIHandler(rf.APIHandlers.PutClient, true, minClientRank))
+	r.DELETE("/api/client/:id", rf.createAPIHandler(rf.APIHandlers.DeleteClient, true, minClientRank))
+
+	//user-role routes
+	r.GET("/api/client/:id/roles", rf.createAPIHandler(rf.APIHandlers.GetUserRoles, true, 0))
+	r.POST("/api/client/:id/role", rf.createAPIHandler(rf.APIHandlers.PostUserRole, true, 0))
+	r.PUT("/api/client/:id/role/:username", rf.createAPIHandler(rf.APIHandlers.PutUserRole, true, 0))
+	r.DELETE("/api/client/:id/role/:username", rf.createAPIHandler(rf.APIHandlers.DeleteUserRole, true, 0))
+
+	//session routes
+	r.POST("/api/session", rf.createAPIHandler(rf.APIHandlers.PostSession, false, 0))
+	r.DELETE("/api/session", rf.createAPIHandler(rf.APIHandlers.DeleteSession, true, 0))
+}
+
+func (rf CoreRouterFactory) setPanicHandler(r *httprouter.Router, rw writers.ResponseWriter) {
+	r.PanicHandler = func(w http.ResponseWriter, _ *http.Request, info interface{}) {
+		log.Println(info)
+		rw.WriteInternalErrorResponse(w)
+	}
+}
+
+type handlerFunc func(*http.Request, httprouter.Params, *models.Session, parsers.BodyParser, data.DataCRUD) (int, interface{})
+
+type RouterFactoryConfig struct {
+	BodyParser     parsers.BodyParser
+	ResponseWriter writers.ResponseWriter
+}
+
+func (rf CoreRouterFactory) createUIHandler(handler handlerFunc, authenticateUser bool, minRank int) httprouter.Handle {
+	return rf.createHandler(handler, authenticateUser, minRank, RouterFactoryConfig{
+		BodyParser:     parsers.NewFormBodyParser(),
+		ResponseWriter: writers.NewUIResponseWriter(),
+	})
+}
+
+func (rf CoreRouterFactory) createAPIHandler(handler handlerFunc, authenticateUser bool, minRank int) httprouter.Handle {
+	return rf.createHandler(handler, authenticateUser, minRank, RouterFactoryConfig{
+		BodyParser:     parsers.NewJSONBodyParser(),
+		ResponseWriter: writers.NewJSONResponseWriter(),
+	})
+}
+
+func (rf CoreRouterFactory) createHandler(handler handlerFunc, authenticateUser bool, minRank int, cfg RouterFactoryConfig) httprouter.Handle {
 	return func(w http.ResponseWriter, req *http.Request, params httprouter.Params) {
 		var session *models.Session
 		var cerr common.CustomError
@@ -91,47 +122,49 @@ func (rf CoreRouterFactory) createHandler(handler handlerFunc, responseType int,
 			if authenticateUser {
 				session, cerr = rf.getSession(exec, req)
 				if cerr.Type == common.ErrorTypeClient {
-					sendErrorResponse(w, http.StatusUnauthorized, cerr.Error())
+					cfg.ResponseWriter.WriteErrorResponse(w, http.StatusUnauthorized, cerr.Error())
 					return nil
 				}
 				if cerr.Type == common.ErrorTypeInternal {
-					sendInternalErrorResponse(w)
+					cfg.ResponseWriter.WriteInternalErrorResponse(w)
 					return nil
 				}
 
 				//verify the user has at least the min rank required to access the route
 				if session.Rank < minRank {
-					sendInsufficientPermissionsErrorResponse(w)
+					cfg.ResponseWriter.WriteInsufficientPermissionsErrorResponse(w)
 					return nil
 				}
 			}
 
 			//handle route in transaction scope
 			return rf.ScopeFactory.CreateTransactionScope(exec, func(tx data.Transaction) (bool, error) {
-				status, data := handler(req, params, session, tx)
+				status, res := handler(req, params, session, cfg.BodyParser, tx)
 
 				//handle special redirect case
 				if status == http.StatusSeeOther {
-					w.Header().Set("Location", data.(string))
-					sendRawResponse(w, status, nil)
+					rf.setRedirectHeader(w, res.(common.RedirectResponse))
+					cfg.ResponseWriter.WriteResponse(w, status, nil)
 					return true, nil
 				}
 
-				//send response based on type (default to raw)
-				if responseType == ResponseTypeJSON {
-					sendJSONResponse(w, status, data)
-				} else {
-					sendRawResponse(w, status, data.([]byte))
-				}
-
+				//send response
+				cfg.ResponseWriter.WriteResponse(w, status, res)
 				return status == http.StatusOK, nil
 			})
 		})
 
 		if err != nil {
 			log.Println(err)
-			sendInternalErrorResponse(w)
+			cfg.ResponseWriter.WriteInternalErrorResponse(w)
 		}
+	}
+}
+
+func (CoreRouterFactory) setRedirectHeader(w http.ResponseWriter, res common.RedirectResponse) {
+	w.Header().Set("Location", res.Location)
+	if res.Cookie != "" {
+		w.Header().Set("Set-Cookie", res.Cookie)
 	}
 }
 

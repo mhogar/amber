@@ -56,3 +56,15 @@ func NewSuccessDataResponse(data interface{}) (int, DataResponse) {
 		Data:    data,
 	}
 }
+
+type RedirectResponse struct {
+	Location string
+	Cookie   string
+}
+
+func NewRedirectResponse(url string, cookie string) (int, RedirectResponse) {
+	return http.StatusSeeOther, RedirectResponse{
+		Location: url,
+		Cookie:   cookie,
+	}
+}

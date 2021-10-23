@@ -7,6 +7,7 @@ import (
 	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/parsers"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -16,7 +17,7 @@ type UserDataResponse struct {
 	PutUserBody
 }
 
-func (h CoreHandlers) GetUsers(_ *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) GetUsers(_ *http.Request, _ httprouter.Params, session *models.Session, _ parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//get the users
 	users, cerr := h.Controllers.GetUsersWithLesserRank(CRUD, session.Rank)
 	if cerr.Type == common.ErrorTypeClient {
@@ -40,13 +41,13 @@ type PostUserBody struct {
 	Rank     int    `json:"rank"`
 }
 
-func (h CoreHandlers) PostUser(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PostUser(req *http.Request, _ httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PostUserBody
-	err := parseJSONBody(req.Body, &body)
+	err := parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PostUser request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//verify the session has a greater rank the user being created
@@ -70,7 +71,7 @@ type PutUserBody struct {
 	Rank int `json:"rank"`
 }
 
-func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PutUser(req *http.Request, params httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
@@ -79,10 +80,10 @@ func (h CoreHandlers) PutUser(req *http.Request, params httprouter.Params, sessi
 
 	//parse the body
 	var body PutUserBody
-	err := parseJSONBody(req.Body, &body)
+	err := parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PutUser request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//verify the session has a greater rank than the new rank
@@ -119,13 +120,13 @@ type PatchPasswordBody struct {
 	NewPassword string `json:"new_password"`
 }
 
-func (h CoreHandlers) PatchPassword(req *http.Request, _ httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PatchPassword(req *http.Request, _ httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the body
 	var body PatchPasswordBody
-	err := parseJSONBody(req.Body, &body)
+	err := parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PatchPassword request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//update the password
@@ -153,7 +154,7 @@ type PatchUserPasswordBody struct {
 	Password string `json:"password"`
 }
 
-func (h CoreHandlers) PatchUserPassword(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PatchUserPassword(req *http.Request, params httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
@@ -162,10 +163,10 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, params httprouter.Par
 
 	//parse the body
 	var body PatchUserPasswordBody
-	err := parseJSONBody(req.Body, &body)
+	err := parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PatchUserPasswordBody request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//verify the session has a greater rank than the user
@@ -201,7 +202,7 @@ func (h CoreHandlers) PatchUserPassword(req *http.Request, params httprouter.Par
 	return common.NewSuccessResponse()
 }
 
-func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) DeleteUser(_ *http.Request, params httprouter.Params, session *models.Session, _ parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//get the username
 	username := params.ByName("username")
 	if username == "" {
@@ -232,7 +233,7 @@ func (h CoreHandlers) DeleteUser(_ *http.Request, params httprouter.Params, sess
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newUserDataResponse(user *models.User) UserDataResponse {
+func (CoreAPIHandlers) newUserDataResponse(user *models.User) UserDataResponse {
 	return UserDataResponse{
 		Username: user.Username,
 		PutUserBody: PutUserBody{

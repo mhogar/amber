@@ -7,6 +7,7 @@ import (
 	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/parsers"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
@@ -16,7 +17,7 @@ type UserRoleDataResponse struct {
 	PostUserRoleBody
 }
 
-func (h CoreHandlers) GetUserRoles(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) GetUserRoles(_ *http.Request, params httprouter.Params, session *models.Session, _ parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the client id
 	clientID, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
@@ -46,7 +47,7 @@ type PostUserRoleBody struct {
 	Role     string `json:"role"`
 }
 
-func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PostUserRole(req *http.Request, params httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostUserRoleBody
 
 	//parse the client id
@@ -57,10 +58,10 @@ func (h CoreHandlers) PostUserRole(req *http.Request, params httprouter.Params, 
 	}
 
 	//parse the body
-	err = parseJSONBody(req.Body, &body)
+	err = parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PostUserRoleBody request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//verify the session has a greater rank than the user
@@ -94,7 +95,7 @@ type PutUserRoleBody struct {
 	Role string `json:"role"`
 }
 
-func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PutUserRole(req *http.Request, params httprouter.Params, session *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	var body PutUserRoleBody
 
 	//parse the client id
@@ -111,10 +112,10 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 	}
 
 	//parse the body
-	err = parseJSONBody(req.Body, &body)
+	err = parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PutUserRoleBody request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//verify the session has a greater rank than the user
@@ -144,7 +145,7 @@ func (h CoreHandlers) PutUserRole(req *http.Request, params httprouter.Params, s
 	return common.NewSuccessDataResponse(h.newUserRoleDataResponse(role))
 }
 
-func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, session *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, session *models.Session, _ parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the client id
 	clientID, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
@@ -182,7 +183,7 @@ func (h CoreHandlers) DeleteUserRole(_ *http.Request, params httprouter.Params, 
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newUserRoleDataResponse(role *models.UserRole) UserRoleDataResponse {
+func (CoreAPIHandlers) newUserRoleDataResponse(role *models.UserRole) UserRoleDataResponse {
 	return UserRoleDataResponse{
 		PostUserRoleBody: PostUserRoleBody{
 			Username: role.Username,

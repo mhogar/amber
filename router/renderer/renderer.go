@@ -26,11 +26,11 @@ type CoreRenderer struct {
 	Templates map[string]*template.Template
 }
 
-func (r CoreRenderer) RenderView(req *http.Request, data interface{}, templates ...string) []byte {
+func (r CoreRenderer) RenderView(baseURL string, data interface{}, templates ...string) []byte {
 	//create the data object
 	d := TemplateData{
 		AppName: config.GetAppName(),
-		BaseURL: "http://" + req.Host,
+		BaseURL: baseURL,
 		Data:    data,
 	}
 

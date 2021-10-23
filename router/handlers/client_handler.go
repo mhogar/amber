@@ -7,6 +7,7 @@ import (
 	"github.com/mhogar/amber/common"
 	"github.com/mhogar/amber/data"
 	"github.com/mhogar/amber/models"
+	"github.com/mhogar/amber/router/parsers"
 
 	"github.com/google/uuid"
 	"github.com/julienschmidt/httprouter"
@@ -17,7 +18,7 @@ type ClientDataResponse struct {
 	PostClientBody
 }
 
-func (h CoreHandlers) GetClients(_ *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) GetClients(_ *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
 	//get the clients
 	clients, cerr := h.Controllers.GetClients(CRUD)
 	if cerr.Type == common.ErrorTypeClient {
@@ -42,14 +43,14 @@ type PostClientBody struct {
 	KeyUri      string `json:"key_uri"`
 }
 
-func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostClientBody
 
 	//parse the body
-	err := parseJSONBody(req.Body, &body)
+	err := parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PostClient request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//create the client model
@@ -67,7 +68,7 @@ func (h CoreHandlers) PostClient(req *http.Request, _ httprouter.Params, _ *mode
 	return common.NewSuccessDataResponse(h.newClientDataResponse(client))
 }
 
-func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) PutClient(req *http.Request, params httprouter.Params, _ *models.Session, parser parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	var body PostClientBody
 
 	//parse the id
@@ -78,10 +79,10 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	}
 
 	//parse the body
-	err = parseJSONBody(req.Body, &body)
+	err = parser.ParseBody(req, &body)
 	if err != nil {
 		log.Println(common.ChainError("error parsing PutClient request body", err))
-		return common.NewBadRequestResponse("invalid json body")
+		return common.NewBadRequestResponse("invalid request body")
 	}
 
 	//create the client model
@@ -99,7 +100,7 @@ func (h CoreHandlers) PutClient(req *http.Request, params httprouter.Params, _ *
 	return common.NewSuccessDataResponse(h.newClientDataResponse(client))
 }
 
-func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, CRUD data.DataCRUD) (int, interface{}) {
+func (h CoreAPIHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ *models.Session, _ parsers.BodyParser, CRUD data.DataCRUD) (int, interface{}) {
 	//parse the id
 	id, err := uuid.Parse(params.ByName("id"))
 	if err != nil {
@@ -119,7 +120,7 @@ func (h CoreHandlers) DeleteClient(_ *http.Request, params httprouter.Params, _ 
 	return common.NewSuccessResponse()
 }
 
-func (CoreHandlers) newClientDataResponse(client *models.Client) ClientDataResponse {
+func (CoreAPIHandlers) newClientDataResponse(client *models.Client) ClientDataResponse {
 	return ClientDataResponse{
 		ID: client.UID.String(),
 		PostClientBody: PostClientBody{
